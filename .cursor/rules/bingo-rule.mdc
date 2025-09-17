@@ -1,0 +1,314 @@
+---
+alwaysApply: true
+---
+# Health Bingo App - Cursor Rules
+
+## Project Overview
+This is a React Native application for a group wellness Bingo game. The app uses Zustand for state management and React Query for remote state management. Players join challenges, complete health-related tasks on Bingo cards, and earn points in a competitive group setting.
+
+## Tech Stack
+- React Native 0.78.0
+- TypeScript
+- Zustand (state management)
+- React Query/TanStack Query (remote state)
+- React Navigation
+- React Native Safe Area Context
+
+
+## Code Style & Standards
+
+### General Principles
+- Write loosely coupled code
+- Always consider error handling
+- Use TypeScript for type safety
+- Follow React Native best practices
+- Keep components small and focused
+- Use functional components with hooks
+
+### Code Naming Conventions
+#### Variables and Functions
+
+- Use camelCase for variables and functions
+- Use descriptive names that explain purpose
+- Prefix boolean variables with `is`, `has`, `can`, etc.
+
+#### Constants
+
+- Use UPPER_SNAKE_CASE for constants
+- Use PascalCase for enum values
+
+### File Naming Conventions
+
+#### NON-Component Files
+
+All files except component files must follow this format:
+```
+xxx(filename: kebab-case).xxx(group-name: kebab-case).ts
+```
+
+**Examples:**
+- `auth.store.ts` - Zustand store for authentication
+- `api.types.ts` - API-related TypeScript types
+- `use-auth.hook.ts` - Authentication custom hook
+- `market.service.ts` - Market data service functions
+- `auth.middleware.ts` - Authentication middleware
+- `query.provider.tsx` - React Query provider component
+
+#### Component Files
+
+Component files should use PascalCase:
+
+- `Button.tsx` - Reusable UI component
+- `LoginForm.tsx` - Authentication form component
+- `Header.tsx` - Layout header component
+
+
+## TypeScript Rules
+
+### Type Safety
+
+- **Never use `any` type** - Always define proper types or use `unknown` if type is truly unknown
+- Use proper TypeScript interfaces and types for all data structures
+- Prefer `interface` for object shapes and `type` for unions, intersections, and utility types
+
+### Type Definitions
+
+```typescript
+// ✅ Good - Proper interface definition
+interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
+// ✅ Good - Union types
+type SubscriptionTier = 'free' | 'pro' | 'premium';
+
+// ❌ Bad - Using any
+const data: any = response.data;
+
+// ✅ Good - Using unknown or proper typing
+const data: unknown = response.data;
+const userData = data as User;
+```
+
+
+### Component Structure
+```typescript
+// Component template
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import type { ComponentProps } from './types';
+
+interface Props {
+  // Define props
+}
+
+export const ComponentName: React.FC<Props> = ({ prop1, prop2 }) => {
+  // Component logic
+  
+  return (
+    <View style={styles.container}>
+      {/* JSX */}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    // styles
+  },
+});
+```
+
+### State Management (Zustand)
+- Use Zustand for global state
+- Create separate stores for different domains (challenges, user, points)
+- Keep stores simple and focused
+- Use TypeScript interfaces for store state
+
+```typescript
+// Store template
+import { create } from 'zustand';
+import type { Challenge, User } from '../types';
+
+interface ChallengeStore {
+  challenges: Challenge[];
+  currentChallenge: Challenge | null;
+  addChallenge: (challenge: Challenge) => void;
+  setCurrentChallenge: (challenge: Challenge) => void;
+}
+
+export const useChallengeStore = create<ChallengeStore>((set) => ({
+  challenges: [],
+  currentChallenge: null,
+  addChallenge: (challenge) => 
+    set((state) => ({ challenges: [...state.challenges, challenge] })),
+  setCurrentChallenge: (challenge) => 
+    set({ currentChallenge: challenge }),
+}));
+```
+
+### React Query Usage
+- Use React Query for API calls and server state
+- Implement proper error handling
+- Use optimistic updates where appropriate
+- Cache data efficiently
+
+```typescript
+// Query template
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../services/api';
+
+export const useChallenges = () => {
+  return useQuery({
+    queryKey: ['challenges'],
+    queryFn: () => api.getChallenges(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useCreateChallenge = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (challenge: CreateChallengeData) => 
+      api.createChallenge(challenge),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['challenges'] });
+    },
+  });
+};
+```
+
+## Project Structure
+
+### Directory Organization
+```
+src/
+├── components/          # Reusable UI components
+│   ├── common/         # Generic components (Button, Input, etc.)
+│   ├── bingo/          # Bingo-specific components
+│   └── challenge/      # Challenge-related components
+├── screens/            # Screen components
+│   ├── auth/           # Authentication screens
+│   ├── dashboard/      # Main dashboard
+│   ├── challenge/      # Challenge screens
+│   └── profile/        # User profile screens
+├── store/              # Zustand stores
+├── services/           # API services and external integrations
+├── hooks/              # Custom React hooks
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+├── constants/          # App constants
+├── navigation/         # Navigation configuration
+└── assets/             # Images, fonts, etc.
+```
+
+## Error Handling
+
+### API Errors
+- Implement proper error boundaries
+- Show user-friendly error messages
+- Handle network connectivity issues
+- Retry failed requests when appropriate
+
+### Validation
+- Validate all user inputs
+- Show clear validation messages
+- Prevent invalid data submission
+
+## Performance Guidelines
+
+### React Native Best Practices
+- Use FlatList for long lists
+- Implement proper memoization
+- Avoid unnecessary re-renders
+- Optimize images and assets
+
+### State Management
+- Keep state normalized
+- Avoid deeply nested state
+- Use selectors for derived state
+- Implement proper loading states
+
+## Testing Guidelines
+
+### Unit Tests
+- Test utility functions
+- Test custom hooks
+- Test Zustand stores
+- Test React Query hooks
+
+### Component Tests
+- Test component rendering
+- Test user interactions
+- Test error states
+- Test loading states
+
+## Security Considerations
+
+### Data Protection
+- Validate all inputs
+- Sanitize data before display
+- Implement proper authentication
+- Handle sensitive data securely
+
+### API Security
+- Use HTTPS for all API calls
+- Implement proper authentication
+- Validate API responses
+- Handle token refresh
+
+## Accessibility
+
+### React Native Accessibility
+- Use proper accessibility labels
+- Implement screen reader support
+- Ensure proper color contrast
+- Support different text sizes
+
+## Comments & Documentation
+
+### Code Comments
+- Use simple, clear comments
+- Avoid unnecessary repetition
+- Document complex business logic
+- Explain non-obvious decisions
+
+### Component Documentation
+- Document component props
+- Explain component purpose
+- Provide usage examples
+- Document side effects
+
+## Git & Version Control
+
+### Commit Messages
+- Use conventional commit format
+- Be descriptive and clear
+- Reference issue numbers when applicable
+- Keep commits focused and atomic
+
+### Branch Strategy
+- Use feature branches for new features
+- Use descriptive branch names
+- Keep branches short-lived
+- Review code before merging
+
+## Development Workflow
+
+### Code Review
+- Review for business logic correctness
+- Check for security issues
+- Ensure proper error handling
+- Verify accessibility compliance
+
+### Testing
+- Write tests for new features
+- Ensure existing tests pass
+- Test on both iOS and Android
+- Test edge cases and error scenarios
+
+
+Remember: This is a wellness app focused on making health habits fun and engaging. Always prioritize user experience and motivation in your code decisions.

@@ -1,0 +1,374 @@
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Button, Input } from '../../components/ui';
+import { SCREEN_NAMES } from '../../constants/screens';
+import { useToast } from '../../hooks/useToast';
+import { CreateChallengeStackParamList } from '../../navigation/types';
+import { payWithPromoCode, validatePromoCode } from '../../services';
+import { COLORS, FONTS } from '../../theme';
+
+type ChallengePublishedRouteProp = RouteProp<
+  CreateChallengeStackParamList,
+  typeof SCREEN_NAMES._CREATE_CHALLENGE.CHALLENGE_PUBLISHED
+>;
+
+export const ChallengePublished: React.FC = () => {
+  const route = useRoute<ChallengePublishedRouteProp>();
+  const { challenge } = route.params;
+  const { showToast } = useToast();
+  const [promoCode, setPromoCode] = useState('');
+  const [isValidatePromoCode, setIsValidatePromoCode] = useState(false);
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  const navigation = useNavigation();
+
+  const getPlanDetails = (plan: string) => {
+    switch (plan) {
+      case 'premium':
+        return {
+          name: 'Premium Plan',
+          price: 29.99,
+          features: [
+            'Unlimited users',
+            'Advanced analytics',
+            'Custom challenges',
+            'Priority support',
+            'Export data',
+          ],
+        };
+      case 'pro':
+        return {
+          name: 'Pro Plan',
+          price: 19.99,
+          features: [
+            'Up to 20 players',
+            'Group chat',
+            'Weight loss tracker',
+            'Custom cards',
+            'Analytics',
+          ],
+        };
+      case 'free':
+      default:
+        return {
+          name: 'Free Plan',
+          price: 0,
+          features: [
+            'Up to 3 players',
+            '2-week max duration',
+            'Limited card size',
+            'Basic features only',
+          ],
+        };
+    }
+  };
+
+  const planDetails = getPlanDetails(challenge?.plan || 'premium');
+
+  const handleValidatePromo = async () => {
+    if (!promoCode.trim()) {
+      return;
+    }
+
+    try {
+      const result = await validatePromoCode(promoCode);
+
+      if (result.success) {
+        setIsValidatePromoCode(true);
+        console.log('Promo code validated successfully:', result.data);
+      } else {
+        setIsValidatePromoCode(false);
+        console.log('Promo code validation failed:', result.error);
+      }
+    } catch (error) {
+      setIsValidatePromoCode(false);
+      console.error('Error validating promo code:', error);
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  };
+
+  const handlePayNow = async () => {
+    if (isValidatePromoCode) {
+      // Pay with promo code
+      if (!promoCode.trim()) {
+        showToast('Please enter a promo code', 'error');
+        return;
+      }
+
+      setIsProcessingPayment(true);
+      try {
+        const result = await payWithPromoCode(challenge.id, promoCode);
+
+        if (result.success) {
+          showToast(`Payment successful!`, 'success');
+
+          navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+        } else {
+          showToast(result.error || 'Payment failed', 'error');
+        }
+      } catch (error) {
+        showToast('An error occurred during payment', 'error');
+      } finally {
+        setIsProcessingPayment(false);
+      }
+    } else {
+      // implement pay with stripe logic here ...
+    }
+  };
+
+  const handlePayLater = () => {
+    // Handle pay later option
+    console.log('Pay later selected');
+  };
+
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Complete Your Purchase</Text>
+        <Text style={styles.subtitle}>{challenge?.title || 'ASD'}</Text>
+      </View>
+
+      {/* Plan Details */}
+      <View style={styles.planContainer}>
+        <Text style={styles.planTitle}>{planDetails.name}</Text>
+        <View style={styles.priceContainer}>
+          {isValidatePromoCode ? (
+            <>
+              <Text style={styles.originalPrice}>
+                ${planDetails.price.toFixed(2)}
+              </Text>
+              <Text style={styles.discountedPrice}>$0.00</Text>
+            </>
+          ) : (
+            <Text style={styles.planPrice}>
+              ${planDetails.price.toFixed(2)}
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.featuresContainer}>
+          {planDetails.features.map((feature, index) => (
+            <Text key={index} style={styles.featureText}>
+              • {feature}
+            </Text>
+          ))}
+        </View>
+      </View>
+
+      {/* Promo Code Section */}
+      <View style={styles.promoContainer}>
+        <Text style={styles.promoTitle}>Have a promo code?</Text>
+        <View style={styles.promoInputContainer}>
+          <Input
+            placeholder="Enter promo code"
+            value={promoCode}
+            onChangeText={setPromoCode}
+            inputStyle={styles.promoInput}
+          />
+          <TouchableOpacity
+            style={[
+              styles.validateButton,
+              isValidatePromoCode && styles.validateButtonSuccess,
+            ]}
+            onPress={handleValidatePromo}
+            disabled={isValidatingPromo || !promoCode.trim()}
+          >
+            {isValidatingPromo ? (
+              <Icon name="hourglass-empty" size={20} color="#22C55E" />
+            ) : (
+              <Icon
+                name={isValidatePromoCode ? 'check-circle' : 'check'}
+                size={20}
+                color={isValidatePromoCode ? '#FFFFFF' : '#22C55E'}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Payment Buttons */}
+      <View style={styles.buttonContainer}>
+        <View style={styles.buttonRow}>
+          <Button
+            text={'Pay Now'}
+            onPress={handlePayNow}
+            variant="primary"
+            buttonStyle={styles.button}
+            textStyle={styles.buttonText}
+            loading={isProcessingPayment}
+          />
+          <Button
+            text="Pay Later"
+            onPress={handlePayLater}
+            variant="outline"
+            buttonStyle={styles.button}
+            textStyle={styles.buttonText}
+          />
+        </View>
+      </View>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    width: '100%',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 30,
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: FONTS.family.poppinsBold,
+    color: COLORS.text.primary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: FONTS.family.poppinsRegular,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
+  },
+  planContainer: {
+    backgroundColor: '#E8F5E8',
+    borderColor: '#C8E6C9',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 24,
+    position: 'relative',
+  },
+  planTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#166534',
+    textAlign: 'left',
+    marginBottom: 10,
+  },
+  priceContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    alignItems: 'flex-end',
+  },
+  planPrice: {
+    color: '#1E3A8A',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  originalPrice: {
+    color: '#9CA3AF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    textDecorationLine: 'line-through',
+    marginBottom: 2,
+  },
+  discountedPrice: {
+    color: '#22C55E',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  featuresContainer: {
+    marginBottom: 10,
+  },
+  featureRow: {
+    marginBottom: 8,
+  },
+  featureBullet: {
+    fontSize: 16,
+    color: '#374151',
+    marginBottom: 8,
+    textAlign: 'left',
+    lineHeight: 20,
+  },
+  featureText: {
+    fontSize: 16,
+    color: '#374151',
+    marginBottom: 8,
+    textAlign: 'left',
+    lineHeight: 20,
+  },
+  promoContainer: {
+    marginBottom: 32,
+  },
+  promoTitle: {
+    fontSize: 16,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.text.primary,
+    marginBottom: 12,
+  },
+  promoInputContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'flex-end',
+  },
+  promoInput: {
+    width: '75%',
+    borderWidth: 1,
+    borderColor: COLORS.gray.lightMedium,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    fontSize: 14,
+    fontFamily: FONTS.family.poppinsRegular,
+  },
+  validateButton: {
+    width: '22%',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#22C55E',
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  validateButtonSuccess: {
+    backgroundColor: '#22C55E',
+    borderColor: '#22C55E',
+  },
+  buttonContainer: {
+    width: '100%',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  button: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 12,
+  },
+  buttonText: {
+    fontSize: 14,
+    fontFamily: FONTS.family.poppinsBold,
+  },
+});
