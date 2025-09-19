@@ -6,8 +6,10 @@
  */
 import React from 'react';
 
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { STRIPE_PUBLISHABLE_KEY } from './src/constants/config';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ToastProvider } from './src/provider';
 import { ThemeProvider } from './src/provider/theme.provider';
@@ -21,6 +23,7 @@ if (__DEV__) {
 
 function App(): React.JSX.Element {
   return (
+    <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
       <ThemeProvider>
         <SafeAreaProvider>
           <ToastProvider>
@@ -28,6 +31,7 @@ function App(): React.JSX.Element {
           </ToastProvider>
         </SafeAreaProvider>
       </ThemeProvider>
+    </StripeProvider>
   );
 }
 

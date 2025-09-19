@@ -1,4 +1,5 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { usePaymentSheet } from '@stripe/stripe-react-native';
 import React, { useState } from 'react';
 import {
   ScrollView,
@@ -12,7 +13,11 @@ import { Button, Input } from '../../components/ui';
 import { SCREEN_NAMES } from '../../constants/screens';
 import { useToast } from '../../hooks/useToast';
 import { CreateChallengeStackParamList } from '../../navigation/types';
-import { payWithPromoCode, validatePromoCode } from '../../services';
+import {
+  confirmPayment,
+  payWithPromoCode,
+  validatePromoCode,
+} from '../../services';
 import { COLORS, FONTS } from '../../theme';
 
 type ChallengePublishedRouteProp = RouteProp<
@@ -30,6 +35,7 @@ export const ChallengePublished: React.FC = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const navigation = useNavigation();
+  const { initPaymentSheet, presentPaymentSheet, loading } = usePaymentSheet();
 
   const getPlanDetails = (plan: string) => {
     switch (plan) {
@@ -97,6 +103,34 @@ export const ChallengePublished: React.FC = () => {
     }
   };
 
+  const initializePaymentSheet = async () => {
+    if (!challenge?.client_secret) {
+      showToast('Payment information not available', 'error');
+      return false;
+    }
+
+    const { error } = await initPaymentSheet({
+      merchantDisplayName: 'Health Bingo',
+      paymentIntentClientSecret: challenge.client_secret,
+      allowsDelayedPaymentMethods: true,
+      defaultBillingDetails: {
+        name: 'Challenge Payment',
+      },
+    });
+
+    if (error) {
+      console.log('Payment sheet initialization error:', error);
+      showToast(
+        `Failed to initialize payment: ${error.message || error.code}`,
+        'error'
+      );
+      return false;
+    }
+
+    console.log('Payment sheet initialized successfully');
+    return true;
+  };
+
   const handlePayNow = async () => {
     if (isValidatePromoCode) {
       // Pay with promo code
@@ -111,7 +145,6 @@ export const ChallengePublished: React.FC = () => {
 
         if (result.success) {
           showToast(`Payment successful!`, 'success');
-
           navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
         } else {
           showToast(result.error || 'Payment failed', 'error');
@@ -122,7 +155,63 @@ export const ChallengePublished: React.FC = () => {
         setIsProcessingPayment(false);
       }
     } else {
-      // implement pay with stripe logic here ...
+      // Pay with Stripe
+      setIsProcessingPayment(true);
+
+      try {
+        const isInitialized = await initializePaymentSheet();
+
+        if (!isInitialized) {
+          console.log('Payment sheet initialization failed');
+          return;
+        }
+
+        const { error } = await presentPaymentSheet();
+
+        if (error) {
+          console.log('Stripe Payment Error:', error);
+          if (error.code !== 'Canceled') {
+            showToast(
+              `Payment failed: ${
+                error.message || error.code
+              }. Please try again.`,
+              'error'
+            );
+          }
+        } else {
+          // Payment succeeded, confirm with backend
+          try {
+            if (challenge?.payment_intent_id) {
+              const confirmResult = await confirmPayment(
+                challenge.id,
+                challenge.payment_intent_id
+              );
+
+              if (confirmResult.success) {
+                showToast('Payment successful!', 'success');
+                navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+              } else {
+                showToast(
+                  'Payment processed but failed to update status. Please contact support.',
+                  'info'
+                );
+              }
+            } else {
+              showToast('Payment successful!', 'success');
+              navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+            }
+          } catch (confirmError) {
+            showToast(
+              'Payment processed but failed to update status. Please contact support.',
+              'info'
+            );
+          }
+        }
+      } catch (error) {
+        showToast('An error occurred during payment', 'error');
+      } finally {
+        setIsProcessingPayment(false);
+      }
     }
   };
 
@@ -205,12 +294,12 @@ export const ChallengePublished: React.FC = () => {
       <View style={styles.buttonContainer}>
         <View style={styles.buttonRow}>
           <Button
-            text={'Pay Now'}
+            text={isValidatePromoCode ? 'Apply Promo & Pay' : 'Pay Now'}
             onPress={handlePayNow}
             variant="primary"
             buttonStyle={styles.button}
             textStyle={styles.buttonText}
-            loading={isProcessingPayment}
+            loading={isProcessingPayment || loading}
           />
           <Button
             text="Pay Later"

@@ -97,7 +97,7 @@ export const InviteParticipants: React.FC = () => {
       default_cards: defaultBingoCardIds,
     };
     try {
-      const { data, message } = await createChallenge(challenge);
+      const { data } = await createChallenge(challenge);
 
       navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.CHALLENGE_PUBLISHED, {
         challenge: data,
