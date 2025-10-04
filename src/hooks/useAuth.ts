@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
-import { signInService, signUpService } from '../services';
+import {
+  signInService,
+  signInWithGoogleService,
+  signUpService,
+} from '../services';
 import { useAuthStore } from '../store';
 
 export const useAuth = () => {
@@ -40,6 +44,31 @@ export const useAuth = () => {
     }
   };
 
+  const signInWithGoogle = async (idToken: string) => {
+    try {
+      setLoading(true);
+      const { data } = await signInWithGoogleService(idToken);
+
+      setToken(data.token);
+      setRefreshToken(data.refreshToken);
+      setUser({
+        email: data.user.email,
+        firstName: data.user.first_name,
+        lastName: data.user.last_name,
+        image: data.user.image,
+        id: data.user.id,
+      });
+      setAuthenticated(true);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to sign in with Google'
+      );
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const signUp = async (
     firstName: string,
     lastName: string,
@@ -66,12 +95,22 @@ export const useAuth = () => {
     () => ({
       signIn,
       signUp,
+      signInWithGoogle,
       token,
       isAuthenticated,
       user,
       loading,
       error,
     }),
-    [signIn, signUp, token, isAuthenticated, user, loading, error]
+    [
+      signIn,
+      signUp,
+      signInWithGoogle,
+      token,
+      isAuthenticated,
+      user,
+      loading,
+      error,
+    ]
   );
 };

@@ -114,7 +114,7 @@ export const PlayChallengeNavigator = () => {
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
-      initialRouteName={SCREEN_NAMES._PLAY_CHALLENGE.HOME}
+      initialRouteName={SCREEN_NAMES._PLAY_CHALLENGE.ENTER_WEIGHT}
     >
       <Stack.Screen
         name={SCREEN_NAMES._PLAY_CHALLENGE.HOME}

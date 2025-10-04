@@ -8,4 +8,4 @@ export const STRIPE_PUBLISHABLE_KEY =
 
 // Google Sign-In Configuration
 export const GOOGLE_WEB_CLIENT_ID =
-  '545790744553-526e2fs8tfbd6mochjbufarc1o3ojf0t.apps.googleusercontent.com';
+  '571025521754-lni2ac38h4csggfj6nlo03o2jstn9drd.apps.googleusercontent.com';

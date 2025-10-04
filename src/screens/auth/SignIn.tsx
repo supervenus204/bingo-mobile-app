@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -7,9 +7,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button, Input } from '../../components/ui';
+import { Button, GoogleSignInButton, Input } from '../../components/ui';
+import { GOOGLE_WEB_CLIENT_ID } from '../../constants/config';
 import { COLORS, FONTS } from '../../theme';
 
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN_NAMES } from '../../constants';
 import { useAuth } from '../../hooks';
@@ -19,10 +24,22 @@ export const SignInScreen: React.FC = () => {
   const [email, setEmail] = useState('seniordev55@gmail.com');
   const [password, setPassword] = useState('password');
 
-  const { signIn, loading, error, token, isAuthenticated } = useAuth();
+  const { signIn, loading, error, token, isAuthenticated, signInWithGoogle } =
+    useAuth();
   const { showToast } = useToast();
 
   const navigation = useNavigation();
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: GOOGLE_WEB_CLIENT_ID,
+      offlineAccess: false,
+      hostedDomain: '',
+      forceCodeForRefreshToken: false,
+      accountName: '',
+      iosClientId: '',
+    });
+  }, []);
 
   // useEffect(() => {
   //   if (isAuthenticated) {
@@ -45,9 +62,24 @@ export const SignInScreen: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      showToast('Google Sign In functionality will be implemented', 'info');
-    } catch (err) {
-      showToast('Google Sign In failed', 'error');
+      await GoogleSignin.hasPlayServices();
+
+      const userInfo = await GoogleSignin.signIn();
+
+      if (userInfo.data?.idToken) {
+        await signInWithGoogle(userInfo.data.idToken);
+        navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+      }
+    } catch (error: any) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        showToast('Sign in was cancelled', 'info');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        showToast('Sign in is already in progress', 'info');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        showToast('Play services not available', 'error');
+      } else {
+        showToast('Google Sign In failed', 'error');
+      }
     }
   };
 
@@ -115,13 +147,11 @@ export const SignInScreen: React.FC = () => {
           </View>
 
           {/* Google Sign In */}
-          <TouchableOpacity
-            style={styles.googleButton}
+          <GoogleSignInButton
             onPress={handleGoogleSignIn}
-          >
-            <Text style={styles.googleIcon}>G</Text>
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
+            disabled={loading}
+            loading={loading}
+          />
 
           {/* Create Account Section */}
           <View style={styles.createAccountContainer}>
@@ -217,36 +247,6 @@ const styles = StyleSheet.create({
     color: COLORS.gray.mediumDark,
     fontFamily: FONTS.family.poppinsMedium,
     fontSize: 12,
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.gray.mediumDark,
-    borderRadius: 999,
-    paddingVertical: 12,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  googleIcon: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#4285F4',
-    marginRight: 12,
-  },
-  googleButtonText: {
-    color: COLORS.gray.dark,
-    fontFamily: FONTS.family.poppinsMedium,
-    fontSize: 14,
   },
   createAccountContainer: {
     flexDirection: 'row',

@@ -19,6 +19,24 @@ export const signInService = async (email: string, password: string) => {
   return data;
 };
 
+export const signInWithGoogleService = async (idToken: string) => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({ idToken }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to sign in with Google');
+  }
+
+  const data = await parseJsonSafe(response);
+  return data;
+};
+
 export const signUpService = async (
   firstName: string,
   lastName: string,

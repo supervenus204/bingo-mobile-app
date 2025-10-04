@@ -29,7 +29,7 @@ export const AppNavigator = () => {
               paddingBottom: insets.bottom,
             },
           }}
-          initialRouteName={SCREEN_NAMES.WELCOME}
+          initialRouteName={SCREEN_NAMES.PLAY_CHALLENGE}
         >
           <Stack.Screen
             name={SCREEN_NAMES.WELCOME}
