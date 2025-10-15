@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import {
   Dimensions,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -104,38 +105,44 @@ export const ActiveChallenge: React.FC = () => {
               />
             </View>
 
-            {activeChallenges.map(ch => (
-              <ChallengeCard
-                key={ch.id}
-                title={ch.title}
-                status={ch.status as never}
-                currentWeek={ch.current_week ?? 1}
-                totalWeeks={ch.duration}
-                progress={(ch.current_week ?? 0) / Math.max(1, ch.duration)}
-                isOrganizer={true}
-                plan={ch.plan}
-                onPress={() => {
-                  setCurrentChallenge(ch as Challenge);
-                  rootNavigation.navigate(SCREEN_NAMES.PLAY_CHALLENGE);
-                }}
-                onPayPress={
-                  ch.status === 'unpaid'
-                    ? () => {
-                        const parent = navigation.getParent();
-                        if (parent) {
-                          parent.navigate(SCREEN_NAMES.CREATE_CHALLENGE, {
-                            screen:
-                              SCREEN_NAMES._CREATE_CHALLENGE
-                                .CHALLENGE_PUBLISHED,
-                            params: { challenge: ch },
-                          });
+            <ScrollView
+              style={styles.scrollContainer}
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {activeChallenges.map(ch => (
+                <ChallengeCard
+                  key={ch.id}
+                  title={ch.title}
+                  status={ch.status as never}
+                  currentWeek={ch.current_week ?? 1}
+                  totalWeeks={ch.duration}
+                  progress={(ch.current_week ?? 0) / Math.max(1, ch.duration)}
+                  isOrganizer={true}
+                  plan={ch.plan}
+                  onPress={() => {
+                    setCurrentChallenge(ch as Challenge);
+                    rootNavigation.navigate(SCREEN_NAMES.PLAY_CHALLENGE);
+                  }}
+                  onPayPress={
+                    ch.status === 'unpaid'
+                      ? () => {
+                          const parent = navigation.getParent();
+                          if (parent) {
+                            parent.navigate(SCREEN_NAMES.CREATE_CHALLENGE, {
+                              screen:
+                                SCREEN_NAMES._CREATE_CHALLENGE
+                                  .CHALLENGE_PUBLISHED,
+                              params: { challenge: ch },
+                            });
+                          }
                         }
-                      }
-                    : undefined
-                }
-                disabled={ch.status !== 'active'}
-              />
-            ))}
+                      : undefined
+                  }
+                  disabled={ch.status !== 'active'}
+                />
+              ))}
+            </ScrollView>
           </View>
         ))}
 
@@ -243,5 +250,11 @@ const styles = StyleSheet.create({
   topBtnText: {
     fontSize: 12,
     fontFamily: FONTS.family.poppinsMedium,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
 });

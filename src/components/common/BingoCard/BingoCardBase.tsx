@@ -35,12 +35,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   container: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
+    width: 80,
+    height: 80,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 2,
+    padding: 4,
     position: 'relative',
     shadowColor: '#000',
     shadowOffset: {
