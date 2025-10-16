@@ -2,32 +2,39 @@ import { useNavigation } from '@react-navigation/native';
 import { Image } from '@rneui/base';
 import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
-import { Button } from '../../components/ui';
-import { SCREEN_NAMES } from '../../constants/screens';
-import { FONTS } from '../../theme';
-import { COLORS } from '../../theme/_colors';
+import { Button } from '../components/ui';
+import { SCREEN_NAMES } from '../constants/screens';
+import { useOnboardingStore } from '../store';
+import { FONTS } from '../theme';
+import { COLORS } from '../theme/_colors';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
-export const FirstScreen: React.FC = () => {
+export const WelcomeScreen: React.FC = () => {
   const navigation = useNavigation();
+  const hasCompletedOnboarding = useOnboardingStore(s => s.hasCompletedOnboarding);
 
   const handleNext = () => {
-    navigation.navigate(SCREEN_NAMES._WELCOME.ONBOARDING as never);
+    if (hasCompletedOnboarding) {
+      navigation.navigate(SCREEN_NAMES.AUTH as never);
+    } else {
+      navigation.navigate(SCREEN_NAMES.ONBOARDING as never);
+    }
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image
-          source={require('../../assets/images/welcome/logo.png')}
-          style={styles.logo}
+          source={require('../assets/images/welcome/logo.png')}
+          style={styles.logo} 
         />
       </View>
 
       <View style={[styles.transitionIcon]}>
         <Image
-          source={require('../../assets/images/welcome/mark-1.png')}
+          source={require('../assets/images/welcome/mark-1.png')}
           style={styles.smallIcon}
         />
       </View>

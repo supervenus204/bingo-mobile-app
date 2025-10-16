@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -20,17 +20,23 @@ export const SignUpScreen: React.FC = () => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   const { signUp, loading } = useAuth();
   const { showToast } = useToast();
   const navigation = useNavigation();
 
-  const isFormValid = firstName && lastName && email && password && agreeTerms;
+  const isFormValid = useMemo(() => firstName && lastName && email && password && confirmPassword && agreeTerms, [firstName, lastName, email, password, confirmPassword, agreeTerms]);
 
   const handleSubmit = async () => {
     if (!isFormValid) {
       showToast('Please fill all fields and agree to terms', 'error');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showToast('Passwords do not match', 'error');
       return;
     }
 
@@ -95,6 +101,14 @@ export const SignUpScreen: React.FC = () => {
             placeholder="Enter your password ..."
             value={password}
             onChangeText={setPassword}
+            inputStyle={styles.input}
+            secureTextEntry
+          />
+
+          <Input
+            placeholder="Confirm your password ..."
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
             inputStyle={styles.input}
             secureTextEntry
           />

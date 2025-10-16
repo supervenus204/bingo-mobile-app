@@ -3,6 +3,7 @@ import { Challenge } from '../types';
 
 export type RootStackParamList = {
   [SCREEN_NAMES.WELCOME]: undefined;
+  [SCREEN_NAMES.ONBOARDING]: undefined;
   [SCREEN_NAMES.AUTH]: undefined;
   [SCREEN_NAMES.PLAY_CHALLENGE]: undefined;
   [SCREEN_NAMES.CREATE_CHALLENGE]: undefined;
@@ -10,8 +11,8 @@ export type RootStackParamList = {
 };
 
 export type WelcomeStackParamList = {
-  [SCREEN_NAMES._WELCOME.FIRSTSCREEN]: undefined;
-  [SCREEN_NAMES._WELCOME.ONBOARDING]: undefined;
+  [SCREEN_NAMES.WELCOME]: undefined;
+  [SCREEN_NAMES.ONBOARDING]: undefined;
 };
 
 export type AuthStackParamList = {

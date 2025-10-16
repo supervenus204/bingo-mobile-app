@@ -1,5 +1,5 @@
-// Welcome screens
-export * from './welcome';
+export * from './Welcome';
+export * from './Onboarding';
 
 // Auth screens
 export * from './auth';
@@ -11,4 +11,4 @@ export * from './dashboard';
 export * from './create-challenge';
 
 // Play challenge screens
-export * from './play-challenge';
+// export * from './play-challenge';

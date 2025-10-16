@@ -1,14 +1,10 @@
 export const SCREEN_NAMES = {
-  FIRST_SCREEN: 'FirstScreen',
   WELCOME: 'Welcome',
+  ONBOARDING: 'Onboarding',
   AUTH: 'Auth',
   PLAY_CHALLENGE: 'PlayChallenge',
   CREATE_CHALLENGE: 'CreateChallenge',
   DASHBOARD: 'Dashboard',
-  _WELCOME: {
-    FIRSTSCREEN: 'FirstScreen',
-    ONBOARDING: 'Onboarding',
-  },
   _AUTH: {
     SIGN_IN: 'SignIn',
     SIGN_UP: 'SignUp',

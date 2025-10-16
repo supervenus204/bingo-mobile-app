@@ -1,6 +1,7 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {SCREEN_NAMES} from '../constants';
-import {FirstScreen, OnboardingScreen} from '../screens/welcome';
+import {WelcomeScreen} from '../screens/Welcome';
+import { OnboardingScreen } from '../screens/Onboarding';
 import {WelcomeStackParamList} from './types';
 
 const Stack = createNativeStackNavigator<WelcomeStackParamList>();
@@ -11,13 +12,13 @@ export const WelcomeNavigator = () => {
       screenOptions={{
         headerShown: false,
       }}
-      initialRouteName={SCREEN_NAMES._WELCOME.FIRSTSCREEN}>
+      initialRouteName={SCREEN_NAMES.WELCOME}>
       <Stack.Screen
-        name={SCREEN_NAMES._WELCOME.FIRSTSCREEN}
-        component={FirstScreen}
+        name={SCREEN_NAMES.WELCOME}
+        component={WelcomeScreen}
       />
       <Stack.Screen
-        name={SCREEN_NAMES._WELCOME.ONBOARDING}
+        name={SCREEN_NAMES.ONBOARDING}
         component={OnboardingScreen}
       />
     </Stack.Navigator>

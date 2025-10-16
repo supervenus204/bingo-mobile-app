@@ -1,22 +1,26 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
-import { Button } from '../../components/ui';
-import { SCREEN_NAMES } from '../../constants/screens';
-import { FONTS } from '../../theme';
-import { COLORS } from '../../theme/_colors';
+import { Button } from '../components/ui';
+import { SCREEN_NAMES } from '../constants/screens';
+import { useOnboardingStore } from '../store';
+import { FONTS } from '../theme';
+import { COLORS } from '../theme/_colors';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 export const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation();
+  const setOnboardingCompleted = useOnboardingStore(s => s.setOnboardingCompleted);
+  const setOnboardingStep = useOnboardingStore(s => s.setOnboardingStep);
+  const onboardingStep = useOnboardingStore(s => s.onboardingStep);
 
   const pages = useMemo(
     () => [
       {
-        image: require('../../assets/images/welcome/image-1.png'),
-        mark: require('../../assets/images/welcome/mark-1.png'),
+        image: require('../assets/images/welcome/image-1.png'),
+        mark: require('../assets/images/welcome/mark-1.png'),
         title: 'Turn Habits Into Fun!',
         description:
           'Join challenges with friends & family, check off tasks, earn points, and celebrate every healthy win together',
@@ -24,8 +28,8 @@ export const OnboardingScreen: React.FC = () => {
         buttonColor: COLORS.welcome?.secondary,
       },
       {
-        image: require('../../assets/images/welcome/image-2.png'),
-        mark: require('../../assets/images/welcome/mark-2.png'),
+        image: require('../assets/images/welcome/image-2.png'),
+        mark: require('../assets/images/welcome/mark-2.png'),
         title: 'Track Your Weekly Wins!',
         description:
           'Mark off tasks, log your weight-ins, and watch your progress climb up the leaderboard each week!',
@@ -33,8 +37,8 @@ export const OnboardingScreen: React.FC = () => {
         buttonColor: COLORS.welcome?.tertiary,
       },
       {
-        image: require('../../assets/images/welcome/image-3.png'),
-        mark: require('../../assets/images/welcome/mark-3.png'),
+        image: require('../assets/images/welcome/image-3.png'),
+        mark: require('../assets/images/welcome/mark-3.png'),
         title: 'Stay Motivated Together',
         description:
           'Get supportive nudges, win weekly wild cards and join the Group Chat to boost accountability!',
@@ -42,29 +46,24 @@ export const OnboardingScreen: React.FC = () => {
         buttonColor: COLORS.welcome?.tertiary,
       },
     ],
-    [
-      COLORS.welcome?.tertiary,
-      COLORS.welcome?.primary,
-      COLORS.welcome?.secondary,
-    ]
+    []
   );
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-
   const handleSkip = () => {
-    // navigation.getParent()?.navigate(SCREEN_NAMES.AUTH);
-    setCurrentIndex(Math.max(currentIndex - 1, 0));
+    setOnboardingCompleted(true);
+    navigation.navigate(SCREEN_NAMES.AUTH as never);
   };
 
   const handleNext = () => {
-    if (currentIndex < pages.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+    if (onboardingStep < pages.length - 1) {
+      setOnboardingStep(onboardingStep + 1);
     } else {
+      setOnboardingCompleted(true);
       navigation.navigate(SCREEN_NAMES.AUTH as never);
     }
   };
 
-  const currentPage = pages[currentIndex];
+  const currentPage = pages[onboardingStep];
 
   return (
     <View style={styles.container}>
@@ -96,13 +95,13 @@ export const OnboardingScreen: React.FC = () => {
             styles.buttonContainer,
             {
               justifyContent:
-                currentIndex === pages.length - 1
+                onboardingStep === pages.length - 1
                   ? 'space-around'
                   : 'space-between',
             },
           ]}
         >
-          {currentIndex < pages.length - 1 && (
+          {onboardingStep < pages.length - 1 && (
             <Button
               text="Skip"
               textStyle={styles.buttonText}
@@ -119,7 +118,7 @@ export const OnboardingScreen: React.FC = () => {
             buttonStyle={{
               ...styles.button,
               backgroundColor: currentPage.buttonColor,
-              width: currentIndex === pages.length - 1 ? '80%' : '48%',
+              width: onboardingStep === pages.length - 1 ? '80%' : '48%',
             }}
             textStyle={styles.buttonText}
             onPress={handleNext}
