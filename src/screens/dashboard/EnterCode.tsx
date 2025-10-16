@@ -21,7 +21,7 @@ export const EnterCode: React.FC = () => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const { show } = useToast();
+  const { showToast } = useToast();
 
   const handleJoin = async () => {
     try {
@@ -32,11 +32,7 @@ export const EnterCode: React.FC = () => {
         challenge,
       });
     } catch (error) {
-      show({
-        message:
-          error instanceof Error ? error.message : 'Something went wrong',
-        type: 'error',
-      });
+      showToast(error instanceof Error ? error.message : 'Something went wrong', 'error');
     } finally {
       setLoading(false);
     }

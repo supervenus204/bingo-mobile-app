@@ -24,7 +24,7 @@ export const SignInScreen: React.FC = () => {
   const [email, setEmail] = useState('seniordev55@gmail.com');
   const [password, setPassword] = useState('password');
 
-  const { signIn, loading, error, token, isAuthenticated, signInWithGoogle } =
+  const { signIn, loading, isAuthenticated, signInWithGoogle } =
     useAuth();
   const { showToast } = useToast();
 
@@ -41,11 +41,11 @@ export const SignInScreen: React.FC = () => {
     });
   }, []);
 
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
-  //   }
-  // }, [isAuthenticated]);
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+    }
+  }, [isAuthenticated]);
 
   const handleSubmit = async () => {
     try {

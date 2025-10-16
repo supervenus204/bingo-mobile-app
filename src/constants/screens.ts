@@ -8,6 +8,7 @@ export const SCREEN_NAMES = {
   _AUTH: {
     SIGN_IN: 'SignIn',
     SIGN_UP: 'SignUp',
+    PROFILE_SETUP: 'ProfileSetup',
   },
   _PLAY_CHALLENGE: {
     HOME: 'Home',

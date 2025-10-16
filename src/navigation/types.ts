@@ -18,6 +18,7 @@ export type WelcomeStackParamList = {
 export type AuthStackParamList = {
   [SCREEN_NAMES._AUTH.SIGN_IN]: undefined;
   [SCREEN_NAMES._AUTH.SIGN_UP]: undefined;
+  [SCREEN_NAMES._AUTH.PROFILE_SETUP]: undefined;
 };
 
 export type ChallengeStackParamList = {

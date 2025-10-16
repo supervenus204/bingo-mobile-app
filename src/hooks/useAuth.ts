@@ -1,4 +1,6 @@
+import { useNavigation } from '@react-navigation/native';
 import { useMemo } from 'react';
+import { SCREEN_NAMES } from '../constants';
 import {
   signInService,
   signInWithGoogleService,
@@ -20,6 +22,8 @@ export const useAuth = () => {
     setAuthenticated,
     setRefreshToken,
   } = useAuthStore();
+
+  const navigation = useNavigation();
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -83,6 +87,8 @@ export const useAuth = () => {
         email,
         password
       );
+      setToken(data.token);
+      navigation.navigate(SCREEN_NAMES._AUTH.PROFILE_SETUP as never);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign up');
       throw err;

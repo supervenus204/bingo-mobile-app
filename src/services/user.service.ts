@@ -2,9 +2,10 @@ import { AuthUser } from '../store/auth.store';
 import { apiFetch } from '../utils';
 
 export interface UpdateProfileData {
-  firstName?: string;
-  lastName?: string;
+  display_name?: string;
   country?: string;
+  timezone?: string;
+  push_reminders?: boolean;
   image?: string;
 }
 
@@ -13,13 +14,15 @@ export interface ChangePasswordData {
   newPassword: string;
 }
 
-export const updateProfile = async (data: UpdateProfileData): Promise<any> => {
-  const response = await apiFetch('/api/user/profile', 'PATCH', {
-    first_name: data.firstName,
-    last_name: data.lastName,
-    country: data.country,
-    image: data.image,
+export const checkDisplayName = async (displayName: string): Promise<boolean> => {
+  const response = await apiFetch('/api/user/check-display-name', 'POST', {
+    display_name: displayName,
   });
+  return response.available;
+};
+
+export const updateProfile = async (data: UpdateProfileData): Promise<any> => {
+  const response = await apiFetch('/api/user/profile', 'PATCH', data);
   return response;
 };
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import CountryPicker from 'react-native-country-picker-modal';
 import { Avatar } from '../../components/common';
+import { DashboardFooter, DashboardHeader } from '../../components/dashboard';
 import { Button, Input } from '../../components/ui';
 import { useUser } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
@@ -46,120 +47,133 @@ export const Profile: React.FC = () => {
 
   if (!user) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>No user data available</Text>
+      <View style={styles.wrapper}>
+        <DashboardHeader title="Profile" />
+        <View style={styles.content}>
+          <Text style={styles.errorText}>No user data available</Text>
+        </View>
+        <DashboardFooter />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profileSection}>
-        <Avatar
-          firstName={user.firstName as string}
-          lastName={user.lastName as string}
-          image={user.image as string}
-          size={80}
-        />
+    <View style={styles.wrapper}>
+      <DashboardHeader title="Profile" />
 
-        <View style={styles.userInfo}>
-          <Text style={styles.userName}>
-            {user.firstName || ''} {user.lastName || ''}
-          </Text>
-          <Text style={styles.userEmail}>{user.email}</Text>
+      <View style={styles.content}>
+        <View style={styles.profileSection}>
+          <Avatar
+            firstName={user.firstName as string}
+            lastName={user.lastName as string}
+            image={user.image as string}
+            size={80}
+          />
+
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>
+              {user.firstName || ''} {user.lastName || ''}
+            </Text>
+            <Text style={styles.userEmail}>{user.email}</Text>
+          </View>
         </View>
+
+        {isEditMode ? (
+          <>
+            <View style={styles.inputContainer}>
+              <Text style={styles.sectionTitle}>First Name</Text>
+              <Input
+                inputStyle={styles.input}
+                value={firstName}
+                onChangeText={setFirstName}
+                placeholder="Enter your first name"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.sectionTitle}>Last Name</Text>
+              <Input
+                inputStyle={styles.input}
+                value={lastName}
+                onChangeText={setLastName}
+                placeholder="Enter your last name"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.sectionTitle}>Country</Text>
+              <CountryPicker
+                {...{
+                  countryCode: country as any,
+                  withFilter: true,
+                  withFlag: true,
+                  withCountryNameButton: true,
+                  withAlphaFilter: false,
+                  withCallingCode: false,
+                  withEmoji: true,
+                  onSelect: country => setCountry(country.cca2),
+                }}
+              />
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <Button
+                text="Cancel"
+                onPress={toggleEditMode}
+                buttonStyle={styles.cancelButton}
+                textStyle={styles.cancelButtonText}
+                variant="outline"
+              />
+              <Button
+                text={loading ? 'Saving...' : 'Save'}
+                onPress={handleSaveProfile}
+                buttonStyle={styles.saveButton}
+                textStyle={styles.saveButtonText}
+                disabled={loading}
+              />
+            </View>
+          </>
+        ) : (
+          <View style={styles.viewMode}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>First Name</Text>
+              <Text style={styles.infoValue}>{user.firstName || 'Not set'}</Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Last Name</Text>
+              <Text style={styles.infoValue}>{user.lastName || 'Not set'}</Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Country</Text>
+              <Text style={styles.infoValue}>
+                {country ? `${country}` : 'Not selected'}
+              </Text>
+            </View>
+
+            <Button
+              text="Edit Profile"
+              onPress={toggleEditMode}
+              buttonStyle={styles.editButton}
+              textStyle={styles.editButtonText}
+            />
+          </View>
+        )}
       </View>
 
-      {isEditMode ? (
-        <>
-          <View style={styles.inputContainer}>
-            <Text style={styles.sectionTitle}>First Name</Text>
-            <Input
-              inputStyle={styles.input}
-              value={firstName}
-              onChangeText={setFirstName}
-              placeholder="Enter your first name"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.sectionTitle}>Last Name</Text>
-            <Input
-              inputStyle={styles.input}
-              value={lastName}
-              onChangeText={setLastName}
-              placeholder="Enter your last name"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.sectionTitle}>Country</Text>
-            <CountryPicker
-              {...{
-                countryCode: country as any,
-                withFilter: true,
-                withFlag: true,
-                withCountryNameButton: true,
-                withAlphaFilter: false,
-                withCallingCode: false,
-                withEmoji: true,
-                onSelect: country => setCountry(country.cca2),
-              }}
-            />
-          </View>
-
-          <View style={styles.buttonContainer}>
-            <Button
-              text="Cancel"
-              onPress={toggleEditMode}
-              buttonStyle={styles.cancelButton}
-              textStyle={styles.cancelButtonText}
-              variant="outline"
-            />
-            <Button
-              text={loading ? 'Saving...' : 'Save'}
-              onPress={handleSaveProfile}
-              buttonStyle={styles.saveButton}
-              textStyle={styles.saveButtonText}
-              disabled={loading}
-            />
-          </View>
-        </>
-      ) : (
-        <View style={styles.viewMode}>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>First Name</Text>
-            <Text style={styles.infoValue}>{user.firstName || 'Not set'}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Last Name</Text>
-            <Text style={styles.infoValue}>{user.lastName || 'Not set'}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Country</Text>
-            <Text style={styles.infoValue}>
-              {country ? `${country}` : 'Not selected'}
-            </Text>
-          </View>
-
-          <Button
-            text="Edit Profile"
-            onPress={toggleEditMode}
-            buttonStyle={styles.editButton}
-            textStyle={styles.editButtonText}
-          />
-        </View>
-      )}
+      <DashboardFooter />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     flex: 1,
     backgroundColor: COLORS.white,
+  },
+  content: {
+    flex: 1,
     paddingHorizontal: 20,
     paddingTop: 20,
   },

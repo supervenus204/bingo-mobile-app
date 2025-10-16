@@ -166,7 +166,6 @@ export const COLORS = {
     salmon: '#F58BA2',
     cherry: '#F9B1C3',
     lavender: '#FEF0F3',
-    
   },
 
   text: {
