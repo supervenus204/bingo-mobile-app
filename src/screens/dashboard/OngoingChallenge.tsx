@@ -30,22 +30,24 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 type NavigationProp = NativeStackNavigationProp<DashboardStackParamList>;
 
 export const OngoingChallenge: React.FC = () => {
-  const { challenges, loading, error } = useChallenges({ auto: true });
-  const [activeChallenges, setActiveChallenges] = useState<Challenge[]>([]);
+  const { challenges, loading } = useChallenges({ auto: true });
+  const [ongoingChallenges, setOngoingChallenges] = useState<Challenge[]>([]);
   const { setCurrentChallenge } = useChallengesStore();
 
   const navigation = useNavigation<NavigationProp>();
   const rootNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
-    const getActiveChallenges = () => {
-      const activeChallenges = challenges.filter(
-        challenge => challenge.status !== 'finish'
+    const getOngoingChallenges = () => {
+      const ongoingChallenges = challenges.filter(
+        challenge => challenge.status === 'active' || challenge.status === 'pending' || challenge.status === 'unpaid'
       );
-      setActiveChallenges(activeChallenges);
+      setOngoingChallenges(ongoingChallenges);
     };
-    getActiveChallenges();
+    getOngoingChallenges();
   }, [challenges]);
+
+  console.log('ongoingChallenges', ongoingChallenges);
 
   return (
     <View style={styles.wrapper}>
@@ -62,7 +64,7 @@ export const OngoingChallenge: React.FC = () => {
 
       < View style={styles.content} >
         {!loading &&
-          (activeChallenges.length === 0 ? (
+          (ongoingChallenges.length === 0 ? (
             <View style={styles.container}>
               <View style={styles.imageContainer}>
                 <Image
@@ -128,7 +130,7 @@ export const OngoingChallenge: React.FC = () => {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
               >
-                {activeChallenges.map(ch => (
+                {ongoingChallenges.map(ch => (
                   <ChallengeCard
                     key={ch.id}
                     title={ch.title}
@@ -137,7 +139,6 @@ export const OngoingChallenge: React.FC = () => {
                     totalWeeks={ch.duration}
                     progress={(ch.current_week ?? 0) / Math.max(1, ch.duration)}
                     isOrganizer={true}
-                    plan={ch.plan}
                     onPress={() => {
                       setCurrentChallenge(ch as Challenge);
                       rootNavigation.navigate(SCREEN_NAMES.PLAY_CHALLENGE);
@@ -157,7 +158,7 @@ export const OngoingChallenge: React.FC = () => {
                         }
                         : undefined
                     }
-                    disabled={ch.status !== 'active'}
+                    disabled={!ch.is_organizer && ch.status !== 'active'}
                   />
                 ))}
               </ScrollView>

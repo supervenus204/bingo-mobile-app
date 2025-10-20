@@ -4,25 +4,21 @@ import { COLORS, FONTS } from '../../theme';
 
 interface ProfileIconProps {
   image?: string | null;
-  firstName?: string;
-  lastName?: string;
+  initialsText?: string;
   size?: number;
 }
 
 export const ProfileIcon: React.FC<ProfileIconProps> = ({
   image,
-  firstName,
-  lastName,
+  initialsText,
   size = 40,
 }) => {
-  const getInitials = () => {
-    const first = firstName?.charAt(0) || '';
-    const last = lastName?.charAt(0) || '';
-    return (first + last).toUpperCase() || 'U';
-  };
-
   const getBackgroundColor = () => {
-    const name = (firstName || '') + (lastName || '');
+    const name = initialsText || '';
+    let value = 0;
+    for (let i = 0; i < name.length; i++) {
+      value += name.charCodeAt(i);
+    }
     const colors = [
       COLORS.primary.green.sgbus,
       COLORS.primary.blue.oxford,
@@ -30,7 +26,7 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
       COLORS.secondary.purple.lavender,
       COLORS.secondary.blue.argentinian,
     ];
-    const index = name.length % colors.length;
+    const index = value % colors.length;
     return colors[index];
   };
 
@@ -60,7 +56,7 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
           { fontSize: size * 0.4 },
         ]}
       >
-        {getInitials()}
+        {initialsText?.toUpperCase()}
       </Text>
     </View>
   );

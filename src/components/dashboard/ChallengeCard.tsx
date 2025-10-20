@@ -14,8 +14,8 @@ type Props = {
   currentWeek: number;
   totalWeeks: number;
   progress: number; // 0..1
-  plan: string;
   status: 'active' | 'pending' | 'in_active' | 'finished' | 'unpaid';
+  categoryName?: string;
   containerStyle?: ViewStyle;
   isOrganizer?: boolean;
   disabled?: boolean;
@@ -27,8 +27,8 @@ export const ChallengeCard: React.FC<Props> = ({
   title,
   currentWeek,
   totalWeeks,
-  plan,
   progress,
+  categoryName,
   containerStyle,
   isOrganizer,
   onPress,
@@ -62,8 +62,8 @@ export const ChallengeCard: React.FC<Props> = ({
       onPress={onPress}
       style={[
         styles.card,
+        isOrganizer ? styles.organizerCard : styles.participantCard,
         containerStyle,
-        isOrganizer && { backgroundColor: COLORS.white },
         disabled && { opacity: 0.5 },
       ]}
       disabled={disabled}
@@ -74,11 +74,16 @@ export const ChallengeCard: React.FC<Props> = ({
           <Text style={styles.title}>{title}</Text>
         </View>
         <Label
-          text={isOrganizer ? 'Hosting' : 'Joined'}
-          variant={isOrganizer ? 'outline' : 'primary'}
+          text={status.toUpperCase()}
           labelStyle={styles.statusPill}
           textStyle={styles.statusText}
         />
+      </View>
+
+      <View style={styles.subRow}>
+        {categoryName ? (
+          <Text style={[styles.planText, { fontFamily: FONTS.family.poppinsMedium }]}>{categoryName}</Text>
+        ) : null}
       </View>
 
       <View style={styles.subRow}>
@@ -92,10 +97,6 @@ export const ChallengeCard: React.FC<Props> = ({
 
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${percent * 100}%` }]} />
-      </View>
-
-      <View style={styles.subRow}>
-        <Text style={styles.planText}>{plan}</Text>
       </View>
 
       {status === 'unpaid' && onPayPress && (
@@ -113,16 +114,21 @@ export const ChallengeCard: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#F8F8F8',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#E8F5E8',
+    borderColor: COLORS.gray.lightMedium,
     padding: 14,
     marginVertical: 8,
     shadowColor: COLORS.black,
     shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
+  },
+  organizerCard: {
+    backgroundColor: COLORS.white,
+  },
+  participantCard: {
+    backgroundColor: COLORS.gray.light,
   },
   headerRow: {
     flexDirection: 'row',

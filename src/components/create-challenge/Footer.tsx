@@ -1,8 +1,8 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
-import {COLORS} from '../../theme';
+import { StyleSheet, View } from 'react-native';
+import { COLORS } from '../../theme';
 
-export const Footer: React.FC<{children: React.ReactNode}> = ({children}) => {
+export const Footer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <View style={styles.container}>{children}</View>;
 };
 

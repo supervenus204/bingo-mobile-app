@@ -56,8 +56,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               trigger={
                 <ProfileIcon
                   image={user?.image}
-                  firstName={user?.firstName}
-                  lastName={user?.lastName}
+                  initialsText={(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')}
                   size={40}
                 />
               }

@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
+  Animated,
+  Dimensions,
   Modal as RNModal,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
-  Animated,
 } from 'react-native';
 
 interface ModalProps {
@@ -12,6 +13,7 @@ interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   showBackdrop?: boolean;
+  widthPercentage?: number;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -19,9 +21,12 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   children,
   showBackdrop = true,
+  widthPercentage = 85,
 }) => {
-  const fadeAnim = new Animated.Value(0);
-  const scaleAnim = new Animated.Value(0.8);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const screenWidth = Dimensions.get('window').width;
+  const modalWidth = (screenWidth * widthPercentage) / 100;
 
   useEffect(() => {
     if (visible) {
@@ -52,7 +57,7 @@ export const Modal: React.FC<ModalProps> = ({
         }),
       ]).start();
     }
-  }, [visible, fadeAnim, scaleAnim]);
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -65,10 +70,11 @@ export const Modal: React.FC<ModalProps> = ({
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
-          <TouchableWithoutFeedback onPress={() => {}}>
+          <TouchableWithoutFeedback onPress={() => { }}>
             <Animated.View
               style={[
                 styles.modalContainer,
+                { width: modalWidth },
                 {
                   opacity: fadeAnim,
                   transform: [{ scale: scaleAnim }],
@@ -104,7 +110,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 8,
-    minWidth: 280,
-    maxWidth: 320,
+    maxWidth: '95%',
   },
 });

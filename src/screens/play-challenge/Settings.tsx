@@ -13,7 +13,7 @@ import { useChallengesStore } from '../../store';
 import { COLORS } from '../../theme';
 import { BingoCard } from '../../types';
 
-export const Manage: React.FC = () => {
+export const Settings: React.FC = () => {
   const { currentChallenge } = useChallengesStore();
   const categoryId = currentChallenge?.category_id;
   const totalWeeks = currentChallenge?.duration || 12;

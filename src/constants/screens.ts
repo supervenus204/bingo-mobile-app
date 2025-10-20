@@ -11,12 +11,12 @@ export const SCREEN_NAMES = {
     PROFILE_SETUP: 'ProfileSetup',
   },
   _PLAY_CHALLENGE: {
-    HOME: 'Home',
+    BINGO: 'Bingo',
     ENTER_WEIGHT: 'EnterWeight',
-    PROFILE: 'Participants',
-    GROUP_CHAT: 'GroupChat',
+    CHAT: 'Chat',
     LEADERBOARD: 'Leaderboard',
-    MANAGE: 'Manage',
+    USERS: 'Users',
+    SETTINGS: 'Settings',
   },
   _CREATE_CHALLENGE: {
     CHOOSE_PLAN: 'ChoosePlan',

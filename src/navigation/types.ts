@@ -22,12 +22,12 @@ export type AuthStackParamList = {
 };
 
 export type ChallengeStackParamList = {
-  [SCREEN_NAMES._PLAY_CHALLENGE.HOME]: { challengeId?: string } | undefined;
-  [SCREEN_NAMES._PLAY_CHALLENGE.ENTER_WEIGHT]: undefined;
-  [SCREEN_NAMES._PLAY_CHALLENGE.PROFILE]: undefined;
-  [SCREEN_NAMES._PLAY_CHALLENGE.GROUP_CHAT]: undefined;
+  [SCREEN_NAMES._PLAY_CHALLENGE.BINGO]: { challengeId?: string } | undefined;
+  [SCREEN_NAMES._PLAY_CHALLENGE.CHAT]: undefined;
   [SCREEN_NAMES._PLAY_CHALLENGE.LEADERBOARD]: undefined;
-  [SCREEN_NAMES._PLAY_CHALLENGE.MANAGE]: undefined;
+  [SCREEN_NAMES._PLAY_CHALLENGE.USERS]: undefined;
+  [SCREEN_NAMES._PLAY_CHALLENGE.SETTINGS]: undefined;
+  [SCREEN_NAMES._PLAY_CHALLENGE.ENTER_WEIGHT]: undefined;
 };
 
 export type CreateChallengeStackParamList = {

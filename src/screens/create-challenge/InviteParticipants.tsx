@@ -198,7 +198,7 @@ export const InviteParticipants: React.FC = () => {
           <View style={styles.inputRow}>
             <TextInput
               style={styles.input}
-              placeholder="Add email address or @username"
+              placeholder="Input email or @username"
               placeholderTextColor={COLORS.gray.mediumDark}
               value={value}
               onChangeText={setValue}
