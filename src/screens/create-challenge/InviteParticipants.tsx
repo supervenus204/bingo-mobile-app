@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   ScrollView,
@@ -12,30 +12,24 @@ import {
 } from 'react-native';
 import { Footer } from '../../components/create-challenge/Footer';
 import { Header } from '../../components/create-challenge/Header';
+import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
-import { plans } from '../../data/plans';
-import { useToast } from '../../hooks/useToast';
+import { usePlans, useToast } from '../../hooks';
 import { CreateChallengeStackParamList } from '../../navigation/types';
-import { createChallenge } from '../../services';
-import { useCreateStore } from '../../store';
+import { createChallenge, searchUsers } from '../../services';
+import { Participant, useCreateStore } from '../../store';
 import { COLORS } from '../../theme';
-
-type Participant = {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-};
 
 type NavigationProp = NativeStackNavigationProp<CreateChallengeStackParamList>;
 
 export const InviteParticipants: React.FC = () => {
-  const handleBack = () => {
-    // Handle back navigation
-  };
   const navigation = useNavigation<NavigationProp>();
+  const { getPlanById } = usePlans();
+  const [value, setValue] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+
   const { showToast } = useToast();
-  const [emailInput, setEmailInput] = useState('');
   const {
     title,
     plan,
@@ -51,28 +45,64 @@ export const InviteParticipants: React.FC = () => {
   const isValidEmail = (email: string) =>
     /[^@\s]+@[^@\s]+\.[^@\s]+/.test(email.trim());
 
-  const existingEmails = useMemo(
-    () => new Set(participants.map(p => (p || '').toLowerCase())),
-    [participants]
-  );
+  const isUsernameSearch = (input: string) => input.startsWith('@');
+
+  const checkEmailExists = (email: string) => {
+    return participants.some(p => p.email.toLowerCase() === email.toLowerCase());
+  }
 
   const maxParticipants =
-    plans[plan as keyof typeof plans]?.maxParticipants || 3;
+    getPlanById(plan as string)?.maxParticipants || 3;
   const isAtLimit = participants.length >= maxParticipants;
 
-  const handleAddEmail = () => {
-    const value = emailInput.trim();
-    if (!isValidEmail(value)) return;
-    if (existingEmails.has(value.toLowerCase())) return;
-    setParticipants((prev: string[]) => [...prev, value]);
-    setEmailInput('');
+  const handleAddParticipant = async () => {
+    setLoading(true);
+    if (isAtLimit) {
+      showToast('You have reached the maximum number of participants');
+      setLoading(false);
+      return;
+    }
+    if (isUsernameSearch(value)) {
+      const username = value.substring(1);
+      if (username.length === 0) {
+        showToast('Username is required');
+        setLoading(false);
+        return;
+      }
+      const user = await searchUsers(username);
+      if (user) {
+        if (checkEmailExists(user.email)) {
+          showToast('User already added');
+          setLoading(false);
+          return;
+        }
+        setParticipants((prev: Participant[]) => [...prev, { email: user.email, displayName: user.display_name, image: user.image }]);
+      } else {
+        showToast('User not found');
+        setLoading(false);
+      }
+    } else {
+      if (isValidEmail(value)) {
+        if (checkEmailExists(value)) {
+          showToast('User already added');
+          setLoading(false);
+          return;
+        }
+        setParticipants((prev: Participant[]) => [...prev, { email: value }]);
+      } else {
+        showToast('Invalid email');
+      }
+    }
+    setValue('');
+    setLoading(false);
   };
 
-  const handleRemove = (id: string) => {
-    setParticipants((prev: string[]) => prev.filter(p => p !== id));
+  const handleRemove = (participant: Participant) => {
+    setParticipants((prev: Participant[]) => prev.filter(p => p !== participant));
   };
 
   const handlePublish = async () => {
+    setPublishing(true);
     // Custom bingo cards: only name, color, count
     const customBingoCards = bingoCards
       .filter(card => card.count > 0 && card.type === 'custom')
@@ -92,7 +122,7 @@ export const InviteParticipants: React.FC = () => {
       category_id: categoryId,
       card_size: cardSize,
       is_organizer_participant: isOrganizerParticipant,
-      participants,
+      participants: participants.map(p => p.email),
       custom_cards: customBingoCards,
       default_cards: defaultBingoCardIds,
     };
@@ -102,80 +132,101 @@ export const InviteParticipants: React.FC = () => {
       navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.CHALLENGE_PUBLISHED, {
         challenge: data,
       });
-    } catch (error) {}
+    } catch (error) {
+      showToast('Failed to publish challenge');
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+  }
+
+  const handleBack = () => {
+    navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.DEFINE_CHALLENGE as never);
   };
 
   return (
-    <View style={styles.container}>
-      <Header
-        title="Invite Participants"
-        step={3}
-        totalSteps={3}
-        onBack={handleBack}
-      />
-
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.participantInfo}>
-          <Text style={styles.participantCount}>
-            Participants ({participants.length}/{maxParticipants})
-          </Text>
-          <Text style={styles.planInfo}>{plan} Plan</Text>
-        </View>
-
-        <View style={styles.list}>
-          {participants.map((item, index) => (
-            <View key={item} style={styles.row}>
-              <Image
-                source={require('../../assets/images/create-challenge/default-avatar.png')}
-                style={styles.avatar}
-              />
-              <Text style={styles.rowText}>{item}</Text>
-              <TouchableOpacity
-                onPress={() => handleRemove(item)}
-                style={styles.deleteBtn}
-              >
-                <Text style={styles.deleteBtnText}>×</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.input}
-            placeholder="Add email address"
-            placeholderTextColor={COLORS.gray.mediumDark}
-            value={emailInput}
-            onChangeText={setEmailInput}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="done"
-            onSubmitEditing={handleAddEmail}
-          />
-          <TouchableOpacity
-            style={[
-              styles.addButton,
-              (!isValidEmail(emailInput) || isAtLimit) &&
-                styles.addButtonDisabled,
-            ]}
-            onPress={handleAddEmail}
-            disabled={!isValidEmail(emailInput) || isAtLimit}
-          >
-            <Text style={styles.addButtonText}>Add</Text>
+    <>
+      <DashboardHeader
+        title="Create Challenge"
+        action={
+          <TouchableOpacity onPress={handleCancel}>
+            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>Cancel</Text>
           </TouchableOpacity>
-        </View>
-      </ScrollView>
+        }
+        showProfileIcon={false}
+      />
+      <View style={styles.container}>
+        <Header
+          title="Invite Participants"
+          step={3}
+          totalSteps={3}
+          onBack={handleBack}
+        />
 
-      <Footer>
-        <TouchableOpacity style={styles.publishButton} onPress={handlePublish}>
-          <Text style={styles.publishButtonText}>Publish & Send Invites</Text>
-        </TouchableOpacity>
-      </Footer>
-    </View>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.participantInfo}>
+            <Text style={styles.participantCount}>
+              Participants ({participants.length}/{maxParticipants})
+            </Text>
+            <Text style={styles.planInfo}>{plan} Plan</Text>
+          </View>
+
+          <View style={styles.list}>
+            {participants.map((item, index) => (
+              <View key={index} style={styles.row}>
+                <Image
+                  source={item.image ? { uri: item.image } : require('../../assets/images/create-challenge/default-avatar.png')}
+                  style={styles.avatar}
+                />
+                <Text style={styles.rowText}>{item.displayName || item.email}</Text>
+                <TouchableOpacity
+                  onPress={() => handleRemove(item)}
+                  style={styles.deleteBtn}
+                >
+                  <Text style={styles.deleteBtnText}>×</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.inputRow}>
+            <TextInput
+              style={styles.input}
+              placeholder="Add email address or @username"
+              placeholderTextColor={COLORS.gray.mediumDark}
+              value={value}
+              onChangeText={setValue}
+              keyboardType={isValidEmail(value) ? 'email-address' : 'default'}
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="done"
+            />
+            <TouchableOpacity
+              style={[
+                styles.addButton,
+                (isAtLimit) && styles.addButtonDisabled,
+              ]}
+              onPress={handleAddParticipant}
+              disabled={loading}
+            >
+              <Text style={{ ...styles.addButtonText, opacity: loading ? 0.5 : 1 }}>Add</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+
+        <Footer>
+          <TouchableOpacity style={styles.publishButton} onPress={handlePublish} disabled={publishing}>
+            <Text style={{ ...styles.publishButtonText, opacity: publishing ? 0.5 : 1 }}>Publish & Send Invites{publishing && '...'}</Text>
+          </TouchableOpacity>
+        </Footer>
+      </View>
+    </>
   );
 };
 

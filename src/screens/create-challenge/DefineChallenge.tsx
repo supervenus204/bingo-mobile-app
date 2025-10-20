@@ -1,18 +1,21 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { LayoutCard } from '../../components/create-challenge/layout-card.component';
-import { TypeButton } from '../../components/create-challenge/type-button.component';
+import { Header } from '../../components/create-challenge/Header';
+import { LayoutCard } from '../../components/create-challenge/LayoutCard';
+import { TypeButton } from '../../components/create-challenge/TypeButton';
+import { DashboardHeader } from '../../components/dashboard';
 import { Button, Input } from '../../components/ui';
-import { CATEGORIES } from '../../constants/category';
 import { SCREEN_NAMES } from '../../constants/screens';
-import { plans } from '../../data/plans';
+import { usePlans } from '../../hooks';
+import { useCategories } from '../../hooks/useCategories';
 import { useCreateStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
@@ -36,13 +39,15 @@ export const DefineChallenge: React.FC = () => {
   } = useCreateStore();
 
   const navigation = useNavigation();
+  const { getPlanById } = usePlans();
+  const { categories, loading } = useCategories();
 
   const handleTypeSelect = (typeId: string) => {
     setCategoryId(typeId);
   };
 
   const handleDurationChange = (increment: boolean) => {
-    const maxWeeks = plans[plan as keyof typeof plans]?.maxweek || 12;
+    const maxWeeks = getPlanById(plan as string)?.maxWeek || 12;
     if (increment) {
       setDuration(Math.min(duration + 1, maxWeeks));
     } else {
@@ -58,84 +63,145 @@ export const DefineChallenge: React.FC = () => {
     navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.CARD_SETUP as never);
   };
 
+  const handleBack = () => {
+    navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.CHOOSE_PLAN as never);
+  };
+
+  const handleCancel = () => {
+    navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+  }
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Challenge Types</Text>
-      <View style={styles.typeButtonsContainer}>
-        {CATEGORIES.map(type => (
-          <TypeButton
-            key={type.id}
-            label={type.name}
-            isSelected={categoryId === type.id}
-            onPress={() => handleTypeSelect(type.id)}
-          />
-        ))}
-      </View>
-
-      <Text style={styles.title}>Challenge name</Text>
-      <Input
-        placeholder="Enter your challenge name"
-        value={title}
-        onChangeText={setTitle}
-        inputStyle={styles.challengeInput}
+    <>
+      <DashboardHeader
+        title="Create Challenge"
+        action={
+          <TouchableOpacity onPress={handleCancel}>
+            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>Cancel</Text>
+          </TouchableOpacity>
+        }
+        showProfileIcon={false}
       />
-
-      <Text style={styles.title}>Duration</Text>
-      <View style={styles.durationContainer}>
-        <TouchableOpacity
-          style={styles.durationButton}
-          onPress={() => handleDurationChange(false)}
-        >
-          <Text style={styles.durationButtonText}>-</Text>
-        </TouchableOpacity>
-
-        <View style={styles.durationDisplay}>
-          <Text style={styles.durationValue}>{duration}</Text>
-          <Text style={styles.durationUnit}>weeks</Text>
+      <Header
+        title="Define Challenge"
+        step={1}
+        totalSteps={3}
+        onBack={handleBack}
+        bgColor={COLORS.gray.veryLight}
+      />
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.section}>
+          <Text style={styles.subTitle}>Challenge Types</Text>
+          <View style={styles.typeButtonsContainer}>
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={COLORS.green.forest} />
+              </View>
+            ) : (
+              categories?.map(category => (
+                <TypeButton
+                  key={category.id}
+                  label={category.name}
+                  isSelected={categoryId === category.id}
+                  disabled={plan === 'free' && category.is_premium}
+                  onPress={() => handleTypeSelect(category.id)}
+                />
+              ))
+            )}
+          </View>
         </View>
 
-        <TouchableOpacity
-          style={styles.durationButton}
-          onPress={() => handleDurationChange(true)}
-        >
-          <Text style={styles.durationButtonText}>+</Text>
-        </TouchableOpacity>
-      </View>
-
-      <Text style={styles.title}>Bingo Board Layout</Text>
-      <View style={styles.layoutContainer}>
-        {layoutOptions.map(layout => (
-          <LayoutCard
-            key={layout.id}
-            size={layout.size}
-            taskCount={layout.taskCount}
-            isSelected={cardSize === layout.id}
-            onPress={() => handleLayoutSelect(layout.id)}
+        <View style={styles.section}>
+          <Text style={styles.subTitle}>Challenge Name</Text>
+          <Input
+            placeholder="Enter your challenge name"
+            value={title}
+            onChangeText={setTitle}
+            inputStyle={styles.challengeInput}
           />
-        ))}
-      </View>
+        </View>
 
-      <Button
-        text="Next: Create Week 1 Card"
-        onPress={handleNext}
-        buttonStyle={styles.nextButton}
-        textStyle={styles.nextButtonText}
-        disabled={title.length === 0}
-      />
-    </ScrollView>
+        <View style={styles.section}>
+          <Text style={styles.subTitle}>Duration</Text>
+          <View style={styles.durationContainer}>
+            <TouchableOpacity
+              style={styles.durationButton}
+              onPress={() => handleDurationChange(false)}
+            >
+              <Text style={[styles.durationButtonText, { color: duration === 1 ? COLORS.gray.medium : COLORS.text.primary }]}>-</Text>
+            </TouchableOpacity>
+
+            <View style={styles.durationDisplay}>
+              <Text style={styles.durationValue}>{duration}</Text>
+              <Text style={styles.durationUnit}>weeks</Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.durationButton}
+              onPress={() => handleDurationChange(true)}
+            >
+              <Text style={[styles.durationButtonText, { color: duration === getPlanById(plan as string)?.maxWeek ? COLORS.gray.medium : COLORS.text.primary }]}>+</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.subTitle}>Bingo Board Layout</Text>
+          <View style={styles.layoutContainer}>
+            {layoutOptions.map(layout => (
+              <LayoutCard
+                key={layout.id}
+                size={layout.size}
+                taskCount={layout.taskCount}
+                isSelected={cardSize === layout.id}
+                onPress={() => handleLayoutSelect(layout.id)}
+              />
+            ))}
+          </View>
+        </View>
+
+        <Button
+          text="Next: Create Week 1 Card"
+          onPress={handleNext}
+          buttonStyle={styles.nextButton}
+          textStyle={styles.nextButtonText}
+          disabled={title.length === 0 || categoryId === null}
+        />
+      </ScrollView>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    paddingBottom: 40,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    marginBottom: 16,
+    paddingHorizontal: 20,
   },
   title: {
     fontFamily: FONTS.family.poppinsBold,
     color: COLORS.blue.indigo,
-    fontSize: 20,
-    lineHeight: 24,
-    paddingVertical: 10,
+    fontSize: FONTS.size['2xl'],
+    fontWeight: FONTS.weight.bold,
+    textAlign: 'center',
+    flex: 1,
+  },
+  section: {
+    marginBottom: 32,
+  },
+  subTitle: {
+    fontFamily: FONTS.family.poppinsBold,
+    color: COLORS.blue.indigo,
+    fontSize: 18,
+    fontWeight: FONTS.weight.bold,
+    marginBottom: 16,
   },
   typeButtonsContainer: {
     flexDirection: 'row',
@@ -147,18 +213,17 @@ const styles = StyleSheet.create({
   durationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   durationButton: {
-    width: 30,
+    width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: COLORS.gray.medium,
-    borderRadius: 12,
+    borderRadius: 20,
   },
   durationButtonText: {
     fontSize: 24,
@@ -167,6 +232,7 @@ const styles = StyleSheet.create({
   durationDisplay: {
     flexDirection: 'column',
     alignItems: 'center',
+    marginHorizontal: 20,
   },
   durationValue: {
     fontSize: 24,
@@ -208,5 +274,15 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsMedium,
     backgroundColor: COLORS.white,
     fontSize: 14,
+  },
+  backButton: {
+    padding: 8,
+    position: 'absolute',
+    left: 0,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

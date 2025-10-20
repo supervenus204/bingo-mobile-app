@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { DashboardFooter, DashboardHeader } from '../../components/dashboard';
+import { DashboardHeader } from '../../components/dashboard';
 import { useChallenges } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
 
@@ -33,8 +33,6 @@ export const ArchivedChallenge: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
-
-      <DashboardFooter />
     </View>
   );
 };

@@ -38,6 +38,9 @@ export const useAuth = () => {
         lastName: data.user.last_name,
         image: data.user.image,
         id: data.user.id,
+        displayName: data.user.display_name,
+        timezone: data.user.timezone,
+        pushReminders: data.user.push_reminders,
       });
       setAuthenticated(true);
     } catch (err) {
@@ -61,6 +64,9 @@ export const useAuth = () => {
         lastName: data.user.last_name,
         image: data.user.image,
         id: data.user.id,
+        displayName: data.user.display_name,
+        timezone: data.user.timezone,
+        pushReminders: data.user.push_reminders,
       });
       setAuthenticated(true);
     } catch (err) {

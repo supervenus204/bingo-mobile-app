@@ -1,62 +1,63 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { PriceCard } from '../../components/create-challenge/price-card.component';
-import { SCREEN_NAMES } from '../../constants/screens';
-import { plans } from '../../data/plans';
+import React, { useEffect } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { PriceCard } from '../../components/create-challenge';
+import { DashboardHeader } from '../../components/dashboard';
+import { SCREEN_NAMES } from '../../constants';
+import { usePlans } from '../../hooks';
 import { useCreateStore } from '../../store';
-
-const pricingPlans = Object.values(plans).map(plan => ({
-  ...plan,
-  buttonText: plan.id === 'free' ? 'Start Free' : 'Select Plan',
-  bgColor:
-    plan.id === 'free'
-      ? '#FFFFFF'
-      : plan.id === 'premium'
-      ? '#E8F5E8'
-      : '#F3E8FF',
-  borderColor:
-    plan.id === 'free'
-      ? '#E0F2FE'
-      : plan.id === 'premium'
-      ? '#C8E6C9'
-      : '#E9D5FF',
-  titleColor:
-    plan.id === 'free'
-      ? '#374151'
-      : plan.id === 'premium'
-      ? '#166534'
-      : '#7C3AED',
-}));
+import { COLORS, FONTS } from '../../theme';
 
 export const ChoosePlan: React.FC = () => {
   const navigation = useNavigation();
-  const { setPlan } = useCreateStore();
+  const { setPlan, reset } = useCreateStore();
+  const { formatPrices } = usePlans();
+
+  useEffect(() => {
+    reset();
+  }, []);
+
+  const handleCancel = () => {
+    navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+  }
+
   return (
-    <View style={styles.container}>
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.priceCardsContainer}>
-          {pricingPlans.map(plan => (
-            <PriceCard
-              key={plan.id}
-              title={plan.title}
-              price={plan.price}
-              features={plan.features}
-              buttonText={plan.buttonText}
-              bgColor={plan.bgColor}
-              borderColor={plan.borderColor}
-              titleColor={plan.titleColor}
-              onPress={() => {
-                setPlan(plan.id);
-                navigation.navigate(
-                  SCREEN_NAMES._CREATE_CHALLENGE.DEFINE_CHALLENGE as never
-                );
-              }}
-            />
-          ))}
-        </View>
-      </ScrollView>
-    </View>
+    <>
+      <DashboardHeader
+        title="Create Challenge"
+        action={
+          <TouchableOpacity onPress={handleCancel}>
+            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>Cancel</Text>
+          </TouchableOpacity>
+        }
+        showProfileIcon={false}
+      />
+      <View style={styles.container}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.priceCardsContainer}>
+            <Text style={styles.title}>Choose Your Plan</Text>
+            {formatPrices?.map(plan => (
+              <PriceCard
+                key={plan.id}
+                title={plan.name}
+                price={plan.price / 100}
+                features={plan.features}
+                buttonText={plan.buttonText}
+                bgColor={plan.bgColor}
+                borderColor={plan.borderColor}
+                titleColor={plan.titleColor}
+                onPress={() => {
+                  setPlan(plan.id);
+                  navigation.navigate(
+                    SCREEN_NAMES._CREATE_CHALLENGE.DEFINE_CHALLENGE as never
+                  );
+                }}
+              />
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+    </>
   );
 };
 
@@ -72,10 +73,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
+    fontFamily: FONTS.family.poppinsBold,
+    color: COLORS.blue.indigo,
+    fontSize: FONTS.size['2xl'],
+    fontWeight: FONTS.weight.bold,
+    marginBottom: 8,
+    marginTop: 16,
     textAlign: 'center',
   },
   priceCardsContainer: {

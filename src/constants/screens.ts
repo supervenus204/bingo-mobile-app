@@ -26,7 +26,7 @@ export const SCREEN_NAMES = {
     CHALLENGE_PUBLISHED: 'ChallengePublished',
   },
   _DASHBOARD: {
-    ACTIVE_CHALLENGE: 'ActiveChallenge',
+    ONGOING_CHALLENGE: 'OnGoingChallenge',
     ARCHIVED_CHALLENGE: 'ArchivedChallenge',
     ENTER_CODE: 'EnterCode',
     JOIN_CHALLENGE: 'JoinChallenge',

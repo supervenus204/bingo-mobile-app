@@ -2,6 +2,8 @@ import { AuthUser } from '../store/auth.store';
 import { apiFetch } from '../utils';
 
 export interface UpdateProfileData {
+  first_name?: string;
+  last_name?: string;
   display_name?: string;
   country?: string;
   timezone?: string;
@@ -67,4 +69,9 @@ export const getUserProfile = async (): Promise<AuthUser> => {
 
 export const deleteAccount = async (): Promise<void> => {
   await apiFetch('/api/user/account', 'DELETE', {});
+};
+
+export const searchUsers = async (username: string): Promise<any> => {
+  const response = await apiFetch(`/api/user/search?username=${encodeURIComponent(username)}`, 'GET', {});
+  return response;
 };

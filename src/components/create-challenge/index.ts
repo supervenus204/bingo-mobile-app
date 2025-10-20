@@ -1,7 +1,8 @@
-export * from './layout-card.component';
-export * from './price-card.component';
-export * from './type-button.component';
+export * from './LayoutCard';
+export * from './PriceCard';
+export * from './TypeButton';
 
 // layout
 export * from './Footer';
 export * from './Header';
+

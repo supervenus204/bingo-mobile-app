@@ -5,11 +5,11 @@ import { RootStackParamList } from './types';
 import { StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SCREEN_NAMES } from '../constants';
-import { AuthNavigator } from './AuthNavigator';
-// import { CreateChallengeNavigator } from './CreateChallengeNavigator';
-import { DashboardNavigator } from './DashboardNavigator';
-// import { PlayChallengeNavigator } from './PlayChallengeNavigator';
 import { OnboardingScreen, WelcomeScreen } from '../screens';
+import { AuthNavigator } from './AuthNavigator';
+import { CreateChallengeNavigator } from './CreateChallengeNavigator';
+import { DashboardNavigator } from './DashboardNavigator';
+import { PlayChallengeNavigator } from './PlayChallengeNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -44,14 +44,14 @@ export const AppNavigator = () => {
             name={SCREEN_NAMES.DASHBOARD}
             component={DashboardNavigator}
           />
-          {/* <Stack.Screen
+          <Stack.Screen
             name={SCREEN_NAMES.PLAY_CHALLENGE}
             component={PlayChallengeNavigator}
           />
           <Stack.Screen
             name={SCREEN_NAMES.CREATE_CHALLENGE}
             component={CreateChallengeNavigator}
-          /> */}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </>

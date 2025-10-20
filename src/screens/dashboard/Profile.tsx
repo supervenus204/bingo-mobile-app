@@ -2,34 +2,43 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import CountryPicker from 'react-native-country-picker-modal';
 import { Avatar } from '../../components/common';
-import { DashboardFooter, DashboardHeader } from '../../components/dashboard';
+import { DashboardHeader } from '../../components/dashboard';
 import { Button, Input } from '../../components/ui';
 import { useUser } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
 
 export const Profile: React.FC = () => {
-  const { user, updateProfile, loading, error, clearError } = useUser();
+  const { user, updateProfile, loading } = useUser();
   const [country, setCountry] = useState<string>('');
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Form states
   const [firstName, setFirstName] = useState(user?.firstName || '');
   const [lastName, setLastName] = useState(user?.lastName || '');
+  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [timezone, setTimezone] = useState(user?.timezone || '');
+  const [pushReminders, setPushReminders] = useState(user?.pushReminders || false);
 
   useEffect(() => {
     if (user) {
       setFirstName(user.firstName || '');
       setLastName(user.lastName || '');
+      setDisplayName(user.displayName || '');
       setCountry(user.country || '');
+      setTimezone(user.timezone || '');
+      setPushReminders(user.pushReminders || false);
     }
   }, [user]);
 
   const handleSaveProfile = async () => {
     try {
       await updateProfile({
-        firstName,
-        lastName,
+        first_name: firstName,
+        last_name: lastName,
+        display_name: displayName,
         country,
+        timezone,
+        push_reminders: pushReminders,
       });
     } catch (err) {
       // Error is handled in useUser hook
@@ -42,6 +51,10 @@ export const Profile: React.FC = () => {
       // Reset form values when canceling edit
       setFirstName(user?.firstName || '');
       setLastName(user?.lastName || '');
+      setDisplayName(user?.displayName || '');
+      setCountry(user?.country || '');
+      setTimezone(user?.timezone || '');
+      setPushReminders(user?.pushReminders || false);
     }
   };
 
@@ -52,7 +65,6 @@ export const Profile: React.FC = () => {
         <View style={styles.content}>
           <Text style={styles.errorText}>No user data available</Text>
         </View>
-        <DashboardFooter />
       </View>
     );
   }
@@ -97,6 +109,26 @@ export const Profile: React.FC = () => {
                 value={lastName}
                 onChangeText={setLastName}
                 placeholder="Enter your last name"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.sectionTitle}>Display Name</Text>
+              <Input
+                inputStyle={styles.input}
+                value={displayName}
+                onChangeText={setDisplayName}
+                placeholder="Enter your display name"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.sectionTitle}>Timezone</Text>
+              <Input
+                inputStyle={styles.input}
+                value={timezone}
+                onChangeText={setTimezone}
+                placeholder="Enter your timezone"
               />
             </View>
 
@@ -146,10 +178,20 @@ export const Profile: React.FC = () => {
             </View>
 
             <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Display Name</Text>
+              <Text style={styles.infoValue}>{user.displayName || 'Not set'}</Text>
+            </View>
+
+            <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Country</Text>
               <Text style={styles.infoValue}>
                 {country ? `${country}` : 'Not selected'}
               </Text>
+            </View>
+
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Timezone</Text>
+              <Text style={styles.infoValue}>{user.timezone || 'Not set'}</Text>
             </View>
 
             <Button
@@ -161,8 +203,6 @@ export const Profile: React.FC = () => {
           </View>
         )}
       </View>
-
-      <DashboardFooter />
     </View>
   );
 };

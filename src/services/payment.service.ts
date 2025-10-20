@@ -39,3 +39,23 @@ export const confirmPayment = async (
     };
   }
 };
+
+export const getPaymentPlans = async (): Promise<{
+  success: boolean;
+  data?: any;
+  error?: string;
+}> => {
+  try {
+    const response = await apiFetch('/api/payment/plans', 'GET', {});
+    return {
+      success: true,
+      data: response,
+    };
+  }
+  catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Failed to get payment plans',
+    };
+  }
+};

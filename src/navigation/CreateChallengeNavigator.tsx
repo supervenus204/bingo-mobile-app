@@ -1,8 +1,8 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { SCREEN_NAMES } from '../constants/screens';
-import { CardSetup } from '../screens/create-challenge/cardsetup.screen';
-import { ChallengePublished } from '../screens/create-challenge/challenge-published.screen';
+import { CardSetup } from '../screens/create-challenge/CardSetup';
+import { ChallengePublished } from '../screens/create-challenge/ChallengePublished';
 import { ChoosePlan } from '../screens/create-challenge/ChoosePlan';
 import { DefineChallenge } from '../screens/create-challenge/DefineChallenge';
 import { InviteParticipants } from '../screens/create-challenge/InviteParticipants';

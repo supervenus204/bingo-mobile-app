@@ -5,8 +5,7 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/ui';
 import { SCREEN_NAMES } from '../constants/screens';
 import { useOnboardingStore } from '../store';
-import { FONTS } from '../theme';
-import { COLORS } from '../theme/_colors';
+import { COLORS, FONTS } from '../theme';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -28,7 +27,7 @@ export const WelcomeScreen: React.FC = () => {
       <View style={styles.logoContainer}>
         <Image
           source={require('../assets/images/welcome/logo.png')}
-          style={styles.logo} 
+          style={styles.logo}
         />
       </View>
 
@@ -40,7 +39,7 @@ export const WelcomeScreen: React.FC = () => {
       </View>
 
       <View style={[styles.textContainer]}>
-        <Text style={[styles.description, { color: COLORS.welcome?.tertiary }]}>
+        <Text style={[styles.description, { color: COLORS.primary.welcome.tertiary }]}>
           Join fun health challenges with friends and family.
         </Text>
 
@@ -93,7 +92,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     width: DEVICE_WIDTH * 0.8,
     height: 50,
-    backgroundColor: COLORS.pink.bright_1,
+    backgroundColor: COLORS.primary.pink.bright_1,
   },
   textStyle: {
     fontSize: 16,

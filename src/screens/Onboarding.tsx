@@ -4,8 +4,7 @@ import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/ui';
 import { SCREEN_NAMES } from '../constants/screens';
 import { useOnboardingStore } from '../store';
-import { FONTS } from '../theme';
-import { COLORS } from '../theme/_colors';
+import { COLORS, FONTS } from '../theme';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -24,8 +23,8 @@ export const OnboardingScreen: React.FC = () => {
         title: 'Turn Habits Into Fun!',
         description:
           'Join challenges with friends & family, check off tasks, earn points, and celebrate every healthy win together',
-        bgColor: COLORS.welcome?.tertiary,
-        buttonColor: COLORS.welcome?.secondary,
+        bgColor: COLORS.primary.welcome.tertiary,
+        buttonColor: COLORS.primary.welcome.secondary,
       },
       {
         image: require('../assets/images/welcome/image-2.png'),
@@ -33,8 +32,8 @@ export const OnboardingScreen: React.FC = () => {
         title: 'Track Your Weekly Wins!',
         description:
           'Mark off tasks, log your weight-ins, and watch your progress climb up the leaderboard each week!',
-        bgColor: COLORS.welcome?.quaternary,
-        buttonColor: COLORS.welcome?.tertiary,
+        bgColor: COLORS.primary.welcome.quaternary,
+        buttonColor: COLORS.primary.welcome.tertiary,
       },
       {
         image: require('../assets/images/welcome/image-3.png'),
@@ -42,8 +41,8 @@ export const OnboardingScreen: React.FC = () => {
         title: 'Stay Motivated Together',
         description:
           'Get supportive nudges, win weekly wild cards and join the Group Chat to boost accountability!',
-        bgColor: COLORS.welcome?.secondary,
-        buttonColor: COLORS.welcome?.tertiary,
+        bgColor: COLORS.primary.welcome.secondary,
+        buttonColor: COLORS.primary.welcome.tertiary,
       },
     ],
     []

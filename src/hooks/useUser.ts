@@ -28,6 +28,9 @@ export const useUser = () => {
         image: updatedUser.image,
         id: updatedUser.id,
         email: updatedUser.email,
+        displayName: updatedUser.display_name,
+        timezone: updatedUser.timezone,
+        pushReminders: updatedUser.push_reminders,
       });
 
       return updatedUser;

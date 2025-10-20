@@ -1,6 +1,8 @@
 import React from 'react';
-import {StyleSheet, Text, View, ViewStyle} from 'react-native';
-import {COLORS} from '../../theme/colors';
+import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { FONTS } from '../../theme';
+import { COLORS } from '../../theme/colors';
 
 interface HeaderProps {
   title: string;
@@ -25,16 +27,21 @@ export const Header: React.FC<HeaderProps> = ({
   const progress = step && totalSteps ? step / totalSteps : 0;
 
   return (
-    <View style={[styles.container, {backgroundColor: bgColor}]}>
+    <View style={[styles.container, { backgroundColor: bgColor }]}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>{title}</Text>
-          {step && totalSteps && (
-            <Text style={styles.stepIndicator}>
-              Step {step} of {totalSteps}
-            </Text>
-          )}
-          {description && <Text style={styles.description}>{description}</Text>}
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <Icon name="arrow-back" size={24} color={COLORS.blue.indigo} />
+          </TouchableOpacity>
+          <View style={styles.titleContent}>
+            <Text style={styles.title}>{title}</Text>
+            {step && totalSteps && (
+              <Text style={styles.stepIndicator}>
+                Step {step} of {totalSteps}
+              </Text>
+            )}
+            {description && <Text style={styles.description}>{description}</Text>}
+          </View>
         </View>
       </View>
 
@@ -42,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
             <View
-              style={[styles.progressFill, {width: `${progress * 100}%`}]}
+              style={[styles.progressFill, { width: `${progress * 100}%` }]}
             />
           </View>
         </View>
@@ -60,12 +67,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    marginBottom: 16,
+    paddingHorizontal: 20,
+  },
+  titleContent: {
     flex: 1,
-    display: 'flex',
     alignItems: 'center',
   },
   title: {
-    fontSize: 22,
+    fontFamily: FONTS.family.poppinsBold,
+    color: COLORS.blue.indigo,
+    fontSize: FONTS.size['2xl'],
+    fontWeight: FONTS.weight.bold,
     textAlign: 'center',
   },
   stepIndicator: {
@@ -91,5 +108,10 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: COLORS.green.forest,
     borderRadius: 3,
+  },
+  backButton: {
+    padding: 8,
+    position: 'absolute',
+    left: 0,
   },
 });

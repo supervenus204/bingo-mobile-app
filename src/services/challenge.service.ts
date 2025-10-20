@@ -80,27 +80,16 @@ export const joinChallenge = async (invitationCode: string) => {
 };
 
 export const getAllBingoCards = async (categoryId: string) => {
-  const token = useAuthStore.getState().token;
-
-  const response = await fetch(
-    `${API_BASE_URL}/api/bingo-card?category_id=${categoryId}`,
-    {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    }
+  const response = await apiFetch(
+    `/api/bingo-card?category_id=${categoryId}`,
+    'GET',
+    {}
   );
 
-  if (!response.ok) {
-    const body = await parseJsonSafe(response);
-    const message =
-      (body && (body.message as string)) || 'Failed to get bingo cards';
-    throw new Error(message);
-  }
+  return response;
+};
 
-  const { data } = await parseJsonSafe(response);
+export const getChallengeCategories = async () => {
+  const data = await apiFetch('/api/challenge-category', 'GET', {});
   return data;
 };

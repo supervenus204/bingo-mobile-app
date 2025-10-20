@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { LoadingCard } from '../../components/common';
-import { DashboardFooter, DashboardHeader } from '../../components/dashboard';
+import { DashboardHeader } from '../../components/dashboard';
 import { ChallengeCard } from '../../components/dashboard/ChallengeCard';
 import { Button } from '../../components/ui';
 import { SCREEN_NAMES } from '../../constants';
@@ -29,7 +29,7 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 type NavigationProp = NativeStackNavigationProp<DashboardStackParamList>;
 
-export const ActiveChallenge: React.FC = () => {
+export const OngoingChallenge: React.FC = () => {
   const { challenges, loading, error } = useChallenges({ auto: true });
   const [activeChallenges, setActiveChallenges] = useState<Challenge[]>([]);
   const { setCurrentChallenge } = useChallengesStore();
@@ -50,14 +50,12 @@ export const ActiveChallenge: React.FC = () => {
   return (
     <View style={styles.wrapper}>
       <DashboardHeader
-        title="Active Challenges"
+        title="Ongoing Challenges"
         action={
           <TouchableOpacity onPress={() => {
             navigation.navigate(SCREEN_NAMES._DASHBOARD.ARCHIVED_CHALLENGE);
           }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>View Archived</Text>
-            </View>
+            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>View Archived</Text>
           </TouchableOpacity>
         }
       />
@@ -172,8 +170,6 @@ export const ActiveChallenge: React.FC = () => {
           subMessage="Please wait a moment"
         />
       </View >
-
-      <DashboardFooter />
     </View >
   );
 };

@@ -14,15 +14,17 @@ import {
 import { Button, Input } from '../../components/ui';
 import { SCREEN_NAMES } from '../../constants';
 import { checkDisplayName, updateProfile } from '../../services';
+import { useAuthStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
 
 export const ProfileSetupScreen: React.FC = () => {
+  const { setUser } = useAuthStore();
+
   const [displayName, setDisplayName] = useState('');
   const [country, setCountry] = useState('');
   const [timezone, setTimezone] = useState('');
   const [pushReminders, setPushReminders] = useState(true);
-
   // Validation states
   const [displayNameValid, setDisplayNameValid] = useState<boolean | undefined>(undefined);
   const [countryValid, setCountryValid] = useState<boolean | undefined>(undefined);
@@ -38,8 +40,15 @@ export const ProfileSetupScreen: React.FC = () => {
 
   const changeDisplayName = useCallback((text: string) => {
     setDisplayName(text);
-    checkDisplayName(text).then((available) => {
-      console.log('available: ', available);
+    if (text.trim().length === 0) {
+      setDisplayNameValid(false);
+      return;
+    }
+    if (text.trim() !== text) {
+      setDisplayNameValid(false);
+      return;
+    }
+    checkDisplayName(text.trim()).then((available) => {
       setDisplayNameValid(available);
     });
   }, []);
@@ -72,8 +81,9 @@ export const ProfileSetupScreen: React.FC = () => {
       country: country.trim(),
       timezone: timezone.trim(),
       push_reminders: pushReminders,
-    }).then(() => {
+    }).then((data) => {
       setLoading(false);
+      setUser(data);
       navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
     }).catch((error) => {
       setLoading(false);
@@ -104,7 +114,7 @@ export const ProfileSetupScreen: React.FC = () => {
         />
 
         <Input
-          placeholder="Country"
+          placeholder="Country (e.g. Australia)"
           value={country}
           onChangeText={changeCountry}
           inputStyle={styles.input}
@@ -113,7 +123,7 @@ export const ProfileSetupScreen: React.FC = () => {
         />
 
         <Input
-          placeholder="Timezone"
+          placeholder="Timezone (e.g. Australia/Sydney)"
           value={timezone}
           onChangeText={changeTimezone}
           inputStyle={styles.input}
@@ -137,6 +147,7 @@ export const ProfileSetupScreen: React.FC = () => {
         onPress={handleSave}
         buttonStyle={styles.saveButton}
         textStyle={styles.saveButtonText}
+        disabled={loading || !displayNameValid || !countryValid || !timezoneValid}
         loading={loading}
       />
     </ScrollView>

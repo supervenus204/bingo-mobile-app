@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { SCREEN_NAMES } from '../constants/screens';
-import { ActiveChallenge } from '../screens/dashboard/ActiveChallenge';
+import { OngoingChallenge } from '../screens/dashboard';
 import { ArchivedChallenge } from '../screens/dashboard/ArchivedChallenge';
 import { EnterCode } from '../screens/dashboard/EnterCode';
 import { JoinChallenge } from '../screens/dashboard/JoinChallenge';
@@ -16,11 +16,11 @@ export const DashboardNavigator = () => {
       screenOptions={{
         headerShown: false,
       }}
-      initialRouteName={SCREEN_NAMES._DASHBOARD.ACTIVE_CHALLENGE}
+      initialRouteName={SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE}
     >
       <Stack.Screen
-        name={SCREEN_NAMES._DASHBOARD.ACTIVE_CHALLENGE}
-        component={ActiveChallenge}
+        name={SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE}
+        component={OngoingChallenge}
       />
       <Stack.Screen
         name={SCREEN_NAMES._DASHBOARD.ARCHIVED_CHALLENGE}

@@ -1,2 +1,3 @@
+export { ChallengeCard } from './ChallengeCard';
 export { DashboardHeader } from './DashboardHeader';
-export { DashboardFooter } from './DashboardFooter';
+

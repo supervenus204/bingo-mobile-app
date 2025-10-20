@@ -29,12 +29,12 @@ export const BingoBoard: React.FC<BingoBoardProps> = ({
       name={card.name}
       count={card.count}
       mode={mode}
-      cardId={card._id as string}
-      isActionActive={activeActionCardId === card._id}
+      cardId={card.id}
+      isActionActive={activeActionCardId === card.id}
       onIncrement={() => handleIncrement?.(card.id)}
       onDecrement={() => handleDecrement?.(card.id)}
       onStatusChange={(status: string) =>
-        handleStatusChange?.(card._id as string, status)
+        handleStatusChange?.(card.id, status)
       }
       onShowActions={onShowActions}
       status={card.status}

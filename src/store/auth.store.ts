@@ -7,6 +7,9 @@ export type AuthUser = {
   email: string;
   firstName?: string;
   lastName?: string;
+  displayName?: string;
+  timezone?: string;
+  pushReminders?: boolean;
   image?: string | null;
   country?: string | null;
 };

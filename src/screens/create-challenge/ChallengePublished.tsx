@@ -9,8 +9,10 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { DashboardHeader } from '../../components/dashboard';
 import { Button, Input } from '../../components/ui';
 import { SCREEN_NAMES } from '../../constants/screens';
+import { usePlans } from '../../hooks';
 import { useToast } from '../../hooks/useToast';
 import { CreateChallengeStackParamList } from '../../navigation/types';
 import {
@@ -36,49 +38,9 @@ export const ChallengePublished: React.FC = () => {
 
   const navigation = useNavigation();
   const { initPaymentSheet, presentPaymentSheet, loading } = usePaymentSheet();
+  const { getPlanById } = usePlans();
 
-  const getPlanDetails = (plan: string) => {
-    switch (plan) {
-      case 'premium':
-        return {
-          name: 'Premium Plan',
-          price: 29.99,
-          features: [
-            'Unlimited users',
-            'Advanced analytics',
-            'Custom challenges',
-            'Priority support',
-            'Export data',
-          ],
-        };
-      case 'pro':
-        return {
-          name: 'Pro Plan',
-          price: 19.99,
-          features: [
-            'Up to 20 players',
-            'Group chat',
-            'Weight loss tracker',
-            'Custom cards',
-            'Analytics',
-          ],
-        };
-      case 'free':
-      default:
-        return {
-          name: 'Free Plan',
-          price: 0,
-          features: [
-            'Up to 3 players',
-            '2-week max duration',
-            'Limited card size',
-            'Basic features only',
-          ],
-        };
-    }
-  };
-
-  const planDetails = getPlanDetails(challenge?.plan || 'premium');
+  const planDetails = getPlanById(challenge.plan as string);
 
   const handleValidatePromo = async () => {
     if (!promoCode.trim()) {
@@ -172,8 +134,7 @@ export const ChallengePublished: React.FC = () => {
           console.log('Stripe Payment Error:', error);
           if (error.code !== 'Canceled') {
             showToast(
-              `Payment failed: ${
-                error.message || error.code
+              `Payment failed: ${error.message || error.code
               }. Please try again.`,
               'error'
             );
@@ -216,101 +177,113 @@ export const ChallengePublished: React.FC = () => {
   };
 
   const handlePayLater = () => {
-    // Handle pay later option
-    console.log('Pay later selected');
+    navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Complete Your Purchase</Text>
-        <Text style={styles.subtitle}>{challenge?.title || 'ASD'}</Text>
-      </View>
-
-      {/* Plan Details */}
-      <View style={styles.planContainer}>
-        <Text style={styles.planTitle}>{planDetails.name}</Text>
-        <View style={styles.priceContainer}>
-          {isValidatePromoCode ? (
-            <>
-              <Text style={styles.originalPrice}>
-                ${planDetails.price.toFixed(2)}
-              </Text>
-              <Text style={styles.discountedPrice}>$0.00</Text>
-            </>
-          ) : (
-            <Text style={styles.planPrice}>
-              ${planDetails.price.toFixed(2)}
-            </Text>
-          )}
-        </View>
-
-        <View style={styles.featuresContainer}>
-          {planDetails.features.map((feature, index) => (
-            <Text key={index} style={styles.featureText}>
-              • {feature}
-            </Text>
-          ))}
-        </View>
-      </View>
-
-      {/* Promo Code Section */}
-      <View style={styles.promoContainer}>
-        <Text style={styles.promoTitle}>Have a promo code?</Text>
-        <View style={styles.promoInputContainer}>
-          <Input
-            placeholder="Enter promo code"
-            value={promoCode}
-            onChangeText={setPromoCode}
-            inputStyle={styles.promoInput}
-          />
-          <TouchableOpacity
-            style={[
-              styles.validateButton,
-              isValidatePromoCode && styles.validateButtonSuccess,
-            ]}
-            onPress={handleValidatePromo}
-            disabled={isValidatingPromo || !promoCode.trim()}
-          >
-            {isValidatingPromo ? (
-              <Icon name="hourglass-empty" size={20} color="#22C55E" />
+    <>
+      <DashboardHeader
+        title="Challenge Published"
+        showProfileIcon={false}
+      />
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Plan Details */}
+        <View style={styles.planContainer}>
+          <View style={styles.priceContainer}>
+            {isValidatePromoCode ? (
+              <>
+                <Text style={styles.originalPrice}>
+                  ${planDetails?.price.toFixed(2)}
+                </Text>
+                <Text style={styles.discountedPrice}>$0.00</Text>
+              </>
             ) : (
-              <Icon
-                name={isValidatePromoCode ? 'check-circle' : 'check'}
-                size={20}
-                color={isValidatePromoCode ? '#FFFFFF' : '#22C55E'}
+              <Text style={styles.planPrice}>
+                ${((planDetails?.price ?? 0) / 100).toFixed(2)}
+              </Text>
+            )}
+          </View>
+
+          <View style={styles.featuresContainer}>
+            {planDetails?.features?.map((feature, index) => (
+              <Text key={index} style={styles.featureText}>
+                • {feature}
+              </Text>
+            ))}
+          </View>
+        </View>
+
+        {/* Promo Code Section */}
+        {challenge?.status === 'unpaid' && (
+          <View style={styles.promoContainer}>
+            <Text style={styles.promoTitle}>Have a promo code?</Text>
+            <View style={styles.promoInputContainer}>
+              <Input
+                placeholder="Enter promo code"
+                value={promoCode}
+                onChangeText={setPromoCode}
+                inputStyle={styles.promoInput}
+              />
+              <TouchableOpacity
+                style={[
+                  styles.validateButton,
+                  isValidatePromoCode && styles.validateButtonSuccess,
+                ]}
+                onPress={handleValidatePromo}
+                disabled={isValidatingPromo || !promoCode.trim()}
+              >
+                {isValidatingPromo ? (
+                  <Icon name="hourglass-empty" size={20} color="#22C55E" />
+                ) : (
+                  <Icon
+                    name={isValidatePromoCode ? 'check-circle' : 'check'}
+                    size={20}
+                    color={isValidatePromoCode ? '#FFFFFF' : '#22C55E'}
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* Payment Buttons */}
+        <View style={styles.buttonContainer}>
+          <View style={styles.buttonRow}>
+            {challenge?.status === 'unpaid' ? (
+              <>
+                <Button
+                  text={isValidatePromoCode ? 'Apply Promo & Pay' : 'Pay Now'}
+                  onPress={handlePayNow}
+                  variant="primary"
+                  buttonStyle={styles.button}
+                  textStyle={styles.buttonText}
+                  loading={isProcessingPayment || loading}
+                />
+                <Button
+                  text="Pay Later"
+                  onPress={handlePayLater}
+                  variant="outline"
+                  buttonStyle={styles.button}
+                  textStyle={styles.buttonText}
+                />
+              </>
+            ) : (
+              <Button
+                text="Start Challenge"
+                onPress={() => navigation.navigate(SCREEN_NAMES.DASHBOARD as never)}
+                variant="primary"
+                buttonStyle={styles.button}
+                textStyle={{ ...styles.buttonText, color: COLORS.white }}
               />
             )}
-          </TouchableOpacity>
+          </View>
         </View>
-      </View>
-
-      {/* Payment Buttons */}
-      <View style={styles.buttonContainer}>
-        <View style={styles.buttonRow}>
-          <Button
-            text={isValidatePromoCode ? 'Apply Promo & Pay' : 'Pay Now'}
-            onPress={handlePayNow}
-            variant="primary"
-            buttonStyle={styles.button}
-            textStyle={styles.buttonText}
-            loading={isProcessingPayment || loading}
-          />
-          <Button
-            text="Pay Later"
-            onPress={handlePayLater}
-            variant="outline"
-            buttonStyle={styles.button}
-            textStyle={styles.buttonText}
-          />
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 };
 

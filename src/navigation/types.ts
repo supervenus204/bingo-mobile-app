@@ -41,7 +41,7 @@ export type CreateChallengeStackParamList = {
 };
 
 export type DashboardStackParamList = {
-  [SCREEN_NAMES._DASHBOARD.ACTIVE_CHALLENGE]: undefined;
+  [SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE]: undefined;
   [SCREEN_NAMES._DASHBOARD.ARCHIVED_CHALLENGE]: undefined;
   [SCREEN_NAMES._DASHBOARD.ENTER_CODE]: undefined;
   [SCREEN_NAMES._DASHBOARD.JOIN_CHALLENGE]: { challenge: any };

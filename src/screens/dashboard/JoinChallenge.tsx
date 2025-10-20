@@ -11,7 +11,7 @@ export const JoinChallenge: React.FC = () => {
   const route = useRoute();
   const { challenge } = route.params as { challenge: any };
   const navigation = useNavigation();
-  const { show } = useToast();
+  const { showToast } = useToast();
 
   const handleJoin = async () => {
     const invitationCode = challenge.invitation_code;
@@ -19,11 +19,7 @@ export const JoinChallenge: React.FC = () => {
       await joinChallenge(invitationCode);
       navigation.navigate(SCREEN_NAMES._DASHBOARD.ACTIVE_CHALLENGE as never);
     } catch (error) {
-      show({
-        message:
-          error instanceof Error ? error.message : 'Something went wrong',
-        type: 'error',
-      });
+      showToast(error instanceof Error ? error.message : 'Something went wrong', 'error',);
     }
   };
 
