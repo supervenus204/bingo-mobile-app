@@ -1,4 +1,3 @@
-export * from './Button';
 export * from './Dropdown';
 export * from './GoogleSignInButton';
 export * from './Input';

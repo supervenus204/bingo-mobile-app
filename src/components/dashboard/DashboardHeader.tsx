@@ -28,11 +28,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   const handleLogout = () => {
     logout();
+    navigation.navigate(SCREEN_NAMES.AUTH as never);
   };
 
   const dropdownItems = [
     {
-      label: 'Profile Settings',
+      label: 'Profile',
       onPress: handleProfileSettings,
     },
     {

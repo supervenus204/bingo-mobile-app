@@ -1,10 +1,11 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Button } from '../../components/ui/Button';
+import { CustomButton } from '../../components/common';
+import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
 import { useToast } from '../../hooks/useToast';
-import { joinChallenge } from '../../services/challenge.service';
+import { joinChallenge, rejectChallenge } from '../../services/challenge.service';
 import { COLORS, FONTS } from '../../theme';
 
 export const JoinChallenge: React.FC = () => {
@@ -13,88 +14,116 @@ export const JoinChallenge: React.FC = () => {
   const navigation = useNavigation();
   const { showToast } = useToast();
 
+  const invitationCode = useMemo(() => {
+    return challenge?.invitation_code || '';
+  }, [challenge]);
+
   const handleJoin = async () => {
-    const invitationCode = challenge.invitation_code;
     try {
       await joinChallenge(invitationCode);
-      navigation.navigate(SCREEN_NAMES._DASHBOARD.ACTIVE_CHALLENGE as never);
+      navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE as never);
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Something went wrong', 'error',);
     }
   };
 
+  const handleBack = () => {
+    navigation.navigate(SCREEN_NAMES._DASHBOARD.ENTER_CODE as never);
+  };
+
   const handleCancel = () => {
-    navigation.navigate(SCREEN_NAMES._DASHBOARD.ACTIVE_CHALLENGE as never);
+    navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE as never);
+  };
+
+  const handleReject = async () => {
+    try {
+      await rejectChallenge(invitationCode);
+      navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE as never);
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Something went wrong', 'error',);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Join Challenge?</Text>
+    <>
+      <DashboardHeader
+        title="Join a Challenge"
+        action={<CustomButton text="Cancel" variant='default' onPress={handleCancel} />}
+      />
+      <View style={styles.container}>
+        <Text style={styles.title}>Join Challenge?</Text>
 
-      <View style={styles.card}>
-        <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>
-            {challenge?.title || 'Challenge Title'}
-          </Text>
-          <View style={styles.freeBadge}>
-            <Text style={styles.freeBadgeText}>
-              {challenge?.plan?.toUpperCase() || 'FREE'}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>
+              {challenge?.title || 'Challenge Title'}
+            </Text>
+            <View style={styles.freeBadge}>
+              <Text style={styles.freeBadgeText}>
+                {challenge?.plan?.toUpperCase() || 'FREE'}
+              </Text>
+            </View>
+          </View>
+          <Text style={styles.hosted}>Hosted by {challenge?.organizer?.first_name} {challenge?.organizer?.last_name}</Text>
+
+          <View style={styles.row}>
+            <Text style={styles.categoryText}>
+              {challenge?.category?.name || 'Category'}
             </Text>
           </View>
-        </View>
-        <Text style={styles.hosted}>Hosted by You</Text>
 
-        <View style={styles.row}>
-          <Text style={styles.heart}>❤</Text>
-          <Text style={styles.categoryText}>
-            {challenge?.category_id || 'Category'}
+          <Text style={styles.duration}>
+            Duration: {challenge?.duration || 0} weeks
+          </Text>
+          <Text style={styles.cardSize}>
+            Card Size: {challenge?.card_size || 0} tasks
+          </Text>
+          <Text style={styles.participants}>
+            Participants: {challenge?.participants?.length || 0}
           </Text>
         </View>
 
-        <Text style={styles.duration}>
-          Duration: {challenge?.duration || 0} weeks
-        </Text>
-        <Text style={styles.cardSize}>
-          Card Size: {challenge?.card_size || 0} tasks
-        </Text>
-        <Text style={styles.participants}>
-          Participants: {challenge?.participants?.length || 0}
-        </Text>
-      </View>
-
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>
-          You’ll join this challenge as a Player.
-        </Text>
-        <Text style={styles.infoText}>No payment required.</Text>
-        {challenge?.custom_cards && challenge.custom_cards.length > 0 && (
+        <View style={styles.infoContainer}>
           <Text style={styles.infoText}>
-            Custom Cards: {challenge.custom_cards.length}
+            You’ll join this challenge as a Player.
           </Text>
-        )}
-        {challenge?.default_cards && challenge.default_cards.length > 0 && (
-          <Text style={styles.infoText}>
-            Default Cards: {challenge.default_cards.length}
-          </Text>
-        )}
-      </View>
+          <Text style={styles.infoText}>No payment required.</Text>
+          {challenge?.custom_cards && challenge.custom_cards.length > 0 && (
+            <Text style={styles.infoText}>
+              Custom Cards: {challenge.custom_cards.length}
+            </Text>
+          )}
+          {challenge?.default_cards && challenge.default_cards.length > 0 && (
+            <Text style={styles.infoText}>
+              Default Cards: {challenge.default_cards.length}
+            </Text>
+          )}
+        </View>
 
-      <View style={styles.buttonContainer}>
-        <Button
-          text="JOIN"
-          onPress={handleJoin}
-          buttonStyle={styles.joinButton}
-          textStyle={styles.joinButtonText}
-        />
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            text="JOIN"
+            onPress={handleJoin}
+            buttonStyle={styles.joinButton}
+            textStyle={styles.joinButtonText}
+          />
 
-        <Button
-          text="CANCEL"
-          onPress={handleCancel}
-          buttonStyle={styles.cancelButton}
-          textStyle={styles.cancelButtonText}
-        />
+          <CustomButton
+            text="REJECT"
+            onPress={handleReject}
+            buttonStyle={styles.rejectButton}
+            textStyle={styles.rejectButtonText}
+          />
+
+          <CustomButton
+            text="BACK"
+            onPress={handleBack}
+            buttonStyle={styles.backButton}
+            textStyle={styles.backButtonText}
+          />
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
@@ -196,7 +225,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   joinButton: {
-    backgroundColor: COLORS.primary.pink.bright_2,
     borderRadius: 10,
     height: 54,
   },
@@ -205,14 +233,24 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 16,
   },
-  cancelButton: {
+  rejectButton: {
+    backgroundColor: COLORS.red.bright,
+    borderRadius: 10,
+    height: 54,
+  },
+  rejectButtonText: {
+    color: COLORS.white,
+    fontFamily: FONTS.family.poppinsBold,
+    fontSize: 16,
+  },
+  backButton: {
     backgroundColor: COLORS.white,
     borderRadius: 10,
     height: 54,
     borderWidth: 1,
     borderColor: COLORS.primary.pink.bright_2,
   },
-  cancelButtonText: {
+  backButtonText: {
     textAlign: 'center',
     color: COLORS.blue.indigo,
     fontFamily: FONTS.family.poppinsRegular,

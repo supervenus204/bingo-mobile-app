@@ -91,7 +91,7 @@ export const DefineChallenge: React.FC = () => {
       />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.section}>
-          <Text style={styles.subTitle}>Challenge Types</Text>
+          <Text style={styles.subTitle}>Challenge Category</Text>
           <View style={styles.typeButtonsContainer}>
             {loading ? (
               <View style={styles.loadingContainer}>

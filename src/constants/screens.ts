@@ -2,21 +2,22 @@ export const SCREEN_NAMES = {
   WELCOME: 'Welcome',
   ONBOARDING: 'Onboarding',
   AUTH: 'Auth',
-  PLAY_CHALLENGE: 'PlayChallenge',
-  CREATE_CHALLENGE: 'CreateChallenge',
   DASHBOARD: 'Dashboard',
+  CREATE_CHALLENGE: 'CreateChallenge',
+  PLAY_CHALLENGE: 'PlayChallenge',
+
   _AUTH: {
     SIGN_IN: 'SignIn',
     SIGN_UP: 'SignUp',
     PROFILE_SETUP: 'ProfileSetup',
   },
-  _PLAY_CHALLENGE: {
-    BINGO: 'Bingo',
-    ENTER_WEIGHT: 'EnterWeight',
-    CHAT: 'Chat',
-    LEADERBOARD: 'Leaderboard',
-    USERS: 'Users',
-    SETTINGS: 'Settings',
+  _DASHBOARD: {
+    ONGOING_CHALLENGE: 'OngoingChallenge',
+    ARCHIVED_CHALLENGE: 'ArchivedChallenge',
+    ENTER_CODE: 'EnterCode',
+    JOIN_CHALLENGE: 'JoinChallenge',
+    SCAN_QR_CODE: 'ScanQRCode',
+    PROFILE: 'Profile',
   },
   _CREATE_CHALLENGE: {
     CHOOSE_PLAN: 'ChoosePlan',
@@ -25,11 +26,12 @@ export const SCREEN_NAMES = {
     INVITE_PARTICIPANTS: 'InviteParticipants',
     CHALLENGE_PUBLISHED: 'ChallengePublished',
   },
-  _DASHBOARD: {
-    ONGOING_CHALLENGE: 'OnGoingChallenge',
-    ARCHIVED_CHALLENGE: 'ArchivedChallenge',
-    ENTER_CODE: 'EnterCode',
-    JOIN_CHALLENGE: 'JoinChallenge',
-    PROFILE: 'Profile',
+  _PLAY_CHALLENGE: {
+    BINGO: 'Bingo',
+    ENTER_WEIGHT: 'EnterWeight',
+    CHAT: 'Chat',
+    LEADERBOARD: 'Leaderboard',
+    USERS: 'Users',
+    SETTINGS: 'Settings',
   },
 } as const;

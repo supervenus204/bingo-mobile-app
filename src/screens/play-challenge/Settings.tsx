@@ -1,205 +1,305 @@
-import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { LoadingCard } from '../../components/common';
-import { BingoBoard } from '../../components/common/BingoBoard';
 import { Header } from '../../components/play-challenge/Header';
-import { Button } from '../../components/ui/Button';
-import {
-  getAllBingoCards,
-  getBingoTasks,
-  updateBingoTasks,
-} from '../../services';
+import { Button, Input } from '../../components/ui';
+import { useCategories } from '../../hooks/useCategories';
+import { usePlans } from '../../hooks/usePlans';
+import { updateChallenge } from '../../services/challenge.service';
 import { useChallengesStore } from '../../store';
-import { COLORS } from '../../theme';
-import { BingoCard } from '../../types';
+import { COLORS, FONTS } from '../../theme';
+
+const layoutOptions = [
+  { id: 16, size: '4x4', taskCount: 16 },
+  { id: 20, size: '4x5', taskCount: 20 },
+  { id: 24, size: '4x6', taskCount: 24 },
+];
 
 export const Settings: React.FC = () => {
-  const { currentChallenge } = useChallengesStore();
-  const categoryId = currentChallenge?.category_id;
-  const totalWeeks = currentChallenge?.duration || 12;
-  const currentWeek = currentChallenge?.current_week || 1;
+  const { currentChallenge, setCurrentChallenge } = useChallengesStore();
+  const { plans, getPlanById } = usePlans();
+  const { categories } = useCategories();
 
-  const [selectedWeek, setSelectedWeek] = React.useState<number>(currentWeek);
-  const [cardData, setCardData] = React.useState<BingoCard[]>([]);
-  const [mode, setMode] = React.useState<'view' | 'edit' | 'play'>('view');
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const weekScrollRef = React.useRef<ScrollView>(null);
-  const ITEM_WIDTH = 110; // styles.weekButton width
-  const GAP = 10; // styles.weekSlider gap
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: currentChallenge?.title || '',
+    plan: currentChallenge?.plan || '',
+    cardSize: currentChallenge?.card_size || 16,
+    duration: currentChallenge?.duration || 12,
+    isOrganizerParticipant: currentChallenge?.is_organizer_participant || false,
+  });
 
-  const handleIncrement = (id: string) => {
-    setCardData(prev =>
-      prev.map(card =>
-        card.id === id ? { ...card, count: card.count + 1 } : card
-      )
-    );
-  };
-
-  const handleDecrement = (id: string) => {
-    setCardData(prev =>
-      prev.map(card =>
-        card.id === id ? { ...card, count: Math.max(0, card.count - 1) } : card
-      )
-    );
-  };
-
-  const fetchBingoCards = async () => {
-    const cards = await getAllBingoCards(categoryId as string);
-
-    const bingoCards = cards.map((card: any) => ({
-      id: card.id,
-      name: card.name,
-      color: card.color,
-      type: card.type,
-      count: 0,
-    }));
-    return bingoCards;
-  };
+  const isOrganizer = currentChallenge?.is_organizer;
+  const category = categories?.find(cat => cat.id === currentChallenge?.category_id);
 
   useEffect(() => {
-    const fetchBingoTasks = async () => {
-      try {
-        setLoading(true);
-        const { card_ids, bingoCards, status } = await getBingoTasks(
-          currentChallenge?.id as string,
-          selectedWeek
-        );
-
-        if (status === 'not_ready' || status === undefined || status === null) {
-          const bingoCards = await fetchBingoCards();
-
-          const _cardData = bingoCards.map((card: any) => ({
-            id: card.id,
-            name: card.name,
-            color: card.color,
-            type: card.type,
-            count: card_ids?.length
-              ? card_ids.filter((id: string) => id === card.id).length
-              : 0,
-          }));
-
-          setCardData([..._cardData]);
-          setMode('edit');
-          return;
-        }
-
-        const _cardData = card_ids.map((id: string) => {
-          const card = bingoCards.find((card: any) => card.id === id);
-          return {
-            id,
-            name: card?.name,
-            color: card?.color,
-            type: card?.type,
-          };
-        });
-
-        setCardData([..._cardData]);
-        setMode('view');
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (selectedWeek && currentChallenge?.id) {
-      fetchBingoTasks();
+    if (currentChallenge) {
+      setFormData({
+        title: currentChallenge.title,
+        plan: currentChallenge.plan,
+        cardSize: currentChallenge.card_size,
+        duration: currentChallenge.duration,
+        isOrganizerParticipant: currentChallenge.is_organizer_participant,
+      });
     }
-  }, [selectedWeek, currentChallenge?.id]);
-
-  const scrollToWeek = (week: number, animated = true) => {
-    const index = Math.max(0, week - 1);
-    const x = Math.max(0, index * (ITEM_WIDTH + GAP));
-    weekScrollRef.current?.scrollTo({ x, y: 0, animated });
-  };
-
-  React.useEffect(() => {
-    scrollToWeek(currentWeek, false);
-  }, []);
+  }, [currentChallenge]);
 
   const handleSave = async () => {
-    const defaultCard = [];
-    for (let i = 0; i < cardData.length; i++) {
-      let count = cardData[i].count;
-      while (count > 0) {
-        defaultCard.push(cardData[i].id);
-        count--;
-      }
-    }
     try {
       setLoading(true);
-      await updateBingoTasks(
-        currentChallenge?.id as string,
-        selectedWeek,
-        defaultCard,
-        []
-      );
-      setMode('view');
+      const response = await updateChallenge(currentChallenge?.id as string, {
+        ...(formData.title !== currentChallenge?.title && { title: formData.title }),
+        ...(formData.plan !== currentChallenge?.plan && { plan: formData.plan }),
+        ...(formData.cardSize !== currentChallenge?.card_size && { card_size: formData.cardSize }),
+        ...(formData.duration !== currentChallenge?.duration && { duration: formData.duration }),
+        ...(formData.isOrganizerParticipant !== currentChallenge?.is_organizer_participant && { is_organizer_participant: formData.isOrganizerParticipant }),
+      });
+
+      setCurrentChallenge({ ...currentChallenge, ...response });
+
+      setIsEditing(false);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to update challenge settings');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleCancel = () => {
+    setFormData({
+      title: currentChallenge?.title || '',
+      plan: currentChallenge?.plan || '',
+      cardSize: currentChallenge?.card_size || 16,
+      duration: currentChallenge?.duration || 12,
+      isOrganizerParticipant: currentChallenge?.is_organizer_participant || false,
+    });
+    setIsEditing(false);
+  };
+
+  const handleDurationChange = (increment: boolean) => {
+    const maxWeeks = getPlanById(formData.plan)?.maxWeek || 12;
+    if (increment) {
+      setFormData(prev => ({
+        ...prev,
+        duration: Math.min(prev.duration + 1, maxWeeks)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        duration: Math.max(prev.duration - 1, 1)
+      }));
+    }
+  };
+
+  const handleLayoutSelect = (layoutId: number) => {
+    setFormData(prev => ({
+      ...prev,
+      cardSize: layoutId
+    }));
+  };
+
+  const renderField = (label: string, value: string | number, isEditable: boolean = false) => (
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>{label}</Text>
+      <Text style={styles.fieldValue}>{value}</Text>
+    </View>
+  );
+
+  const renderEditableField = (label: string, value: string, onChange: (value: string) => void) => (
+    <View style={styles.fieldContainer}>
+      <Input
+        label={label}
+        value={value}
+        onChangeText={onChange}
+        inputStyle={styles.input}
+      />
+    </View>
+  );
+
+  const renderPlanSelector = () => {
+    const currentPlan = getPlanById(formData.plan);
+    const isCurrentPlanFree = currentPlan?.price === 0;
+
+    return (
+      <View style={styles.fieldContainer}>
+        <Text style={styles.fieldLabel}>Plan</Text>
+        <View style={styles.planContainer}>
+          {plans?.map(plan => (
+            <TouchableOpacity
+              key={plan.id}
+              style={[
+                styles.planButton,
+                formData.plan === plan.id && styles.planButtonSelected,
+                !isCurrentPlanFree && styles.planButtonDisabled
+              ]}
+              onPress={() => {
+                if (isCurrentPlanFree) {
+                  setFormData(prev => ({ ...prev, plan: plan.id }));
+                }
+              }}
+              disabled={!isCurrentPlanFree}
+            >
+              <Text style={[
+                styles.planButtonText,
+                formData.plan === plan.id && styles.planButtonTextSelected,
+                !isCurrentPlanFree && styles.planButtonTextDisabled
+              ]}>
+                {plan.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    );
+  };
+
+  const renderDurationSelector = () => (
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>Duration</Text>
+      <View style={styles.durationContainer}>
+        <TouchableOpacity
+          style={styles.durationButton}
+          onPress={() => handleDurationChange(false)}
+        >
+          <Text style={[
+            styles.durationButtonText,
+            { color: formData.duration === 1 ? COLORS.gray.medium : COLORS.text.primary }
+          ]}>-</Text>
+        </TouchableOpacity>
+
+        <View style={styles.durationDisplay}>
+          <Text style={styles.durationValue}>{formData.duration}</Text>
+          <Text style={styles.durationUnit}>weeks</Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.durationButton}
+          onPress={() => handleDurationChange(true)}
+        >
+          <Text style={[
+            styles.durationButtonText,
+            { color: formData.duration === (getPlanById(formData.plan)?.maxWeek || 12) ? COLORS.gray.medium : COLORS.text.primary }
+          ]}>+</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderCardSizeSelector = () => (
+    <View style={styles.fieldContainer}>
+      <Text style={styles.fieldLabel}>Bingo Board Layout</Text>
+      <View style={styles.layoutContainer}>
+        {layoutOptions.map(layout => (
+          <TouchableOpacity
+            key={layout.id}
+            style={[
+              styles.layoutCard,
+              formData.cardSize === layout.id && styles.layoutCardSelected
+            ]}
+            onPress={() => handleLayoutSelect(layout.id)}
+          >
+            <Text style={[
+              styles.layoutText,
+              formData.cardSize === layout.id && styles.layoutTextSelected
+            ]}>
+              {layout.size}
+            </Text>
+            <Text style={[
+              styles.layoutSubtext,
+              formData.cardSize === layout.id && styles.layoutSubtextSelected
+            ]}>
+              {layout.taskCount} tasks
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+
+  const renderOrganizerParticipantToggle = () => (
+    <View style={styles.fieldContainer}>
+      <View style={styles.toggleContainer}>
+        <Text style={styles.fieldLabel}>Organizer Participates</Text>
+        <Switch
+          value={formData.isOrganizerParticipant}
+          onValueChange={(value) => setFormData(prev => ({ ...prev, isOrganizerParticipant: value }))}
+          trackColor={{ false: COLORS.gray.lightMedium, true: COLORS.green.forest }}
+          thumbColor={formData.isOrganizerParticipant ? COLORS.white : COLORS.gray.medium}
+        />
+      </View>
+    </View>
+  );
+
   return (
     <>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Header
-          title={currentChallenge?.title || 'BINGO CARD'}
+          title={currentChallenge?.title || 'CHALLENGE SETTINGS'}
           current_week={currentChallenge?.current_week || 1}
         />
 
-        {!loading && (
-          <>
-            <View style={styles.container}>
-              <Text style={styles.inviteText}>3 participants invited</Text>
+        <View style={styles.container}>
+          {!isEditing ? (
+            <>
+              {/* View Mode */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Challenge Details</Text>
+                {renderField('Title', currentChallenge?.title || '')}
+                {renderField('Category', category?.name || '')}
+                {renderField('Plan', getPlanById(currentChallenge?.plan || '')?.name || '')}
+                {renderField('Duration', `${currentChallenge?.duration || 0} weeks`)}
+                {renderField('Card Size', layoutOptions.find(l => l.id === currentChallenge?.card_size)?.size || '')}
+                {isOrganizer && renderField('Organizer Participates', currentChallenge?.is_organizer_participant ? 'Yes' : 'No')}
+              </View>
 
-              <ScrollView
-                ref={weekScrollRef}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.weekSlider}
-              >
-                {Array.from({ length: totalWeeks }, (_, idx) => {
-                  const week = idx + 1;
-                  const isSelected = selectedWeek === week;
-                  return (
-                    <Button
-                      key={`week-${week}`}
-                      text={`WEEK ${week}`}
-                      onPress={() => setSelectedWeek(week)}
-                      variant={isSelected ? 'primary' : 'outline'}
-                      buttonStyle={styles.weekButton}
-                      disabled={week > currentWeek + 1}
-                    />
-                  );
-                })}
-              </ScrollView>
-              <BingoBoard
-                bingoCardsData={cardData}
-                mode={mode}
-                handleIncrement={handleIncrement}
-                handleDecrement={handleDecrement}
-              />
-              {mode === 'edit' && (
+              {isOrganizer && (
                 <View style={styles.buttonGroup}>
                   <Button
-                    text="Save"
-                    onPress={handleSave}
+                    text="Edit Settings"
+                    onPress={() => setIsEditing(true)}
                     variant="primary"
-                    buttonStyle={styles.saveButton}
-                    textStyle={styles.buttonText}
+                    buttonStyle={styles.editButton}
                   />
                 </View>
               )}
-            </View>
-          </>
-        )}
+            </>
+          ) : (
+            <>
+              {/* Edit Mode */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Edit Challenge Settings</Text>
+                {renderEditableField('Title', formData.title, (value) => setFormData(prev => ({ ...prev, title: value })))}
+                {renderField('Category', category?.name || '')}
+                {renderPlanSelector()}
+                {renderDurationSelector()}
+                {renderCardSizeSelector()}
+                {renderOrganizerParticipantToggle()}
+              </View>
+
+              <View style={styles.buttonGroup}>
+                <Button
+                  text="Cancel"
+                  onPress={handleCancel}
+                  variant="outline"
+                  buttonStyle={styles.cancelButton}
+                />
+                <Button
+                  text="Save Changes"
+                  onPress={handleSave}
+                  variant="primary"
+                  buttonStyle={styles.saveButton}
+                  loading={loading}
+                />
+              </View>
+            </>
+          )}
+        </View>
       </ScrollView>
+
       <LoadingCard
         visible={loading}
-        message={
-          mode === 'edit'
-            ? 'Preparing bingo tasks...'
-            : 'Loading bingo tasks...'
-        }
+        message="Updating challenge settings..."
         subMessage="Please wait a moment"
       />
     </>
@@ -208,54 +308,185 @@ export const Settings: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  inviteText: {
-    fontSize: 14,
-    color: COLORS.black,
-    marginVertical: 12,
-  },
-  weekSlider: {
-    marginBottom: 16,
     paddingHorizontal: 16,
-    paddingVertical: 6,
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: COLORS.gray.medium,
+    paddingVertical: 20,
   },
-  weekButton: {
-    borderRadius: 24,
-    height: 30,
-    justifyContent: 'center',
+  section: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: COLORS.black,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontFamily: FONTS.family.poppinsBold,
+    color: COLORS.text.primary,
+    marginBottom: 20,
+  },
+  fieldContainer: {
+    marginBottom: 16,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.text.secondary,
+    marginBottom: 8,
+  },
+  fieldValue: {
+    fontSize: 16,
+    fontFamily: FONTS.family.poppinsRegular,
+    color: COLORS.text.primary,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.gray.light,
+    borderRadius: 8,
+  },
+  input: {
+    backgroundColor: COLORS.white,
+    borderWidth: 1,
+    borderColor: COLORS.gray.lightMedium,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    fontFamily: FONTS.family.poppinsRegular,
+  },
+  planContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  planButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.gray.lightMedium,
+    backgroundColor: COLORS.white,
     alignItems: 'center',
-    width: 110,
+  },
+  planButtonSelected: {
+    backgroundColor: COLORS.green.forest,
+    borderColor: COLORS.green.forest,
+  },
+  planButtonText: {
+    fontSize: 14,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.text.primary,
+  },
+  planButtonTextSelected: {
+    color: COLORS.white,
+  },
+  planButtonDisabled: {
+    backgroundColor: COLORS.gray.light,
+    borderColor: COLORS.gray.lightMedium,
+    opacity: 0.6,
+  },
+  planButtonTextDisabled: {
+    color: COLORS.gray.medium,
+  },
+  disabledText: {
+    fontSize: 12,
+    fontFamily: FONTS.family.poppinsRegular,
+    color: COLORS.gray.medium,
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
+  durationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 20,
+  },
+  durationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.gray.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  durationButtonText: {
+    fontSize: 20,
+    fontFamily: FONTS.family.poppinsBold,
+  },
+  durationDisplay: {
+    alignItems: 'center',
+  },
+  durationValue: {
+    fontSize: 24,
+    fontFamily: FONTS.family.poppinsBold,
+    color: COLORS.text.primary,
+  },
+  durationUnit: {
+    fontSize: 12,
+    fontFamily: FONTS.family.poppinsRegular,
+    color: COLORS.text.secondary,
+  },
+  layoutContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  layoutCard: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.gray.lightMedium,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+  },
+  layoutCardSelected: {
+    backgroundColor: COLORS.green.forest,
+    borderColor: COLORS.green.forest,
+  },
+  layoutText: {
+    fontSize: 16,
+    fontFamily: FONTS.family.poppinsBold,
+    color: COLORS.text.primary,
+    marginBottom: 4,
+  },
+  layoutTextSelected: {
+    color: COLORS.white,
+  },
+  layoutSubtext: {
+    fontSize: 12,
+    fontFamily: FONTS.family.poppinsRegular,
+    color: COLORS.text.secondary,
+  },
+  layoutSubtextSelected: {
+    color: COLORS.white,
+  },
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   buttonGroup: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 16,
-    paddingHorizontal: 16,
+    gap: 12,
+    marginTop: 20,
+  },
+  editButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
   },
   saveButton: {
-    width: '60%',
-    height: 40,
-    borderRadius: 10,
-  },
-  buttonText: {
-    fontSize: 12,
-  },
-  text: {
-    fontSize: 12,
-  },
-  textSelected: {
-    fontSize: 12,
-    color: COLORS.white,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
   },
 });

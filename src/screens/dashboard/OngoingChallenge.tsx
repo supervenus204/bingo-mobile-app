@@ -1,28 +1,24 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   Dimensions,
   Image,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
+  View
 } from 'react-native';
-import { LoadingCard } from '../../components/common';
+import { CustomButton, LoadingCard } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
 import { ChallengeCard } from '../../components/dashboard/ChallengeCard';
-import { Button } from '../../components/ui';
 import { SCREEN_NAMES } from '../../constants';
-import { useChallenges } from '../../hooks/useChallenges';
+import { useChallengesStore } from '../../store/challenges.store';
+import { COLORS, FONTS } from '../../theme';
 import {
   DashboardStackParamList,
   RootStackParamList,
-} from '../../navigation/types';
-import { useChallengesStore } from '../../store/challenges.store';
-import { COLORS, FONTS } from '../../theme';
-import { Challenge } from '../../types/challenge.type';
+} from '../../types/navigation.type';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -30,40 +26,40 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 type NavigationProp = NativeStackNavigationProp<DashboardStackParamList>;
 
 export const OngoingChallenge: React.FC = () => {
-  const { challenges, loading } = useChallenges({ auto: true });
-  const [ongoingChallenges, setOngoingChallenges] = useState<Challenge[]>([]);
-  const { setCurrentChallenge } = useChallengesStore();
+  const { ongoingChallenges, loading, fetchChallenges, selectChallenge } = useChallengesStore();
 
   const navigation = useNavigation<NavigationProp>();
   const rootNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   useEffect(() => {
-    const getOngoingChallenges = () => {
-      const ongoingChallenges = challenges.filter(
-        challenge => challenge.status === 'active' || challenge.status === 'pending' || challenge.status === 'unpaid'
-      );
-      setOngoingChallenges(ongoingChallenges);
-    };
-    getOngoingChallenges();
-  }, [challenges]);
+    fetchChallenges();
+  }, []);
 
-  console.log('ongoingChallenges', ongoingChallenges);
+  const goToArchivedChallenges = () => {
+    navigation.navigate(SCREEN_NAMES._DASHBOARD.ARCHIVED_CHALLENGE);
+  };
 
   return (
     <View style={styles.wrapper}>
       <DashboardHeader
         title="Ongoing Challenges"
         action={
-          <TouchableOpacity onPress={() => {
-            navigation.navigate(SCREEN_NAMES._DASHBOARD.ARCHIVED_CHALLENGE);
-          }}>
-            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>View Archived</Text>
-          </TouchableOpacity>
+          <CustomButton
+            text="View Archived"
+            variant="default"
+            onPress={goToArchivedChallenges}
+          />
         }
       />
 
-      < View style={styles.content} >
-        {!loading &&
+      <View style={styles.content} >
+        {loading ? (
+          <LoadingCard
+            visible={loading}
+            message="Loading challenges..."
+            subMessage="Please wait a moment"
+          />
+        ) :
           (ongoingChallenges.length === 0 ? (
             <View style={styles.container}>
               <View style={styles.imageContainer}>
@@ -88,33 +84,39 @@ export const OngoingChallenge: React.FC = () => {
                 </Text>
 
                 <View style={styles.buttonRow}>
-                  <TouchableOpacity style={[styles.button]} onPress={() => {
-                    navigation.navigate(SCREEN_NAMES._DASHBOARD.ENTER_CODE);
-                  }}>
-                    <Text style={styles.buttonText}>Join a Challenge</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.button, styles.outlineButton]} onPress={() => {
-                    rootNavigation.navigate(SCREEN_NAMES.CREATE_CHALLENGE);
-                  }}>
-                    <Text style={[styles.buttonText, styles.outlineButtonText]}>
-                      Host a Challenge
-                    </Text>
-                  </TouchableOpacity>
+                  <CustomButton
+                    text="Join a Challenge"
+                    buttonStyle={[styles.button]}
+                    textStyle={[styles.buttonText]}
+                    onPress={() => {
+                      navigation.navigate(SCREEN_NAMES._DASHBOARD.ENTER_CODE);
+                    }}
+                  />
+                  <CustomButton
+                    text="Host a Challenge"
+                    variant="outline"
+                    buttonStyle={[styles.button, styles.outlineButton]}
+                    textStyle={[styles.buttonText, styles.outlineButtonText]}
+                    onPress={() => {
+                      rootNavigation.navigate(SCREEN_NAMES.CREATE_CHALLENGE);
+                    }}
+                  />
                 </View>
               </View>
             </View>
           ) : (
             <View style={styles.listContainer}>
               <View style={styles.topButtons}>
-                <Button
+                <CustomButton
                   text="Join a Challenge"
+                  variant="primary"
                   buttonStyle={[styles.topBtn]}
                   textStyle={[styles.topBtnText]}
                   onPress={() => {
                     navigation.navigate(SCREEN_NAMES._DASHBOARD.ENTER_CODE);
                   }}
                 />
-                <Button
+                <CustomButton
                   text="Host a Challenge"
                   onPress={() => {
                     rootNavigation.navigate(SCREEN_NAMES.CREATE_CHALLENGE);
@@ -140,7 +142,7 @@ export const OngoingChallenge: React.FC = () => {
                     progress={(ch.current_week ?? 0) / Math.max(1, ch.duration)}
                     isOrganizer={true}
                     onPress={() => {
-                      setCurrentChallenge(ch as Challenge);
+                      selectChallenge(ch.id);
                       rootNavigation.navigate(SCREEN_NAMES.PLAY_CHALLENGE);
                     }}
                     onPayPress={
@@ -242,10 +244,6 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 50,
-    borderRadius: 999,
-    backgroundColor: COLORS.green.forest,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   buttonText: {
     color: COLORS.white,

@@ -15,10 +15,10 @@ import { Header } from '../../components/create-challenge/Header';
 import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
 import { usePlans, useToast } from '../../hooks';
-import { CreateChallengeStackParamList } from '../../navigation/types';
 import { createChallenge, searchUsers } from '../../services';
 import { Participant, useCreateStore } from '../../store';
 import { COLORS } from '../../theme';
+import { CreateChallengeStackParamList } from '../../types/navigation.type';
 
 type NavigationProp = NativeStackNavigationProp<CreateChallengeStackParamList>;
 

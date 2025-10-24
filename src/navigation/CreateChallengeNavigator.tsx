@@ -6,7 +6,7 @@ import { ChallengePublished } from '../screens/create-challenge/ChallengePublish
 import { ChoosePlan } from '../screens/create-challenge/ChoosePlan';
 import { DefineChallenge } from '../screens/create-challenge/DefineChallenge';
 import { InviteParticipants } from '../screens/create-challenge/InviteParticipants';
-import { CreateChallengeStackParamList } from './types';
+import { CreateChallengeStackParamList } from '../types/navigation.type';
 
 const Stack = createNativeStackNavigator<CreateChallengeStackParamList>();
 

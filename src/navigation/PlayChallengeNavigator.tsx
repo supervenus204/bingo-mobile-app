@@ -3,9 +3,9 @@ import React from 'react';
 import { View } from 'react-native';
 import { Footer } from '../components/play-challenge/Footer';
 import { SCREEN_NAMES } from '../constants/screens';
-import { EnterWeight, GroupChat, HomeScreen, Leaderboard, UserManagement, Settings } from '../screens/play-challenge';
+import { EnterWeight, GroupChat, HomeScreen, Leaderboard, Settings, UserManagement } from '../screens/play-challenge';
 import { useChallengesStore } from '../store';
-import { ChallengeStackParamList } from './types';
+import { ChallengeStackParamList } from '../types/navigation.type';
 
 const Stack = createNativeStackNavigator<ChallengeStackParamList>();
 

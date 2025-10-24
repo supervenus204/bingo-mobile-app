@@ -14,13 +14,13 @@ import { Button, Input } from '../../components/ui';
 import { SCREEN_NAMES } from '../../constants/screens';
 import { usePlans } from '../../hooks';
 import { useToast } from '../../hooks/useToast';
-import { CreateChallengeStackParamList } from '../../navigation/types';
 import {
   confirmPayment,
   payWithPromoCode,
   validatePromoCode,
 } from '../../services';
 import { COLORS, FONTS } from '../../theme';
+import { CreateChallengeStackParamList } from '../../types/navigation.type';
 
 type ChallengePublishedRouteProp = RouteProp<
   CreateChallengeStackParamList,

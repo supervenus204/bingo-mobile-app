@@ -8,13 +8,13 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { Button } from '../../components/ui';
+import { CustomButton } from '../../components/common';
+import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
 import { useToast } from '../../hooks/useToast';
 import { getChallengeByCode } from '../../services';
 import { COLORS, FONTS } from '../../theme';
 
-const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 export const EnterCode: React.FC = () => {
@@ -23,7 +23,7 @@ export const EnterCode: React.FC = () => {
   const navigation = useNavigation();
   const { showToast } = useToast();
 
-  const handleJoin = async () => {
+  const handleEnterCode = async () => {
     try {
       setLoading(true);
       const challenge = await getChallengeByCode(code);
@@ -39,53 +39,63 @@ export const EnterCode: React.FC = () => {
   };
 
   const handleScanQR = () => {
-    // TODO: handle scan QR
+    navigation.navigate(SCREEN_NAMES._DASHBOARD.SCAN_QR_CODE as never);
+  };
+
+  const handleCancel = () => {
+    navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE as never);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.markContainer}>
-        <Image
-          source={require('../../assets/images/dashboard/mark-simple.png')}
-          style={styles.mark}
+    <>
+      <DashboardHeader
+        title="Join a Challenge"
+        action={<CustomButton text="Cancel" variant='default' onPress={handleCancel} />}
+      />
+      <View style={styles.container}>
+        <View style={styles.markContainer}>
+          <Image
+            source={require('../../assets/images/dashboard/mark-simple.png')}
+            style={styles.mark}
+          />
+        </View>
+
+        <Text style={styles.title}>Join a Challenge</Text>
+
+        <Text style={styles.subtitle}>
+          Enter the invite code or link you received.
+        </Text>
+
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.input}
+            placeholder="XXXX-XXXX or paste link here"
+            placeholderTextColor={COLORS.gray.mediumDark}
+            value={code}
+            onChangeText={setCode}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            returnKeyType="done"
+          />
+        </View>
+
+        <CustomButton
+          text="Enter Code"
+          onPress={handleEnterCode}
+          buttonStyle={styles.joinButton}
+          textStyle={styles.joinButtonText}
+          loading={loading}
+          disabled={code.length !== 8}
+        />
+
+        <CustomButton
+          text="Can’t find your code? Scan QR instead."
+          onPress={handleScanQR}
+          buttonStyle={styles.hint}
+          textStyle={styles.hintLink}
         />
       </View>
-
-      <Text style={styles.title}>Join a Challenge</Text>
-
-      <Text style={styles.subtitle}>
-        Enter the invite code or link you received.
-      </Text>
-
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.input}
-          placeholder="XXXX-XXXX or paste link here"
-          placeholderTextColor={COLORS.gray.mediumDark}
-          value={code}
-          onChangeText={setCode}
-          autoCapitalize="characters"
-          autoCorrect={false}
-          returnKeyType="done"
-        />
-      </View>
-
-      <Button
-        text="Join"
-        onPress={handleJoin}
-        buttonStyle={styles.joinButton}
-        textStyle={styles.joinButtonText}
-        loading={loading}
-        disabled={code.length !== 8}
-      />
-
-      <Button
-        text="Can’t find your code? Scan QR instead."
-        onPress={handleScanQR}
-        buttonStyle={styles.hint}
-        textStyle={styles.hintLink}
-      />
-    </View>
+    </>
   );
 };
 
@@ -137,8 +147,6 @@ const styles = StyleSheet.create({
   joinButton: {
     marginTop: 48,
     width: '100%',
-    backgroundColor: COLORS.primary.pink.bright_2,
-    borderRadius: 10,
     height: 48,
   },
   joinButtonText: {

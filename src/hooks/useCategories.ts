@@ -1,14 +1,18 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useCategoriesStore } from '../store/categories.store';
 
 export const useCategories = () => {
   const { categories, loading, error, fetchCategories } = useCategoriesStore();
 
-  useEffect(() => {
-    if (categories === null) {
-      fetchCategories();
+  const loadCategories = useCallback(async () => {
+    if (categories === null || categories.length === 0) {
+      await fetchCategories();
     }
-  }, [categories, fetchCategories]);
+  }, [fetchCategories]);
 
-  return { categories, loading, error, fetchCategories };
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  return { categories, loading, error, loadCategories, fetchCategories };
 };

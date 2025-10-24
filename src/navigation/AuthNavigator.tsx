@@ -4,7 +4,7 @@ import { SCREEN_NAMES } from '../constants/screens';
 import { ProfileSetupScreen } from '../screens';
 import { SignInScreen } from '../screens/auth/SignIn';
 import { SignUpScreen } from '../screens/auth/SignUp';
-import { AuthStackParamList } from './types';
+import { AuthStackParamList } from '../types/navigation.type';
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 

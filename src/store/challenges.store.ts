@@ -1,40 +1,54 @@
 import { create } from 'zustand';
+import { fetchAllChallenges } from '../services/challenge.service';
 import { Challenge } from '../types/challenge.type';
 
 type ChallengesState = {
-  challenges: Challenge[];
+  ongoingChallenges: Challenge[];
+  archivedChallenges: Challenge[];
+  selectedChallenge: Challenge | null;
   loading: boolean;
   error?: string;
-
-  currentChallenge: Challenge | null;
 };
 
 type ChallengesActions = {
-  setChallenges: (challenges: Challenge[]) => void;
+  setOngoingChallenges: (ongoingChallenges: Challenge[]) => void;
+  setArchivedChallenges: (archivedChallenges: Challenge[]) => void;
   setLoading: (loading: boolean) => void;
-  setCurrentChallenge: (currentChallenge: Challenge) => void;
+  selectChallenge: (challengeId: string) => void;
+  fetchChallenges: () => void;
   reset: () => void;
 };
 
 type ChallengesStore = ChallengesState & ChallengesActions;
 
 const initialState: ChallengesState = {
-  challenges: [],
+  ongoingChallenges: [],
+  archivedChallenges: [],
   loading: false,
   error: undefined,
-  currentChallenge: null,
+  selectedChallenge: null,
 };
 
 export const useChallengesStore = create<ChallengesStore>(set => ({
   ...initialState,
-  setChallenges: (challenges: Challenge[]) => set({ challenges }),
+  setOngoingChallenges: (ongoingChallenges: Challenge[]) => set({ ongoingChallenges }),
+  setArchivedChallenges: (archivedChallenges: Challenge[]) => set({ archivedChallenges }),
   setLoading: (loading: boolean) => set({ loading }),
-  setCurrentChallenge: (currentChallenge: Challenge) =>
-    set({ currentChallenge }),
+  selectChallenge: (challengeId: string) => {
+    set(state => ({ selectedChallenge: state.ongoingChallenges.find((challenge: Challenge) => challenge.id === challengeId) ?? null }))
+  },
+  fetchChallenges: async () => {
+    set({ loading: true });
+    try {
+      const challenges = await fetchAllChallenges();
+      const ongoingChallenges = challenges.filter((challenge: Challenge) => challenge.status === 'active' || challenge.status === 'pending' || challenge.status === 'unpaid');
+      const archivedChallenges = challenges.filter((challenge: Challenge) => challenge.status === 'finish' || challenge.status === 'inactive');
+      set({ ongoingChallenges, archivedChallenges });
+    } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Failed to fetch challenges' });
+    } finally {
+      set({ loading: false });
+    }
+  },
   reset: () => set(initialState),
 }));
-
-// Convenience selectors
-export const useChallenges = () => useChallengesStore(s => s.challenges);
-export const useChallengesLoading = () => useChallengesStore(s => s.loading);
-export const useChallengesError = () => useChallengesStore(s => s.error);

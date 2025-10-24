@@ -1,8 +1,8 @@
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {SCREEN_NAMES} from '../constants';
-import {WelcomeScreen} from '../screens/Welcome';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SCREEN_NAMES } from '../constants';
 import { OnboardingScreen } from '../screens/Onboarding';
-import {WelcomeStackParamList} from './types';
+import { WelcomeScreen } from '../screens/Welcome';
+import { WelcomeStackParamList } from '../types/navigation.type';
 
 const Stack = createNativeStackNavigator<WelcomeStackParamList>();
 

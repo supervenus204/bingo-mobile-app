@@ -1,12 +1,8 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { SCREEN_NAMES } from '../constants/screens';
-import { OngoingChallenge } from '../screens/dashboard';
-import { ArchivedChallenge } from '../screens/dashboard/ArchivedChallenge';
-import { EnterCode } from '../screens/dashboard/EnterCode';
-import { JoinChallenge } from '../screens/dashboard/JoinChallenge';
-import { Profile } from '../screens/dashboard/Profile';
-import { DashboardStackParamList } from './types';
+import { ArchivedChallenge, EnterCode, JoinChallenge, OngoingChallenge, Profile, ScanQRCode } from '../screens/dashboard';
+import { DashboardStackParamList } from '../types';
 
 const Stack = createNativeStackNavigator<DashboardStackParamList>();
 
@@ -33,6 +29,10 @@ export const DashboardNavigator = () => {
       <Stack.Screen
         name={SCREEN_NAMES._DASHBOARD.JOIN_CHALLENGE}
         component={JoinChallenge}
+      />
+      <Stack.Screen
+        name={SCREEN_NAMES._DASHBOARD.SCAN_QR_CODE}
+        component={ScanQRCode}
       />
       <Stack.Screen
         name={SCREEN_NAMES._DASHBOARD.PROFILE}

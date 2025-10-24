@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONTS } from '../../theme';
-import { Button } from './Button';
+import { Button } from '../common/Button';
 import { Modal } from './Modal';
 
 interface WelcomeModalProps {

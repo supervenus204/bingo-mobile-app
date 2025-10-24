@@ -10,17 +10,17 @@ import {
 } from 'react-native';
 import { COLORS, FONTS } from '../../theme';
 
-type ButtonProps = {
+type CustomButtonProps = {
   onPress: () => void;
   text: string;
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   loading?: boolean;
   disabled?: boolean;
-  variant?: 'primary' | 'outline';
+  variant?: 'primary' | 'outline' | 'default';
 };
 
-export const Button: React.FC<ButtonProps> = ({
+export const CustomButton: React.FC<CustomButtonProps> = ({
   onPress,
   text,
   buttonStyle,
@@ -38,6 +38,7 @@ export const Button: React.FC<ButtonProps> = ({
         styles.base,
         variant === 'primary' && styles.primary,
         variant === 'outline' && styles.outline,
+        variant === 'default' && styles.default,
         (disabled || loading) && styles.buttonDisabled,
         buttonStyle,
       ]}
@@ -53,6 +54,7 @@ export const Button: React.FC<ButtonProps> = ({
             styles.text,
             variant === 'primary' && styles.textOnPrimary,
             variant === 'outline' && styles.textOnOutline,
+            variant === 'default' && styles.textOnDefault,
             textStyle,
           ]}
         >
@@ -65,9 +67,9 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   base: {
-    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 999,
   },
   text: {
     fontSize: 12,
@@ -84,10 +86,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.green.forest,
   },
+  default: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+  },
   textOnPrimary: {
     color: COLORS.white,
   },
   textOnOutline: {
+    color: COLORS.green.forest,
+  },
+  textOnDefault: {
     color: COLORS.green.forest,
   },
 });

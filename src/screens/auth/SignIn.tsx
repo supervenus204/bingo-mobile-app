@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button, GoogleSignInButton, Input } from '../../components/ui';
+import { CustomButton } from '../../components/common';
+import { GoogleSignInButton, Input } from '../../components/ui';
 import { GOOGLE_WEB_CLIENT_ID } from '../../constants/config';
 import { COLORS, FONTS } from '../../theme';
 
@@ -130,7 +131,7 @@ export const SignInScreen: React.FC = () => {
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity> */}
 
-          <Button
+          <CustomButton
             text="Sign In"
             onPress={handleSubmit}
             buttonStyle={styles.submitButton}
