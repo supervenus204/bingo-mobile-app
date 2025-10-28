@@ -17,16 +17,15 @@ import {
   View,
 } from 'react-native';
 import { Avatar } from '../../components/common';
-import { Header } from '../../components/play-challenge/Header';
 import { useMessages } from '../../hooks';
 import { useAuthStore, useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 import { supabase } from '../../utils/supabase';
 
-export const GroupChat: React.FC = () => {
-  const { currentChallenge } = useChallengesStore();
+export const ChatScreen: React.FC = () => {
+  const { selectedChallenge } = useChallengesStore();
   const { user } = useAuthStore();
-  const challengeId = currentChallenge?.id;
+  const challengeId = selectedChallenge?.id;
   const { messages, loading, hasMore, fetchMore, send, sending } = useMessages({
     challengeId,
     pageSize: 20,
@@ -72,9 +71,9 @@ export const GroupChat: React.FC = () => {
       const time = item.sent_time || item.createdAt;
       const timeText = time
         ? new Date(time).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })
+          hour: '2-digit',
+          minute: '2-digit',
+        })
         : '';
 
       return (
@@ -178,10 +177,6 @@ export const GroupChat: React.FC = () => {
       style={styles.container}
       behavior={Platform.select({ ios: 'padding', android: undefined })}
     >
-      <Header
-        title={currentChallenge?.title || 'BINGO CARD'}
-        current_week={currentChallenge?.current_week || 1}
-      />
       <View style={styles.listContainer}>
         <FlatList
           ref={listRef}

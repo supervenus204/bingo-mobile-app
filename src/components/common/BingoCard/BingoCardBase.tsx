@@ -5,7 +5,7 @@ import { COLORS } from '../../../theme';
 interface BingoCardBaseProps {
   color: string;
   name: string;
-  status?: 'mark' | 'check' | 'unmark' | null;
+  status?: 'mark' | 'unmark' | string | null;
   children: React.ReactNode;
 }
 
@@ -21,7 +21,8 @@ export const BingoCardBase: React.FC<BingoCardBaseProps> = ({
         style={[
           styles.container,
           { backgroundColor: status === 'check' ? COLORS.green.forest : color },
-          (status === 'mark' || status === 'check') && styles.markedContainer,
+          (status === 'mark') && styles.markedContainer,
+          (status === 'check') && styles.checkedContainer,
         ]}
       >
         {children}
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 4,
     position: 'relative',
-    shadowColor: '#000',
+    shadowColor: COLORS.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -51,6 +52,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   markedContainer: {
+    borderWidth: 4,
+    borderColor: COLORS.green.forest,
+    shadowColor: COLORS.green.forest,
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 12,
+  },
+  checkedContainer: {
     borderWidth: 2,
     borderColor: COLORS.green.forest,
   },

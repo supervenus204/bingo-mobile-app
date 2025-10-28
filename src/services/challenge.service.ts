@@ -66,3 +66,8 @@ export const updateChallenge = async (challengeId: string, updateData: any) => {
   const response = await apiFetch(`/api/challenge/${challengeId}`, 'PATCH', updateData);
   return response;
 };
+
+export const getLeaderboard = async (challengeId: string, weekNumber: number) => {
+  const response = await apiFetch(`/api/challenge/${challengeId}/leaderboard/${weekNumber}`, 'GET', {});
+  return response;
+};

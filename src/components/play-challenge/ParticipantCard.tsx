@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Participant } from '../../screens/play-challenge/UserManagement';
+import { Participant } from '../../screens/play-challenge/ParticipantManagement';
 import { ProfileIcon } from '../ui';
 
 interface ParticipantCardProps {

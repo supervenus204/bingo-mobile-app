@@ -141,6 +141,7 @@ export const COLORS = {
     yinMn: '#375A82',
     glaucous: '#5D7EA0',
     powder: '#90ABC3',
+    dark: '#062850',
   },
 
   green: {

@@ -75,14 +75,14 @@ export const useMessages = ({
         createdAt: new Date().toISOString(),
         sender: user
           ? {
-              id: user.id,
-              first_name: user.firstName,
-              last_name: user.lastName,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              image: user.avatar ?? null,
-            }
+            id: user.id,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            image: user.image ?? null,
+          }
           : undefined,
       };
       setMessages(prev => [optimistic, ...prev]);

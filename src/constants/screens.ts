@@ -28,10 +28,10 @@ export const SCREEN_NAMES = {
   },
   _PLAY_CHALLENGE: {
     BINGO: 'Bingo',
-    ENTER_WEIGHT: 'EnterWeight',
     CHAT: 'Chat',
     LEADERBOARD: 'Leaderboard',
-    USERS: 'Users',
+    PARTICIPANT_MANAGEMENT: 'ParticipantManagement',
     SETTINGS: 'Settings',
+    WEIGH_IN: 'WeighIn',
   },
 } as const;

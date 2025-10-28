@@ -14,11 +14,8 @@ interface BingoCardProps {
   onIncrement?: () => void;
   onDecrement?: () => void;
   onStatusChange?: (status: string) => void;
-  onShowActions?: (cardId: string) => void;
-  status?: 'mark' | 'check' | 'unmark' | null;
+  status?: 'mark' | 'unmark' | 'check' | null;
   mode?: 'view' | 'edit' | 'play';
-  cardId?: string;
-  isActionActive?: boolean;
 }
 
 export const BingoCard: React.FC<BingoCardProps> = ({
@@ -28,11 +25,8 @@ export const BingoCard: React.FC<BingoCardProps> = ({
   onIncrement,
   onDecrement,
   onStatusChange,
-  onShowActions,
   status,
   mode,
-  cardId,
-  isActionActive = false,
 }) => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
@@ -43,7 +37,7 @@ export const BingoCard: React.FC<BingoCardProps> = ({
       const pulseAnimation = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
-            toValue: 1.05,
+            toValue: 1.1,
             duration: 1000,
             useNativeDriver: true,
           }),
@@ -99,11 +93,7 @@ export const BingoCard: React.FC<BingoCardProps> = ({
           <BingoCardPlay
             name={name}
             status={status}
-            onLongPress={() => onShowActions?.(cardId || '')}
             onStatusChange={onStatusChange}
-            onShowActions={onShowActions}
-            cardId={cardId}
-            isActionActive={isActionActive}
           />
         );
       case 'view':
@@ -117,13 +107,13 @@ export const BingoCard: React.FC<BingoCardProps> = ({
     mode === 'edit'
       ? { onPress: onIncrement, activeOpacity: 0.7 }
       : {
-          style: [
-            mode === 'play' &&
-              status === 'mark' && {
-                transform: [{ scale: pulseAnim }],
-              },
-          ],
-        };
+        style: [
+          mode === 'play' &&
+          status === 'mark' && {
+            transform: [{ scale: pulseAnim }],
+          },
+        ],
+      };
 
   return (
     <>

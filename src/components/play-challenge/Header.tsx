@@ -1,22 +1,21 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SCREEN_NAMES } from '../../constants/screens';
 import { useAuthStore, useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 import { Challenge } from '../../types/challenge.type';
-import { Label } from '../ui/Label';
+import { CustomButton } from '../common';
 import { Sidebar } from './Sidebar';
 
 type Props = {
   title: string;
-  current_week: number;
 };
 
-export const Header: React.FC<Props> = ({ title, current_week }) => {
+export const Header: React.FC<Props> = ({ title }) => {
   const navigation = useNavigation();
-  const { setCurrentChallenge } = useChallengesStore();
+  const { selectChallenge } = useChallengesStore();
   const [showSidebar, setShowSidebar] = useState(false);
 
   const { logout } = useAuthStore();
@@ -30,7 +29,7 @@ export const Header: React.FC<Props> = ({ title, current_week }) => {
   };
 
   const handleSwitchChallenge = (challenge: Challenge) => {
-    setCurrentChallenge(challenge);
+    selectChallenge(challenge.id);
     setShowSidebar(false);
     navigation.navigate(SCREEN_NAMES.PLAY_CHALLENGE as never);
   };
@@ -43,8 +42,6 @@ export const Header: React.FC<Props> = ({ title, current_week }) => {
         screen: SCREEN_NAMES._DASHBOARD.PROFILE,
       });
     }
-    // Navigate to profile screen
-    console.log('Navigate to profile');
   };
 
   const handleLogout = async () => {
@@ -68,43 +65,36 @@ export const Header: React.FC<Props> = ({ title, current_week }) => {
   };
 
   const handleGoToInputWeight = () => {
-    navigation.navigate(SCREEN_NAMES._PLAY_CHALLENGE.ENTER_WEIGHT as never);
+    navigation.navigate(SCREEN_NAMES._PLAY_CHALLENGE.WEIGH_IN as never);
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.leftRow}>
-        <TouchableOpacity
-          onPress={handleHomePress}
-          activeOpacity={0.8}
-          style={styles.homeButton}
-        >
-          <Icon name="menu" size={24} color={COLORS.blue.oxford} />
-        </TouchableOpacity>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
-          </Text>
-        </View>
+      <CustomButton
+        onPress={handleHomePress}
+        variant="default"
+        buttonStyle={styles.iconButton}
+        icon={<Icon name="menu" size={24} color={COLORS.blue.oxford} />}
+      />
+
+      <View style={styles.titleContainer}>
+        <Text style={styles.title} numberOfLines={1}>
+          {title}
+        </Text>
       </View>
-      <View style={styles.rightRow}>
-        <TouchableOpacity
-          onPress={handleGoToInputWeight}
-          activeOpacity={0.8}
-          style={styles.weightButton}
-        >
+
+      <CustomButton
+        onPress={handleGoToInputWeight}
+        variant="default"
+        buttonStyle={styles.iconButton}
+        icon={
           <Image
             source={require('../../assets/images/play-challenge/input-weight.png')}
             style={styles.weightIcon}
             resizeMode="contain"
           />
-        </TouchableOpacity>
-        <Label
-          text={`WEEK ${current_week}`}
-          variant="primary"
-          labelStyle={styles.weekPill}
-        />
-      </View>
+        }
+      />
 
       <Sidebar
         visible={showSidebar}
@@ -121,53 +111,29 @@ export const Header: React.FC<Props> = ({ title, current_week }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.white,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    elevation: 8,
+    zIndex: 1000,
   },
-  leftRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    flex: 1,
-  },
-  homeButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: COLORS.gray.light,
+  iconButton: {
+    width: 48,
+    height: 48,
+    padding: 0,
   },
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     flex: 1,
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
   title: {
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: FONTS.family.poppinsBold,
     color: COLORS.blue.oxford,
-  },
-  weekPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 2,
-  },
-  rightRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  weightButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: COLORS.gray.light,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    textAlign: 'center',
   },
   weightIcon: {
     width: 24,

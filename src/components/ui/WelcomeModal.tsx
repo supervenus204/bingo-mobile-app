@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONTS } from '../../theme';
-import { Button } from '../common/Button';
+import { CustomButton } from '../common/Button';
 import { Modal } from './Modal';
 
 interface WelcomeModalProps {
@@ -27,7 +27,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.subtitle}>{subtitle}</Text>
 
-        <Button
+        <CustomButton
           text={buttonText}
           onPress={onLetsGo}
           buttonStyle={styles.button}

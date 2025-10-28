@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
-import { LoadingCard } from '../../components/common';
-import { Header } from '../../components/play-challenge/Header';
-import { Button, Input } from '../../components/ui';
+import { CustomButton, LoadingCard } from '../../components/common';
+import { Input } from '../../components/ui';
 import { useCategories } from '../../hooks/useCategories';
 import { usePlans } from '../../hooks/usePlans';
 import { updateChallenge } from '../../services/challenge.service';
@@ -15,48 +14,48 @@ const layoutOptions = [
   { id: 24, size: '4x6', taskCount: 24 },
 ];
 
-export const Settings: React.FC = () => {
-  const { currentChallenge, setCurrentChallenge } = useChallengesStore();
+export const SettingsScreen: React.FC = () => {
+  const { selectedChallenge, selectChallenge } = useChallengesStore();
   const { plans, getPlanById } = usePlans();
   const { categories } = useCategories();
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: currentChallenge?.title || '',
-    plan: currentChallenge?.plan || '',
-    cardSize: currentChallenge?.card_size || 16,
-    duration: currentChallenge?.duration || 12,
-    isOrganizerParticipant: currentChallenge?.is_organizer_participant || false,
+    title: selectedChallenge?.title || '',
+    plan: selectedChallenge?.plan || '',
+    cardSize: selectedChallenge?.card_size || 16,
+    duration: selectedChallenge?.duration || 12,
+    isOrganizerParticipant: selectedChallenge?.is_organizer_participant || false,
   });
 
-  const isOrganizer = currentChallenge?.is_organizer;
-  const category = categories?.find(cat => cat.id === currentChallenge?.category_id);
+  const isOrganizer = selectedChallenge?.is_organizer;
+  const category = categories?.find(cat => cat.id === selectedChallenge?.category_id);
 
   useEffect(() => {
-    if (currentChallenge) {
+    if (selectedChallenge) {
       setFormData({
-        title: currentChallenge.title,
-        plan: currentChallenge.plan,
-        cardSize: currentChallenge.card_size,
-        duration: currentChallenge.duration,
-        isOrganizerParticipant: currentChallenge.is_organizer_participant,
+        title: selectedChallenge.title,
+        plan: selectedChallenge.plan,
+        cardSize: selectedChallenge.card_size,
+        duration: selectedChallenge.duration,
+        isOrganizerParticipant: selectedChallenge.is_organizer_participant,
       });
     }
-  }, [currentChallenge]);
+  }, [selectedChallenge]);
 
   const handleSave = async () => {
     try {
       setLoading(true);
-      const response = await updateChallenge(currentChallenge?.id as string, {
-        ...(formData.title !== currentChallenge?.title && { title: formData.title }),
-        ...(formData.plan !== currentChallenge?.plan && { plan: formData.plan }),
-        ...(formData.cardSize !== currentChallenge?.card_size && { card_size: formData.cardSize }),
-        ...(formData.duration !== currentChallenge?.duration && { duration: formData.duration }),
-        ...(formData.isOrganizerParticipant !== currentChallenge?.is_organizer_participant && { is_organizer_participant: formData.isOrganizerParticipant }),
+      const response = await updateChallenge(selectedChallenge?.id as string, {
+        ...(formData.title !== selectedChallenge?.title && { title: formData.title }),
+        ...(formData.plan !== selectedChallenge?.plan && { plan: formData.plan }),
+        ...(formData.cardSize !== selectedChallenge?.card_size && { card_size: formData.cardSize }),
+        ...(formData.duration !== selectedChallenge?.duration && { duration: formData.duration }),
+        ...(formData.isOrganizerParticipant !== selectedChallenge?.is_organizer_participant && { is_organizer_participant: formData.isOrganizerParticipant }),
       });
 
-      setCurrentChallenge({ ...currentChallenge, ...response });
+      selectChallenge(selectedChallenge?.id as string);
 
       setIsEditing(false);
     } catch (error) {
@@ -68,11 +67,11 @@ export const Settings: React.FC = () => {
 
   const handleCancel = () => {
     setFormData({
-      title: currentChallenge?.title || '',
-      plan: currentChallenge?.plan || '',
-      cardSize: currentChallenge?.card_size || 16,
-      duration: currentChallenge?.duration || 12,
-      isOrganizerParticipant: currentChallenge?.is_organizer_participant || false,
+      title: selectedChallenge?.title || '',
+      plan: selectedChallenge?.plan || '',
+      cardSize: selectedChallenge?.card_size || 16,
+      duration: selectedChallenge?.duration || 12,
+      isOrganizerParticipant: selectedChallenge?.is_organizer_participant || false,
     });
     setIsEditing(false);
   };
@@ -234,28 +233,23 @@ export const Settings: React.FC = () => {
   return (
     <>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Header
-          title={currentChallenge?.title || 'CHALLENGE SETTINGS'}
-          current_week={currentChallenge?.current_week || 1}
-        />
-
         <View style={styles.container}>
           {!isEditing ? (
             <>
               {/* View Mode */}
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Challenge Details</Text>
-                {renderField('Title', currentChallenge?.title || '')}
+                {renderField('Title', selectedChallenge?.title || '')}
                 {renderField('Category', category?.name || '')}
-                {renderField('Plan', getPlanById(currentChallenge?.plan || '')?.name || '')}
-                {renderField('Duration', `${currentChallenge?.duration || 0} weeks`)}
-                {renderField('Card Size', layoutOptions.find(l => l.id === currentChallenge?.card_size)?.size || '')}
-                {isOrganizer && renderField('Organizer Participates', currentChallenge?.is_organizer_participant ? 'Yes' : 'No')}
+                {renderField('Plan', getPlanById(selectedChallenge?.plan || '')?.name || '')}
+                {renderField('Duration', `${selectedChallenge?.duration || 0} weeks`)}
+                {renderField('Card Size', layoutOptions.find(l => l.id === selectedChallenge?.card_size)?.size || '')}
+                {isOrganizer && renderField('Organizer Participates', selectedChallenge?.is_organizer_participant ? 'Yes' : 'No')}
               </View>
 
               {isOrganizer && (
                 <View style={styles.buttonGroup}>
-                  <Button
+                  <CustomButton
                     text="Edit Settings"
                     onPress={() => setIsEditing(true)}
                     variant="primary"
@@ -278,13 +272,13 @@ export const Settings: React.FC = () => {
               </View>
 
               <View style={styles.buttonGroup}>
-                <Button
+                <CustomButton
                   text="Cancel"
                   onPress={handleCancel}
                   variant="outline"
                   buttonStyle={styles.cancelButton}
                 />
-                <Button
+                <CustomButton
                   text="Save Changes"
                   onPress={handleSave}
                   variant="primary"

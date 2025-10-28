@@ -13,6 +13,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 import { Challenge } from '../../types/challenge.type';
+import { CustomButton } from '../common';
 
 type Props = {
   visible: boolean;
@@ -33,9 +34,9 @@ export const Sidebar: React.FC<Props> = ({
   onLogout,
   onGoToDashboard,
 }) => {
-  const { challenges, currentChallenge } = useChallengesStore();
-  const activeChallenges = challenges.filter(
-    challenge => challenge.status === 'active'
+  const { ongoingChallenges, selectedChallenge } = useChallengesStore();
+  const activeChallenges = ongoingChallenges.filter(
+    (challenge: Challenge) => challenge.status === 'active'
   );
   const sidebarWidth = Math.min(screenWidth * 0.86, 380);
 
@@ -83,104 +84,116 @@ export const Sidebar: React.FC<Props> = ({
           {/* Header with close button */}
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Menu</Text>
-            <TouchableOpacity
+            <CustomButton
               onPress={closeWithAnimation}
-              style={styles.closeButton}
-            >
-              <Icon name="close" size={24} color={COLORS.gray.darker} />
-            </TouchableOpacity>
+              buttonStyle={styles.closeButton}
+              variant="default"
+              icon={<Icon name="close" size={22} color={COLORS.gray.veryDark} />}
+            />
           </View>
 
-          <ScrollView
-            style={styles.content}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Switch Challenges Section */}
-            <View style={[styles.section, styles.firstSection]}>
-              <TouchableOpacity
-                onPress={onGoToDashboard}
-                style={styles.sectionButton}
-              >
-                <Icon name="swap-horiz" size={24} color={COLORS.blue.oxford} />
-                <Text style={styles.sectionButtonText}>Switch Challenges</Text>
-                <Icon
-                  name="chevron-right"
-                  size={20}
-                  color={COLORS.gray.medium}
-                />
-              </TouchableOpacity>
-
-              {activeChallenges.length > 0 && (
-                <View style={styles.challengesList}>
-                  <Text style={styles.sectionSubtitle}>Active Challenges</Text>
-                  {activeChallenges.map(challenge => (
-                    <TouchableOpacity
-                      key={challenge.id}
-                      style={[
-                        styles.challengeItem,
-                        challenge.id === currentChallenge?.id &&
-                          styles.currentChallenge,
-                      ]}
-                      onPress={() => onSwitchChallenge(challenge)}
-                    >
-                      <View style={styles.challengeInfo}>
-                        <Text
-                          style={[
-                            styles.challengeTitle,
-                            challenge.id === currentChallenge?.id &&
-                              styles.currentChallengeTitle,
-                          ]}
-                        >
-                          {challenge.title}
-                        </Text>
-                        <Text style={styles.challengeWeek}>
-                          Week {challenge.current_week}
-                        </Text>
-                      </View>
-                      {challenge.id === currentChallenge?.id && (
-                        <Icon
-                          name="check-circle"
-                          size={20}
-                          color={COLORS.green.sgbus}
-                        />
-                      )}
-                    </TouchableOpacity>
-                  ))}
+          <View style={styles.mainContent}>
+            <ScrollView
+              style={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Switch Challenges Section */}
+              <View style={[styles.section, styles.firstSection]}>
+                <View style={styles.sectionButtonWrapper}>
+                  <CustomButton
+                    onPress={onGoToDashboard}
+                    buttonStyle={styles.sectionButton}
+                    textStyle={styles.sectionButtonText}
+                    variant="default"
+                    icon={<Icon name="swap-horiz" size={22} color={COLORS.blue.oxford} />}
+                    text="Switch Challenges"
+                  />
+                  <Icon
+                    name="chevron-right"
+                    size={22}
+                    color={COLORS.gray.medium}
+                  />
                 </View>
-              )}
-            </View>
 
-            {/* Profile Section */}
-            <View style={styles.section}>
-              <TouchableOpacity
-                onPress={onProfile}
-                style={styles.sectionButton}
-              >
-                <Icon name="person" size={24} color={COLORS.blue.oxford} />
-                <Text style={styles.sectionButtonText}>Profile</Text>
+                {activeChallenges.length > 0 && (
+                  <View style={styles.challengesList}>
+                    <Text style={styles.sectionSubtitle}>Active Challenges</Text>
+                    {activeChallenges.map((challenge: Challenge) => (
+                      <TouchableOpacity
+                        key={challenge.id}
+                        style={[
+                          styles.challengeItem,
+                          challenge.id === selectedChallenge?.id &&
+                          styles.currentChallenge,
+                        ]}
+                        onPress={() => onSwitchChallenge(challenge)}
+                        activeOpacity={0.6}
+                      >
+                        <View style={styles.challengeInfo}>
+                          <Text
+                            style={[
+                              styles.challengeTitle,
+                              challenge.id === selectedChallenge?.id &&
+                              styles.currentChallengeTitle,
+                            ]}
+                          >
+                            {challenge.title}
+                          </Text>
+                          <Text style={styles.challengeWeek}>
+                            Week {challenge.current_week}
+                          </Text>
+                        </View>
+                        {challenge.id === selectedChallenge?.id && (
+                          <Icon
+                            name="check-circle"
+                            size={24}
+                            color={COLORS.green.sgbus}
+                          />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+            </ScrollView>
+
+          </View>
+          {/* Profile and Logout at Bottom */}
+          <View style={styles.bottomSection}>
+            <View style={styles.bottomButtonsRow}>
+              <View style={[styles.sectionButtonWrapper, styles.bottomButton]}>
+                <CustomButton
+                  onPress={onProfile}
+                  buttonStyle={styles.sectionButton}
+                  textStyle={[styles.sectionButtonText, styles.bottomButtonText]}
+                  variant="default"
+                  icon={<Icon name="person" size={20} color={COLORS.blue.oxford} />}
+                  text="Profile"
+                />
                 <Icon
                   name="chevron-right"
-                  size={20}
+                  size={18}
                   color={COLORS.gray.medium}
                 />
-              </TouchableOpacity>
-            </View>
+              </View>
 
-            {/* Logout Section */}
-            <View style={styles.section}>
-              <TouchableOpacity onPress={onLogout} style={styles.sectionButton}>
-                <Icon name="logout" size={24} color={COLORS.red.bright} />
-                <Text style={[styles.sectionButtonText, styles.logoutText]}>
-                  Logout
-                </Text>
+              <View style={[styles.sectionButtonWrapper, styles.bottomButton]}>
+                <CustomButton
+                  onPress={onLogout}
+                  buttonStyle={styles.sectionButton}
+                  textStyle={[styles.sectionButtonText, styles.logoutText, styles.bottomButtonText]}
+                  variant="default"
+                  icon={<Icon name="logout" size={20} color={COLORS.red.bright} />}
+                  text="Logout"
+                />
                 <Icon
                   name="chevron-right"
-                  size={20}
+                  size={18}
                   color={COLORS.gray.medium}
                 />
-              </TouchableOpacity>
+              </View>
             </View>
-          </ScrollView>
+          </View>
         </Animated.View>
         <View
           style={{
@@ -210,7 +223,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 1000,
-    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
   },
   sidebar: {
     position: 'absolute',
@@ -219,71 +232,113 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: COLORS.white,
+    shadowColor: '#000',
+    shadowOffset: { width: -2, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray.light,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontFamily: FONTS.family.poppinsBold,
     color: COLORS.blue.oxford,
+    letterSpacing: 0.3,
   },
   closeButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: COLORS.gray.light,
+    width: 40,
+    height: 40,
+    backgroundColor: COLORS.gray.veryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 0,
+    margin: 0,
+    gap: 0,
   },
-  content: {
+  mainContent: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+  },
+  scrollContent: {
+    flex: 1,
+  },
+  bottomSection: {
+    paddingTop: 16,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.gray.light,
+  },
+  bottomButtonsRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  bottomButton: {
+    flex: 1,
+    marginBottom: 0,
+  },
+  bottomButtonText: {
+    fontSize: 14,
   },
   section: {
-    marginTop: 16,
+    marginTop: 20,
   },
   firstSection: {
-    marginTop: 8,
+    marginTop: 12,
   },
-  sectionButton: {
+  sectionButtonWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    backgroundColor: COLORS.gray.light,
-    borderRadius: 10,
-    marginBottom: 6,
+    backgroundColor: COLORS.gray.veryLight,
+    borderRadius: 12,
+    marginBottom: 8,
+    paddingRight: 12,
+  },
+  sectionButton: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    margin: 0,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    justifyContent: 'flex-start',
   },
   sectionButtonText: {
-    flex: 1,
-    marginLeft: 12,
-    fontSize: 15,
+    marginLeft: 8,
+    fontSize: 16,
     fontFamily: FONTS.family.poppinsMedium,
     color: COLORS.black,
+    letterSpacing: 0.2,
   },
   logoutText: {
     color: COLORS.red.bright,
   },
   challengesList: {
-    marginTop: 12,
+    marginTop: 16,
+    paddingTop: 4,
   },
   sectionSubtitle: {
     fontSize: 13,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.gray.darker,
-    marginBottom: 8,
-    marginLeft: 12,
+    color: COLORS.gray.dark,
+    marginBottom: 12,
+    marginLeft: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   challengeItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     backgroundColor: COLORS.white,
     borderRadius: 8,
     marginBottom: 6,
@@ -291,25 +346,30 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gray.light,
   },
   currentChallenge: {
-    borderColor: COLORS.blue.oxford,
     backgroundColor: COLORS.secondary.blue.alice,
+    shadowOpacity: 0.12,
+    shadowRadius: 5,
+    elevation: 3,
   },
   challengeInfo: {
     flex: 1,
   },
   challengeTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: FONTS.family.poppinsMedium,
     color: COLORS.black,
-    marginBottom: 2,
+    marginBottom: 4,
+    letterSpacing: 0.1,
   },
   currentChallengeTitle: {
     color: COLORS.blue.oxford,
     fontFamily: FONTS.family.poppinsBold,
+    fontSize: 16,
   },
   challengeWeek: {
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: FONTS.family.poppinsRegular,
     color: COLORS.gray.darker,
+    opacity: 0.85,
   },
 });

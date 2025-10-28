@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { usePlans } from '../../hooks/usePlans';
-import { Participant } from '../../screens/play-challenge/UserManagement';
+import { Participant } from '../../screens/play-challenge/ParticipantManagement';
 import { inviteParticipants } from '../../services/participant.service';
 import { searchUsers } from '../../services/user.service';
 import { useChallengesStore } from '../../store/challenges.store';
@@ -31,7 +31,7 @@ interface InviteModalProps {
 }
 
 export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible, onClose, onSuccess }) => {
-  const { currentChallenge } = useChallengesStore();
+  const { selectedChallenge } = useChallengesStore();
   const { getPlanById } = usePlans();
 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -44,8 +44,8 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
   const checkEmailExists = useCallback((email: string) => candidates.some(c => c.email.toLowerCase() === email.toLowerCase() || participants.some(p => p.email.toLowerCase() === email.toLowerCase())), [candidates, participants]);
 
   const isAtLimit = useMemo(() =>
-    participants.length + candidates.length >= (getPlanById(currentChallenge?.plan as string)?.maxParticipants || 0),
-    [participants, candidates, currentChallenge?.plan]
+    participants.length + candidates.length >= (getPlanById(selectedChallenge?.plan as string)?.maxParticipants || 0),
+    [participants, candidates, selectedChallenge?.plan]
   );
 
   const addEmail = async () => {
@@ -109,7 +109,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
 
     try {
       setInviting(true);
-      await inviteParticipants(currentChallenge!.id, candidates.map(c => c.email));
+      await inviteParticipants(selectedChallenge!.id, candidates.map(c => c.email));
       setCandidates([]);
       onClose();
       onSuccess();

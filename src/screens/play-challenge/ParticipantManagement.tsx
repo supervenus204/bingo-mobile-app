@@ -8,7 +8,6 @@ import {
   View,
 } from 'react-native';
 import { LoadingCard } from '../../components/common';
-import { Header } from '../../components/play-challenge/Header';
 import { InviteModal } from '../../components/play-challenge/InviteModal';
 import { ParticipantCard } from '../../components/play-challenge/ParticipantCard';
 import { ParticipantDetailModal } from '../../components/play-challenge/ParticipantDetailModal';
@@ -34,8 +33,8 @@ export interface Participant {
   } | null;
 }
 
-export const UserManagement: React.FC = () => {
-  const { currentChallenge } = useChallengesStore();
+export const ParticipantManagementScreen: React.FC = () => {
+  const { selectedChallenge } = useChallengesStore();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -43,15 +42,15 @@ export const UserManagement: React.FC = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
-    if (currentChallenge?.id) {
+    if (selectedChallenge?.id) {
       loadParticipants();
     }
-  }, [currentChallenge?.id]);
+  }, [selectedChallenge?.id]);
 
   const loadParticipants = async () => {
     try {
       setLoading(true);
-      const data = await fetchParticipants(currentChallenge!.id);
+      const data = await fetchParticipants(selectedChallenge!.id);
       setParticipants(data);
     } catch (error) {
       Alert.alert('Error', 'Failed to load participants');
@@ -70,8 +69,6 @@ export const UserManagement: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Header title="PARTICIPANTS" current_week={currentChallenge?.current_week || 1} />
-
       {loading && (
         <LoadingCard visible={loading} message="Loading participants..." />
       )}

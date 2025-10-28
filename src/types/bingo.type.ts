@@ -4,5 +4,5 @@ export interface BingoCard {
   color: string;
   count: number;
   type?: string;
-  status?: 'mark' | 'check' | 'unmark' | undefined;
+  status?: 'mark' | 'unmark' | 'check' | undefined;
 }

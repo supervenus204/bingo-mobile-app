@@ -1,63 +1,32 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { View } from 'react-native';
-import { Footer } from '../components/play-challenge/Footer';
+import { Footer, Header } from '../components/play-challenge';
 import { SCREEN_NAMES } from '../constants/screens';
-import { EnterWeight, GroupChat, HomeScreen, Leaderboard, Settings, UserManagement } from '../screens/play-challenge';
+import { BingoScreen, ChatScreen, LeaderboardScreen, ParticipantManagementScreen, SettingsScreen, WeighInScreen } from '../screens/play-challenge';
 import { useChallengesStore } from '../store';
 import { ChallengeStackParamList } from '../types/navigation.type';
 
 const Stack = createNativeStackNavigator<ChallengeStackParamList>();
 
-// Wrapper components that include the bottom tab
-const BingoScreenWithBottomTab = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <HomeScreen />
-      <Footer currentRoute={SCREEN_NAMES._PLAY_CHALLENGE.BINGO} />
-    </View>
-  );
-};
+export const LayoutWrapper = (Component: React.ComponentType<any>) => {
+  const { selectedChallenge } = useChallengesStore();
+  const title = selectedChallenge?.title || 'Bingo';
 
-const ChatScreenWithBottomTab = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <GroupChat />
-      <Footer currentRoute={SCREEN_NAMES._PLAY_CHALLENGE.CHAT} />
-    </View>
-  );
+  return (props: any) => {
+    return (
+      <View style={{ flex: 1 }}>
+        <Header title={title} />
+        <Component {...props} />
+        <Footer currentRoute={props.route.name} />
+      </View>
+    );
+  };
 };
-
-const LeaderboardScreenWithTab = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <Leaderboard />
-      <Footer currentRoute={SCREEN_NAMES._PLAY_CHALLENGE.LEADERBOARD} />
-    </View>
-  );
-};
-
-const UsersScreenWithBottomTab = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <UserManagement />
-      <Footer currentRoute={SCREEN_NAMES._PLAY_CHALLENGE.USERS} />
-    </View>
-  );
-};
-
-const SettingsScreenWithBottomTab = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <Settings />
-      <Footer currentRoute={SCREEN_NAMES._PLAY_CHALLENGE.SETTINGS} />
-    </View>
-  );
-};
-
 
 export const PlayChallengeNavigator = () => {
-  const { currentChallenge } = useChallengesStore();
+  const { selectedChallenge } = useChallengesStore();
+
   return (
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
@@ -65,29 +34,29 @@ export const PlayChallengeNavigator = () => {
     >
       <Stack.Screen
         name={SCREEN_NAMES._PLAY_CHALLENGE.BINGO}
-        component={BingoScreenWithBottomTab}
+        component={LayoutWrapper(BingoScreen)}
       />
       <Stack.Screen
         name={SCREEN_NAMES._PLAY_CHALLENGE.CHAT}
-        component={ChatScreenWithBottomTab}
+        component={LayoutWrapper(ChatScreen)}
       />
       <Stack.Screen
         name={SCREEN_NAMES._PLAY_CHALLENGE.LEADERBOARD}
-        component={LeaderboardScreenWithTab}
+        component={LayoutWrapper(LeaderboardScreen)}
       />
-      {currentChallenge?.is_organizer && (
+      {selectedChallenge?.is_organizer && (
         <Stack.Screen
-          name={SCREEN_NAMES._PLAY_CHALLENGE.USERS}
-          component={UsersScreenWithBottomTab}
+          name={SCREEN_NAMES._PLAY_CHALLENGE.PARTICIPANT_MANAGEMENT}
+          component={LayoutWrapper(ParticipantManagementScreen)}
         />
       )}
       <Stack.Screen
         name={SCREEN_NAMES._PLAY_CHALLENGE.SETTINGS}
-        component={SettingsScreenWithBottomTab}
+        component={LayoutWrapper(SettingsScreen)}
       />
       <Stack.Screen
-        name={SCREEN_NAMES._PLAY_CHALLENGE.ENTER_WEIGHT}
-        component={EnterWeight}
+        name={SCREEN_NAMES._PLAY_CHALLENGE.WEIGH_IN}
+        component={LayoutWrapper(WeighInScreen)}
       />
     </Stack.Navigator>
   );

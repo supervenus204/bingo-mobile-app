@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { LoadingCard } from '../../components/common';
+import { CustomButton, LoadingCard } from '../../components/common';
 import { BingoBoard } from '../../components/common/BingoBoard';
-import { Button } from '../../components/common/Button';
-import { Header } from '../../components/play-challenge/Header';
 import {
   getAllBingoCards,
   getBingoTasks,
@@ -14,10 +12,10 @@ import { COLORS } from '../../theme';
 import { BingoCard } from '../../types';
 
 export const Settings: React.FC = () => {
-  const { currentChallenge } = useChallengesStore();
-  const categoryId = currentChallenge?.category_id;
-  const totalWeeks = currentChallenge?.duration || 12;
-  const currentWeek = currentChallenge?.current_week || 1;
+  const { selectedChallenge } = useChallengesStore();
+  const categoryId = selectedChallenge?.category_id;
+  const totalWeeks = selectedChallenge?.duration || 12;
+  const currentWeek = selectedChallenge?.current_week || 1;
 
   const [selectedWeek, setSelectedWeek] = React.useState<number>(currentWeek);
   const [cardData, setCardData] = React.useState<BingoCard[]>([]);
@@ -61,7 +59,7 @@ export const Settings: React.FC = () => {
       try {
         setLoading(true);
         const { card_ids, bingoCards, status } = await getBingoTasks(
-          currentChallenge?.id as string,
+          selectedChallenge?.id as string,
           selectedWeek
         );
 
@@ -101,10 +99,10 @@ export const Settings: React.FC = () => {
         setLoading(false);
       }
     };
-    if (selectedWeek && currentChallenge?.id) {
+    if (selectedWeek && selectedChallenge?.id) {
       fetchBingoTasks();
     }
-  }, [selectedWeek, currentChallenge?.id]);
+  }, [selectedWeek, selectedChallenge?.id]);
 
   const scrollToWeek = (week: number, animated = true) => {
     const index = Math.max(0, week - 1);
@@ -128,7 +126,7 @@ export const Settings: React.FC = () => {
     try {
       setLoading(true);
       await updateBingoTasks(
-        currentChallenge?.id as string,
+        selectedChallenge?.id as string,
         selectedWeek,
         defaultCard,
         []
@@ -141,11 +139,6 @@ export const Settings: React.FC = () => {
   return (
     <>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Header
-          title={currentChallenge?.title || 'BINGO CARD'}
-          current_week={currentChallenge?.current_week || 1}
-        />
-
         {!loading && (
           <>
             <View style={styles.container}>
@@ -161,7 +154,7 @@ export const Settings: React.FC = () => {
                   const week = idx + 1;
                   const isSelected = selectedWeek === week;
                   return (
-                    <Button
+                    <CustomButton
                       key={`week-${week}`}
                       text={`WEEK ${week}`}
                       onPress={() => setSelectedWeek(week)}
@@ -180,7 +173,7 @@ export const Settings: React.FC = () => {
               />
               {mode === 'edit' && (
                 <View style={styles.buttonGroup}>
-                  <Button
+                  <CustomButton
                     text="Save"
                     onPress={handleSave}
                     variant="primary"

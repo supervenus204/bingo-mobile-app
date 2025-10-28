@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   ScrollView,
   StyleSheet,
   Text,
@@ -7,7 +8,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Header } from '../../components/play-challenge/Header';
+import {
+  createMeasure,
+  getCurrentWeekMeasures,
+  getMeasureHistory,
+} from '../../services';
 import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
@@ -17,16 +22,18 @@ interface WeightEntry {
   loss: number;
 }
 
-export const EnterWeight: React.FC = () => {
-  const { currentChallenge } = useChallengesStore();
-  const [weight, setWeight] = useState('100');
-  const [note, setNote] = useState('');
+interface MeasureData {
+  week_number: number;
+  value: number;
+  createdAt?: string;
+}
 
-  // Mock data for weight history
-  const [weightHistory, setWeightHistory] = useState<WeightEntry[]>([
-    { week: 1, weight: 90.0, loss: 0 },
-    { week: 2, weight: 89.0, loss: 1.1 },
-  ]);
+export const WeighInScreen: React.FC = () => {
+  const { selectedChallenge } = useChallengesStore();
+  const [weight, setWeight] = useState('100');
+  const [weightHistory, setWeightHistory] = useState<WeightEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleIncrement = () => {
     const currentValue = parseFloat(weight) || 0;
@@ -40,29 +47,83 @@ export const EnterWeight: React.FC = () => {
     }
   };
 
-  const handleSave = () => {
-    const currentWeek = currentChallenge?.current_week || 1;
-    const newWeight = parseFloat(weight);
+  const transformMeasuresToWeightHistory = (measures: MeasureData[]): WeightEntry[] => {
+    const sortedMeasures = [...measures].sort(
+      (a, b) => a.week_number - b.week_number
+    );
 
-    if (newWeight > 0) {
-      const previousWeight =
-        weightHistory[weightHistory.length - 1]?.weight || newWeight;
+    return sortedMeasures.map((measure, index) => {
+      const previousMeasure = index > 0 ? sortedMeasures[index - 1] : null;
+      const previousWeight = previousMeasure?.value || measure.value;
       const loss =
         previousWeight > 0
-          ? ((previousWeight - newWeight) / previousWeight) * 100
+          ? ((previousWeight - measure.value) / previousWeight) * 100
           : 0;
 
-      const newEntry: WeightEntry = {
-        week: currentWeek,
-        weight: newWeight,
+      return {
+        week: measure.week_number,
+        weight: measure.value,
         loss: Math.round(loss * 10) / 10,
       };
+    });
+  };
 
-      setWeightHistory(prev => [...prev, newEntry]);
+  useEffect(() => {
+    const fetchWeightData = async () => {
+      if (!selectedChallenge?.id) return;
+
+      try {
+        setIsLoading(true);
+        const [historyResponse, currentResponse] = await Promise.all([
+          getMeasureHistory(selectedChallenge.id),
+          getCurrentWeekMeasures(selectedChallenge.id),
+        ]);
+
+        const historyData = transformMeasuresToWeightHistory(historyResponse);
+        setWeightHistory(historyData);
+
+        if (currentResponse && currentResponse.length > 0) {
+          setWeight(String(currentResponse[0].value));
+        }
+      } catch (error) {
+        console.error('Failed to fetch weight data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchWeightData();
+  }, [selectedChallenge?.id]);
+
+  const handleSave = async () => {
+    if (!selectedChallenge?.id) return;
+
+    const newWeight = parseFloat(weight);
+    if (newWeight <= 0) return;
+
+    try {
+      setIsSaving(true);
+      await createMeasure(selectedChallenge.id, 'weight', newWeight);
+
+      const updatedHistory = await getMeasureHistory(selectedChallenge.id);
+      const transformedHistory = transformMeasuresToWeightHistory(updatedHistory);
+      setWeightHistory(transformedHistory);
+    } catch (error) {
+      console.error('Failed to save weight:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const renderChart = () => {
+    if (weightHistory.length === 0) {
+      return (
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartLabel}>No weight data yet</Text>
+        </View>
+      );
+    }
+
     const maxWeight = Math.max(...weightHistory.map(entry => entry.weight));
     const minWeight = Math.min(...weightHistory.map(entry => entry.weight));
     const range = maxWeight - minWeight || 1;
@@ -85,25 +146,29 @@ export const EnterWeight: React.FC = () => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary.main} />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Header
-        title={currentChallenge?.title || 'Enter Weight'}
-        current_week={currentChallenge?.current_week || 1}
-      />
-
       <ScrollView
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Current Week Weight Input */}
         <View style={styles.weightCard}>
           <Text style={styles.weekTitle}>
-            Week {currentChallenge?.current_week || 1} Weight
+            Week {selectedChallenge?.current_week || 1} Weight
           </Text>
           <Text style={styles.subtitle}>
-            Enter your Week {currentChallenge?.current_week || 1} Weight
+            Enter your Week {selectedChallenge?.current_week || 1} Weight
           </Text>
 
           <View style={styles.weightInputContainer}>
@@ -138,8 +203,16 @@ export const EnterWeight: React.FC = () => {
             <Text style={styles.unitText}>kg</Text>
           </View>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>SAVE WEIGHT</Text>
+          <TouchableOpacity
+            style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.saveButtonText}>SAVE WEIGHT</Text>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -153,14 +226,22 @@ export const EnterWeight: React.FC = () => {
             <Text style={styles.historyHeaderText}>Loss</Text>
           </View>
 
-          {weightHistory.map((entry, index) => (
-            <View key={index} style={styles.historyRow}>
-              <Text style={styles.historyWeekText}>
-                Week {entry.week} - {entry.weight} kg
+          {weightHistory.length === 0 ? (
+            <View style={styles.emptyHistoryRow}>
+              <Text style={styles.emptyHistoryText}>
+                No weight entries yet
               </Text>
-              <Text style={styles.historyLossText}>{entry.loss}%</Text>
             </View>
-          ))}
+          ) : (
+            weightHistory.map((entry, index) => (
+              <View key={index} style={styles.historyRow}>
+                <Text style={styles.historyWeekText}>
+                  Week {entry.week} - {entry.weight} kg
+                </Text>
+                <Text style={styles.historyLossText}>{entry.loss}%</Text>
+              </View>
+            ))
+          )}
         </View>
       </ScrollView>
     </View>
@@ -337,5 +418,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#374151',
     fontFamily: FONTS.family.poppinsMedium,
+  },
+  emptyHistoryRow: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  emptyHistoryText: {
+    fontSize: 14,
+    color: COLORS.text.secondary,
+    fontFamily: FONTS.family.poppinsRegular,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveButtonDisabled: {
+    opacity: 0.6,
   },
 });

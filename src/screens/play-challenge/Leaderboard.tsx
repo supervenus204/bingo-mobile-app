@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native';
 import { Avatar, Pagination } from '../../components/common';
-import { Header } from '../../components/play-challenge/Header';
+import { getLeaderboard } from '../../services';
 import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
@@ -21,75 +21,6 @@ interface User {
   position: number;
   badges?: string[];
 }
-
-const mockUsers: User[] = [
-  {
-    id: '1',
-    firstName: 'Jordan',
-    lastName: 'Chinn',
-    points: 0,
-    position: 1,
-    completedTime: 'Organizer',
-  },
-  {
-    id: '2',
-    firstName: 'Emily',
-    lastName: 'Smith',
-    image: 'https://avatars.githubusercontent.com/u/16918891?v=4',
-    points: 38,
-    position: 2,
-    completedTime: 'Pending',
-  },
-  {
-    id: '3',
-    firstName: 'Mark',
-    lastName: 'Johnson',
-    image: 'https://avatars.githubusercontent.com/u/63413883?v=4',
-    points: 2,
-    position: 3,
-    completedTime: '6 hours ago',
-  },
-  {
-    id: '4',
-    firstName: 'Sarah',
-    lastName: 'Williams',
-    points: 25,
-    position: 4,
-    completedTime: '8 hours ago',
-  },
-  {
-    id: '5',
-    firstName: 'David',
-    lastName: 'Brown',
-    points: 15,
-    position: 5,
-    completedTime: '10 hours ago',
-  },
-  {
-    id: '6',
-    firstName: 'Lisa',
-    lastName: 'Wilson',
-    points: 12,
-    position: 6,
-    completedTime: '12 hours ago',
-  },
-  {
-    id: '7',
-    firstName: 'Mike',
-    lastName: 'Davis',
-    points: 8,
-    position: 7,
-    completedTime: '14 hours ago',
-  },
-  {
-    id: '8',
-    firstName: 'Anna',
-    lastName: 'Garcia',
-    points: 6,
-    position: 8,
-    completedTime: '16 hours ago',
-  },
-];
 
 const UserCard: React.FC<{ user: User }> = React.memo(({ user }) => {
   const getPositionBadgeStyle = (position: number) => {
@@ -163,16 +94,85 @@ const UserListItem: React.FC<{ user: User; index: number }> = React.memo(
   }
 );
 
-export const Leaderboard: React.FC = () => {
-  const { currentChallenge } = useChallengesStore();
+const pageSize = 5;
+
+export const LeaderboardScreen: React.FC = () => {
+  const { selectedChallenge } = useChallengesStore();
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const transformLeaderboardData = (data: any) => {
+    if (!data || !data.rank) return [];
+
+    const calculatePoints = (currentProgress: string[]) => {
+      if (!currentProgress) return 0;
+      return currentProgress.filter((item: string) => {
+        return item === 'mark' || (typeof item === 'string' && item.includes('T'));
+      }).length;
+    };
+
+    const isCompleted = (currentProgress: string[]) => {
+      if (!currentProgress) return false;
+      return currentProgress.every((item: string) => {
+        return item === 'mark' || (typeof item === 'string' && item.includes('T'));
+      });
+    };
+
+    // Reverse to show highest points first (backend sorts ascending)
+    const reversedRank = [...data.rank].reverse();
+
+    const transformed = reversedRank.map((item: any, index: number) => {
+      if (!item.user) {
+        console.warn('User missing in item:', item);
+        return null;
+      }
+
+      const user = item.user;
+      const points = calculatePoints(item.current_progress);
+      const completed = isCompleted(item.current_progress);
+
+      return {
+        id: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        image: user.image,
+        points: item.points_earned || points,
+        completedTime: item.completion_date || (completed ? 'Completed' : undefined),
+        position: index + 1,
+        badges: item.awards || [],
+      };
+    }).filter(Boolean);
+
+    console.log('Transformed data:', transformed);
+    return transformed;
+  };
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Fetching leaderboard for:', selectedChallenge?.id, selectedChallenge?.current_week);
+        const leaderboard = await getLeaderboard(selectedChallenge?.id as string, selectedChallenge?.current_week as number);
+        console.log('Raw leaderboard response:', leaderboard);
+        // apiFetch already returns the data object directly
+        const transformedData = transformLeaderboardData(leaderboard);
+        console.log('Setting transformed data:', transformedData);
+        setLeaderboardData(transformedData);
+      } catch (error) {
+        console.error('Failed to fetch leaderboard:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchLeaderboard();
+  }, [selectedChallenge?.id]);
 
   const paginationData = useMemo(() => {
-    const totalPages = Math.ceil(mockUsers.length / pageSize);
+    const totalPages = Math.ceil(leaderboardData.length / pageSize);
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-    const paginatedUsers = mockUsers.slice(startIndex, endIndex);
+    const paginatedUsers = leaderboardData.slice(startIndex, endIndex);
 
     return {
       totalPages,
@@ -180,63 +180,72 @@ export const Leaderboard: React.FC = () => {
       endIndex,
       paginatedUsers,
     };
-  }, [currentPage, pageSize]);
+  }, [currentPage, leaderboardData]);
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
   }, []);
 
   const topPerformers = useMemo(() => {
-    return mockUsers.slice(0, 5);
-  }, []);
+    return leaderboardData.slice(0, 5);
+  }, [leaderboardData]);
 
   return (
     <View style={styles.container}>
-      <Header
-        title={currentChallenge?.title || 'LEADERBOARD'}
-        current_week={currentChallenge?.current_week || 1}
-      />
-
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top Performers Section */}
-        <View style={styles.topPerformersSection}>
-          <Text style={styles.sectionTitle}>Bingo Completors</Text>
-        </View>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <Text>Loading...</Text>
+          </View>
+        ) : leaderboardData.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No participants yet</Text>
+          </View>
+        ) : (
+          <>
+            {/* Top Performers Section */}
+            <View style={styles.topPerformersSection}>
+              <Text style={styles.sectionTitle}>Bingo Completors</Text>
+            </View>
 
-        {/* Horizontal User List */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollHorizontalContainer}
-          style={styles.usersList}
-        >
-          {topPerformers.map(user => (
-            <UserCard key={user.id} user={user} />
-          ))}
-        </ScrollView>
+            {/* Horizontal User List */}
+            {topPerformers.length > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.scrollHorizontalContainer}
+                style={styles.usersList}
+              >
+                {topPerformers.map((user: any) => (
+                  <UserCard key={user.id} user={user} />
+                ))}
+              </ScrollView>
+            )}
 
-        {/* Vertical User List */}
-        <View style={styles.listContainer}>
-          <Text style={styles.listTitle}>Participants</Text>
-          {paginationData.paginatedUsers.map((user, index) => (
-            <UserListItem
-              key={user.id}
-              user={user}
-              index={paginationData.startIndex + index}
+            {/* Vertical User List */}
+            <View style={styles.listContainer}>
+              <Text style={styles.listTitle}>Participants</Text>
+              {paginationData.paginatedUsers.map((user, index) => (
+                <UserListItem
+                  key={user.id}
+                  user={user}
+                  index={paginationData.startIndex + index}
+                />
+              ))}
+            </View>
+
+            {/* Pagination */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={paginationData.totalPages}
+              onPageChange={handlePageChange}
             />
-          ))}
-        </View>
-
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={paginationData.totalPages}
-          onPageChange={handlePageChange}
-        />
+          </>
+        )}
 
         <View style={{ height: 20 }} />
       </ScrollView>
@@ -448,6 +457,23 @@ const styles = StyleSheet.create({
   listStatus: {
     fontSize: FONTS.size.xs,
     color: COLORS.text.tertiary,
+    fontFamily: FONTS.family.poppinsRegular,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: FONTS.size.base,
+    color: COLORS.text.secondary,
     fontFamily: FONTS.family.poppinsRegular,
   },
 });

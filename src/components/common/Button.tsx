@@ -11,8 +11,9 @@ import {
 import { COLORS, FONTS } from '../../theme';
 
 type CustomButtonProps = {
+  text?: string;
   onPress: () => void;
-  text: string;
+  icon?: React.ReactNode;
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   loading?: boolean;
@@ -23,6 +24,7 @@ type CustomButtonProps = {
 export const CustomButton: React.FC<CustomButtonProps> = ({
   onPress,
   text,
+  icon,
   buttonStyle,
   textStyle,
   loading,
@@ -49,17 +51,22 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
           color={variant === 'primary' ? COLORS.white : COLORS.green.forest}
         />
       ) : (
-        <Text
-          style={[
-            styles.text,
-            variant === 'primary' && styles.textOnPrimary,
-            variant === 'outline' && styles.textOnOutline,
-            variant === 'default' && styles.textOnDefault,
-            textStyle,
-          ]}
-        >
-          {text}
-        </Text>
+        <>
+          {icon}
+          {text && (
+            <Text
+              style={[
+                styles.text,
+                variant === 'primary' && styles.textOnPrimary,
+                variant === 'outline' && styles.textOnOutline,
+                variant === 'default' && styles.textOnDefault,
+                textStyle,
+              ]}
+            >
+              {text}
+            </Text>
+          )}
+        </>
       )}
     </TouchableOpacity>
   );
@@ -67,9 +74,11 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
 
 const styles = StyleSheet.create({
   base: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 999,
+    gap: 8,
+    borderRadius: 100,
   },
   text: {
     fontSize: 12,
