@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useMemo } from 'react';
 import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
-import { Button } from '../components/ui';
+import { CustomButton } from '../components/common';
 import { SCREEN_NAMES } from '../constants/screens';
 import { useOnboardingStore } from '../store';
 import { COLORS, FONTS } from '../theme';
@@ -101,7 +101,7 @@ export const OnboardingScreen: React.FC = () => {
           ]}
         >
           {onboardingStep < pages.length - 1 && (
-            <Button
+            <CustomButton
               text="Skip"
               textStyle={styles.buttonText}
               buttonStyle={{
@@ -112,7 +112,7 @@ export const OnboardingScreen: React.FC = () => {
               onPress={handleSkip}
             />
           )}
-          <Button
+          <CustomButton
             text="Next"
             buttonStyle={{
               ...styles.button,

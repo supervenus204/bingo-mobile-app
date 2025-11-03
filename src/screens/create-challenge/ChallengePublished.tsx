@@ -9,11 +9,10 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { CustomButton, Input } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
-import { Button, Input } from '../../components/ui';
 import { SCREEN_NAMES } from '../../constants/screens';
-import { usePlans } from '../../hooks';
-import { useToast } from '../../hooks/useToast';
+import { usePlans, useToast } from '../../hooks';
 import {
   confirmPayment,
   payWithPromoCode,
@@ -255,7 +254,7 @@ export const ChallengePublished: React.FC = () => {
           <View style={styles.buttonRow}>
             {challenge?.status === 'unpaid' ? (
               <>
-                <Button
+                <CustomButton
                   text={isValidatePromoCode ? 'Apply Promo & Pay' : 'Pay Now'}
                   onPress={handlePayNow}
                   variant="primary"
@@ -263,7 +262,7 @@ export const ChallengePublished: React.FC = () => {
                   textStyle={styles.buttonText}
                   loading={isProcessingPayment || loading}
                 />
-                <Button
+                <CustomButton
                   text="Pay Later"
                   onPress={handlePayLater}
                   variant="outline"
@@ -272,7 +271,7 @@ export const ChallengePublished: React.FC = () => {
                 />
               </>
             ) : (
-              <Button
+              <CustomButton
                 text="Start Challenge"
                 onPress={() => navigation.navigate(SCREEN_NAMES.DASHBOARD as never)}
                 variant="primary"

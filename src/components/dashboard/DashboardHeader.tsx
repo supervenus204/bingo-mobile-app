@@ -4,8 +4,8 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SCREEN_NAMES } from '../../constants';
 import { useAuthStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
-import { Dropdown } from '../ui/Dropdown';
-import { ProfileIcon } from '../ui/ProfileIcon';
+import { Dropdown } from '../common/Dropdown';
+import { ProfileIcon } from '../common/ProfileIcon';
 
 interface DashboardHeaderProps {
   title?: string;

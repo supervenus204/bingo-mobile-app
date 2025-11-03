@@ -5,7 +5,7 @@ import { LoadingCard } from '../../components/common';
 import { BingoBoard } from '../../components/common/BingoBoard';
 import { Footer, Header } from '../../components/create-challenge';
 import { DashboardHeader } from '../../components/dashboard';
-import { Button } from '../../components/ui';
+import { CustomButton } from '../../components/common';
 import { SCREEN_NAMES } from '../../constants/screens';
 import { useCards } from '../../hooks/useCards';
 import { useCreateStore } from '../../store';
@@ -99,19 +99,19 @@ export const CardSetup: React.FC = () => {
                 bingoCardsData={bingoCards}
                 handleIncrement={handleIncrement}
                 handleDecrement={handleDecrement}
-                mode="edit"
+                mode="setup"
               />
             </ScrollView>
 
             <Footer>
               <View style={styles.buttonGroup}>
-                <Button
+                <CustomButton
                   text="Reset Selection"
                   onPress={handleReset}
                   variant="outline"
                   buttonStyle={styles.resetButton}
                 />
-                <Button
+                <CustomButton
                   text="Next: Invite Participants"
                   onPress={() =>
                     navigation.navigate(

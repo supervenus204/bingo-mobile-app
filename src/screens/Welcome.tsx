@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Image } from '@rneui/base';
 import React from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
-import { Button } from '../components/ui';
+import { CustomButton } from '../components/common';
 import { SCREEN_NAMES } from '../constants/screens';
 import { useOnboardingStore } from '../store';
 import { COLORS, FONTS } from '../theme';
@@ -43,7 +43,7 @@ export const WelcomeScreen: React.FC = () => {
           Join fun health challenges with friends and family.
         </Text>
 
-        <Button
+        <CustomButton
           text="GET STARTED"
           textStyle={styles.textStyle}
           buttonStyle={styles.buttonStyle}

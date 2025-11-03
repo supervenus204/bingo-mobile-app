@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import CountryPicker from 'react-native-country-picker-modal';
-import { Avatar } from '../../components/common';
+import { Avatar, CustomButton, Input } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
-import { Button, Input } from '../../components/ui';
 import { useUser } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
 
@@ -149,14 +148,14 @@ export const Profile: React.FC = () => {
             </View>
 
             <View style={styles.buttonContainer}>
-              <Button
+              <CustomButton
                 text="Cancel"
                 onPress={toggleEditMode}
                 buttonStyle={styles.cancelButton}
                 textStyle={styles.cancelButtonText}
                 variant="outline"
               />
-              <Button
+              <CustomButton
                 text={loading ? 'Saving...' : 'Save'}
                 onPress={handleSaveProfile}
                 buttonStyle={styles.saveButton}
@@ -194,7 +193,7 @@ export const Profile: React.FC = () => {
               <Text style={styles.infoValue}>{user.timezone || 'Not set'}</Text>
             </View>
 
-            <Button
+            <CustomButton
               text="Edit Profile"
               onPress={toggleEditMode}
               buttonStyle={styles.editButton}

@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button, Input } from '../../components/ui';
+import { CustomButton, Input } from '../../components/common';
 import { SCREEN_NAMES } from '../../constants';
 import { checkDisplayName, updateProfile } from '../../services';
 import { useAuthStore } from '../../store';
@@ -142,7 +142,7 @@ export const ProfileSetupScreen: React.FC = () => {
         />
       </View>
 
-      <Button
+      <CustomButton
         text="SAVE"
         onPress={handleSave}
         buttonStyle={styles.saveButton}

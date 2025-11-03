@@ -1,3 +1,4 @@
+export { AddCustomCardModal } from './AddCustomCardModal';
 export { Footer } from './Footer';
 export { Header } from './Header';
 export { InviteModal } from './InviteModal';

@@ -7,7 +7,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { COLORS, FONTS } from '../../theme';
-import { Label } from '../ui/Label';
+import { Label } from '../common/Label';
 
 type Props = {
   title: string;

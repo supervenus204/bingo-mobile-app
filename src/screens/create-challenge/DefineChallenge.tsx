@@ -8,14 +8,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { CustomButton, Input } from '../../components/common';
 import { Header } from '../../components/create-challenge/Header';
 import { LayoutCard } from '../../components/create-challenge/LayoutCard';
 import { TypeButton } from '../../components/create-challenge/TypeButton';
 import { DashboardHeader } from '../../components/dashboard';
-import { Button, Input } from '../../components/ui';
 import { SCREEN_NAMES } from '../../constants/screens';
-import { usePlans } from '../../hooks';
-import { useCategories } from '../../hooks/useCategories';
+import { useCategories, usePlans } from '../../hooks';
 import { useCreateStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
@@ -160,7 +159,7 @@ export const DefineChallenge: React.FC = () => {
           </View>
         </View>
 
-        <Button
+        <CustomButton
           text="Next: Create Week 1 Card"
           onPress={handleNext}
           buttonStyle={styles.nextButton}

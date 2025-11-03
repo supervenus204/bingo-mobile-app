@@ -12,12 +12,14 @@ type Props = {
   isOrganizer: boolean;
 };
 
+const TAB_WIDTH = 104;
+const TAB_GAP = 8;
+const PADDING_HORIZONTAL = 16;
+
 export const WeekTabBar: React.FC<Props> = ({ weeks, currentWeek, selectedWeek, selectWeek, isOrganizer }) => {
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const isWeekDisabled = (week: number) => {
-    return !isOrganizer && week > currentWeek;
-  };
+  const isWeekDisabled = (week: number) => !isOrganizer && week > currentWeek;
 
   const handleWeekPress = (week: number) => {
     if (!isWeekDisabled(week)) {
@@ -26,23 +28,27 @@ export const WeekTabBar: React.FC<Props> = ({ weeks, currentWeek, selectedWeek, 
   };
 
   useEffect(() => {
-    const scrollToCurrentWeek = () => {
-      const currentWeekIndex = weeks.indexOf(currentWeek);
-      if (currentWeekIndex !== -1 && scrollViewRef.current) {
-        const approximateTabWidth = 120;
-        const scrollPosition = currentWeekIndex * approximateTabWidth;
+    const selectedIndex = weeks.indexOf(selectedWeek);
+    if (selectedIndex !== -1 && scrollViewRef.current) {
+      const scrollPosition = selectedIndex * (TAB_WIDTH + TAB_GAP) - PADDING_HORIZONTAL;
+      setTimeout(() => {
+        scrollViewRef.current?.scrollTo({
+          x: Math.max(0, scrollPosition),
+          animated: true,
+        });
+      }, 100);
+    }
+  }, [selectedWeek, weeks]);
 
-        setTimeout(() => {
-          scrollViewRef.current?.scrollTo({
-            x: scrollPosition,
-            animated: true,
-          });
-        }, 100);
-      }
-    };
-
-    scrollToCurrentWeek();
-  }, [currentWeek, weeks]);
+  const getTabIcon = (week: number) => {
+    if (isWeekDisabled(week)) {
+      return <Icon name="lock" size={12} style={styles.lockIcon} />;
+    }
+    if (currentWeek === week && selectedWeek !== week) {
+      return <Icon name="radio-button-checked" size={10} style={styles.currentIcon} />;
+    }
+    return null;
+  };
 
   return (
     <View style={styles.container}>
@@ -58,23 +64,13 @@ export const WeekTabBar: React.FC<Props> = ({ weeks, currentWeek, selectedWeek, 
           const isActive = selectedWeek === week;
           const isCurrent = currentWeek === week;
 
-          const getIcon = () => {
-            if (isDisabled) {
-              return <Icon name="lock" size={12} style={styles.lockIcon} />;
-            }
-            if (isCurrent && !isActive) {
-              return <Icon name="radio-button-checked" size={10} style={styles.currentIcon} />;
-            }
-            return null;
-          };
-
           return (
             <CustomButton
               key={week}
               text={`Week ${week}`}
               onPress={() => handleWeekPress(week)}
               disabled={isDisabled}
-              icon={getIcon()}
+              icon={getTabIcon(week)}
               buttonStyle={[
                 styles.tab,
                 isActive && styles.activeTab,

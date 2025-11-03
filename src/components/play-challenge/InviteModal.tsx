@@ -15,7 +15,7 @@ import { inviteParticipants } from '../../services/participant.service';
 import { searchUsers } from '../../services/user.service';
 import { useChallengesStore } from '../../store/challenges.store';
 import { COLORS } from '../../theme';
-import { Modal } from '../ui/Modal';
+import { Modal } from '../common/Modal';
 
 export type Candidate = {
   email: string;

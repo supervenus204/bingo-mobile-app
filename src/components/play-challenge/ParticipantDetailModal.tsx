@@ -9,7 +9,7 @@ import {
 import { Participant } from '../../screens/play-challenge/ParticipantManagement';
 import { removeParticipant } from '../../services/participant.service';
 import { useChallengesStore } from '../../store/challenges.store';
-import { Modal } from '../ui/Modal';
+import { Modal } from '../common/Modal';
 
 interface ParticipantDetailModalProps {
   visible: boolean;

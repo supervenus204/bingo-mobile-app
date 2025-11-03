@@ -7,8 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { CustomButton } from '../../components/common';
-import { GoogleSignInButton, Input } from '../../components/ui';
+import { CustomButton, GoogleSignInButton, Input } from '../../components/common';
 import { GOOGLE_WEB_CLIENT_ID } from '../../constants/config';
 import { COLORS, FONTS } from '../../theme';
 

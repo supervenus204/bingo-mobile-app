@@ -7,13 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Button, Input } from '../../components/ui';
+import { CustomButton, Input } from '../../components/common';
 import { COLORS, FONTS } from '../../theme';
 
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN_NAMES } from '../../constants';
-import { useAuth } from '../../hooks';
-import { useToast } from '../../hooks/useToast';
+import { useAuth, useToast } from '../../hooks';
 
 export const SignUpScreen: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -130,7 +129,7 @@ export const SignUpScreen: React.FC = () => {
             </Text>
           </TouchableOpacity>
 
-          <Button
+          <CustomButton
             text="Sign Up"
             onPress={handleSubmit}
             buttonStyle={styles.submitButton}

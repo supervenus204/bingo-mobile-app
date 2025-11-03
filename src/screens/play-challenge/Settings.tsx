@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
-import { CustomButton, LoadingCard } from '../../components/common';
-import { Input } from '../../components/ui';
+import { CustomButton, LoadingCard, Input } from '../../components/common';
 import { useCategories } from '../../hooks/useCategories';
 import { usePlans } from '../../hooks/usePlans';
 import { updateChallenge } from '../../services/challenge.service';

@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Toast } from '../components/ui';
+import { Toast } from '../components/common';
 import type { ToastOptions, ToastPosition } from '../types';
 
 type ToastAPI = {
