@@ -1,5 +1,6 @@
 package com.healthbingo
 
+import android.os.Bundle
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
@@ -19,4 +20,29 @@ class MainActivity : ReactActivity() {
    */
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    instance = this
+  }
+
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
+  ) {
+    NotificationModule.getInstance(application)?.onRequestPermissionsResult(
+      requestCode,
+      permissions,
+      grantResults
+    )
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+  }
+
+  companion object {
+    @Volatile
+    private var instance: MainActivity? = null
+
+    fun getInstance(): MainActivity? = instance
+  }
 }

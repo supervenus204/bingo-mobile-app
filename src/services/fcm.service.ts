@@ -1,8 +1,17 @@
 import messaging from '@react-native-firebase/messaging';
+import { Platform } from 'react-native';
 import { apiFetch } from '../utils';
+import { requestNotificationPermission as requestAndroidPermission } from './notification.service';
 
 export const requestNotificationPermission = async (): Promise<boolean> => {
   try {
+    if (Platform.OS === 'android') {
+      const androidPermission = await requestAndroidPermission();
+      if (!androidPermission) {
+        return false;
+      }
+    }
+
     const authStatus = await messaging().requestPermission();
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||

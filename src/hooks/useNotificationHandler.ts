@@ -2,6 +2,7 @@ import messaging from '@react-native-firebase/messaging';
 import { useEffect } from 'react';
 import { SCREEN_NAMES } from '../constants';
 import { navigationRef } from '../navigation/AppNavigator';
+import { displaySystemNotification } from '../services/notification.service';
 import { useChallengesStore } from '../store/challenges.store';
 import { useNotificationBanner } from './useNotificationBanner';
 
@@ -28,10 +29,37 @@ export const useNotificationHandler = () => {
     };
 
     const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-      console.log('Foreground notification received:', remoteMessage);
-
       const notification = remoteMessage.notification;
+      const data = remoteMessage?.data;
+
+      if (!data || data.type !== 'new_message') {
+        return;
+      }
+
+      const title = notification?.title || 'New Message';
       const body = notification?.body || 'You have a new message';
+
+      const notificationData: Record<string, string> = {};
+      if (data) {
+        Object.keys(data).forEach(key => {
+          const value = data[key];
+          if (typeof value === 'string') {
+            notificationData[key] = value;
+          } else if (value != null) {
+            notificationData[key] = String(value);
+          }
+        });
+      }
+
+      try {
+        await displaySystemNotification({
+          title,
+          body,
+          data: notificationData,
+        });
+      } catch (error) {
+        console.error('Error showing notification:', error);
+      }
 
       showNotification(body, () => {
         handleNotificationNavigation(remoteMessage);
