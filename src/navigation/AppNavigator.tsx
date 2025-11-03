@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation.type';
 
@@ -13,6 +13,8 @@ import { PlayChallengeNavigator } from './PlayChallengeNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
+
 export const AppNavigator = () => {
   const insets = useSafeAreaInsets();
 
@@ -20,7 +22,7 @@ export const AppNavigator = () => {
     <>
       <StatusBar hidden={true} />
 
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,

@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { ToastContext } from '../provider/toast.provider';
+import type { ToastOptions } from '../types/toast.type';
 
 export function useToast() {
   const context = useContext(ToastContext);
@@ -9,10 +10,14 @@ export function useToast() {
   }
 
   const showToast = (
-    message: string,
+    messageOrOptions: string | ToastOptions,
     type: 'success' | 'error' | 'info' = 'info'
   ) => {
-    context.show({ message, type });
+    if (typeof messageOrOptions === 'string') {
+      context.show({ message: messageOrOptions, type });
+    } else {
+      context.show(messageOrOptions);
+    }
   };
 
   return {

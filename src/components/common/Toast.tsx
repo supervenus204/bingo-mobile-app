@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import type { ToastOptions, ToastPosition } from '../../types';
+import { COLORS } from '../../theme';
 
 type Props = {
   visible: boolean;
@@ -22,9 +23,15 @@ type Props = {
 };
 
 const TYPE_BG: Record<NonNullable<ToastOptions['type']>, string> = {
-  success: '#16A34A',
-  error: '#DC2626',
-  info: '#1F2937',
+  success: COLORS.primary.green.mantis,
+  error: COLORS.primary.pink.bright_1,
+  info: COLORS.white,
+};
+
+const TYPE_TEXT: Record<NonNullable<ToastOptions['type']>, string> = {
+  success: COLORS.white,
+  error: COLORS.white,
+  info: COLORS.gray.dark,
 };
 
 export function Toast({
@@ -45,7 +52,14 @@ export function Toast({
     const base =
       TYPE_BG[(options?.type ?? 'info') as keyof typeof TYPE_BG] ??
       TYPE_BG.info;
-    return Platform.select({ ios: base + 'E6', default: base }); // ~90% on iOS
+    return Platform.select({ ios: base + 'F5', default: base }); // More opaque on iOS
+  }, [options?.type]);
+
+  const textColor = useMemo(() => {
+    return (
+      TYPE_TEXT[(options?.type ?? 'info') as keyof typeof TYPE_TEXT] ??
+      TYPE_TEXT.info
+    );
   }, [options?.type]);
 
   // Animate on visibility changes
@@ -118,38 +132,46 @@ export function Toast({
             ]}
           >
             <View style={styles.contentRow}>
-              <Text style={styles.text} numberOfLines={3}>
-                {options.message}
-              </Text>
+              <View style={styles.messageContainer}>
+                <Text style={[styles.text, { color: textColor }]} numberOfLines={2}>
+                  {options.message}
+                </Text>
+              </View>
+
+              {!!options.action && (
+                <Pressable
+                  onPress={() => {
+                    options.action?.onPress();
+                    onRequestClose?.();
+                  }}
+                  style={({ pressed }) => [
+                    styles.action,
+                    {
+                      backgroundColor:
+                        options.type === 'info'
+                          ? COLORS.primary.green.sgbus
+                          : TYPE_BG[options.type],
+                    },
+                    pressed && { opacity: 0.8 },
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityLabel={options.action.label}
+                >
+                  <Text style={styles.actionLabel}>{options.action.label}</Text>
+                </Pressable>
+              )}
 
               <RNPressable
                 onPress={onRequestClose}
                 accessibilityLabel="Close"
                 style={({ pressed }) => [
                   styles.closeBtn,
-                  pressed && { opacity: 0.8 },
+                  pressed && { opacity: 0.6 },
                 ]}
               >
-                <Text style={styles.closeLabel}>×</Text>
+                <Text style={[styles.closeLabel, { color: textColor }]}>×</Text>
               </RNPressable>
             </View>
-
-            {!!options.action && (
-              <Pressable
-                onPress={() => {
-                  options.action?.onPress();
-                  onRequestClose?.();
-                }}
-                style={({ pressed }) => [
-                  styles.action,
-                  pressed && { opacity: 0.7 },
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={options.action.label}
-              >
-                <Text style={styles.actionLabel}>{options.action.label}</Text>
-              </Pressable>
-            )}
           </Animated.View>
         )}
       </View>
@@ -160,50 +182,56 @@ export function Toast({
 const styles = StyleSheet.create({
   card: {
     paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 14,
+    paddingVertical: 12,
+    borderRadius: 12,
     marginHorizontal: 16,
+    minHeight: 56,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 5,
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: COLORS.gray.lightMedium,
   },
   contentRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  messageContainer: {
+    flex: 1,
+    marginRight: 12,
   },
   text: {
-    color: 'white',
     fontSize: 15,
-    flexShrink: 1,
-    flexGrow: 1,
+    lineHeight: 20,
+    fontWeight: '500',
   },
   action: {
-    marginLeft: 14,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.6)',
+    marginRight: 8,
+    minWidth: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionLabel: {
-    color: 'white',
+    color: COLORS.white,
     fontSize: 14,
     fontWeight: '600',
   },
   closeBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 10,
   },
   closeLabel: {
-    color: 'white',
-    fontSize: 20,
-    lineHeight: 20,
-    fontWeight: '700',
+    fontSize: 22,
+    lineHeight: 22,
+    fontWeight: '300',
   },
 });
