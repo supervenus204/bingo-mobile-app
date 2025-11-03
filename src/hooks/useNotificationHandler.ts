@@ -1,4 +1,4 @@
-import messaging from '@react-native-firebase/messaging';
+import { getMessaging } from '@react-native-firebase/messaging';
 import { useEffect } from 'react';
 import { SCREEN_NAMES } from '../constants';
 import { navigationRef } from '../navigation/AppNavigator';
@@ -11,6 +11,8 @@ export const useNotificationHandler = () => {
   const { showNotification } = useNotificationBanner();
 
   useEffect(() => {
+    const messaging = getMessaging();
+
     const handleNotificationNavigation = (remoteMessage: any) => {
       const data = remoteMessage?.data;
       if (!data || data.type !== 'new_message') {
@@ -28,7 +30,7 @@ export const useNotificationHandler = () => {
       }
     };
 
-    const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
+    const unsubscribeForeground = messaging.onMessage(async remoteMessage => {
       const notification = remoteMessage.notification;
       const data = remoteMessage?.data;
 
@@ -66,12 +68,12 @@ export const useNotificationHandler = () => {
       });
     });
 
-    const unsubscribeNotificationOpened = messaging().onNotificationOpenedApp(remoteMessage => {
+    const unsubscribeNotificationOpened = messaging.onNotificationOpenedApp(remoteMessage => {
       console.log('Notification opened app:', remoteMessage);
       handleNotificationNavigation(remoteMessage);
     });
 
-    messaging()
+    messaging
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {

@@ -1,4 +1,4 @@
-import messaging from '@react-native-firebase/messaging';
+import { AuthorizationStatus, getMessaging } from '@react-native-firebase/messaging';
 import { Platform } from 'react-native';
 import { apiFetch } from '../utils';
 import { requestNotificationPermission as requestAndroidPermission } from './notification.service';
@@ -12,10 +12,11 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
       }
     }
 
-    const authStatus = await messaging().requestPermission();
+    const messaging = getMessaging();
+    const authStatus = await messaging.requestPermission();
     const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+      authStatus === AuthorizationStatus.AUTHORIZED ||
+      authStatus === AuthorizationStatus.PROVISIONAL;
 
     return enabled;
   } catch (error) {
@@ -26,7 +27,8 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
 
 export const getFCMToken = async (): Promise<string | null> => {
   try {
-    const token = await messaging().getToken();
+    const messaging = getMessaging();
+    const token = await messaging.getToken();
     return token;
   } catch (error) {
     console.error('Failed to get FCM token:', error);
@@ -45,7 +47,8 @@ export const registerFCMToken = async (token: string): Promise<void> => {
 
 export const deleteFCMToken = async (): Promise<void> => {
   try {
-    await messaging().deleteToken();
+    const messaging = getMessaging();
+    await messaging.deleteToken();
   } catch (error) {
     console.error('Failed to delete FCM token:', error);
   }

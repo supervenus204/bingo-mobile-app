@@ -1,4 +1,4 @@
-import messaging from '@react-native-firebase/messaging';
+import { getMessaging } from '@react-native-firebase/messaging';
 import { useEffect, useRef } from 'react';
 import { deleteFCMToken, getFCMToken, registerFCMToken, requestNotificationPermission } from '../services/fcm.service';
 import { useAuthStore } from '../store/auth.store';
@@ -36,7 +36,8 @@ export const useFCM = () => {
 
     setupFCM();
 
-    const unsubscribeTokenRefresh = messaging().onTokenRefresh(async (newToken) => {
+    const messaging = getMessaging();
+    const unsubscribeTokenRefresh = messaging.onTokenRefresh(async (newToken) => {
       try {
         await registerFCMToken(newToken);
         tokenRegisteredRef.current = true;
