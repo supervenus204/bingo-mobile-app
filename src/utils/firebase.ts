@@ -1,9 +1,10 @@
 import '@react-native-firebase/app';
-import database from '@react-native-firebase/database';
+import { getDatabase as getFirebaseDatabase, ref } from '@react-native-firebase/database';
 
-export const getDatabase = () => database();
+export const getDatabase = getFirebaseDatabase;
 
 export const getRealtimeDatabaseRef = (path: string) => {
-  return database().ref(path);
+  const db = getFirebaseDatabase();
+  return ref(db, path);
 };
 

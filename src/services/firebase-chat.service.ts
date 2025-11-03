@@ -1,5 +1,9 @@
-import database, {
-  FirebaseDatabaseTypes,
+import {
+  DataSnapshot,
+  getDatabase,
+  onChildAdded,
+  ref,
+  set,
 } from '@react-native-firebase/database';
 import { ChatMessage } from '../types/chat.type';
 
@@ -11,44 +15,36 @@ export const subscribeToChallengeMessages = (
   challengeId: string,
   onMessage: MessageListener
 ): (() => void) => {
-  const messagesRef = database().ref(`${MESSAGES_PATH}/${challengeId}/messages`);
+  const db = getDatabase();
+  const messagesRef = ref(db, `${MESSAGES_PATH}/${challengeId}/messages`);
 
-  const handleChildAdded = messagesRef.on(
-    'child_added',
-    (snapshot: FirebaseDatabaseTypes.DataSnapshot) => {
-      if (snapshot.exists()) {
-        const messageData = snapshot.val();
-        onMessage(messageData);
-      }
+  const unsubscribe = onChildAdded(messagesRef, (snapshot: DataSnapshot) => {
+    if (snapshot.exists()) {
+      const messageData = snapshot.val();
+      onMessage(messageData);
     }
-  );
+  });
 
-  return () => {
-    messagesRef.off('child_added', handleChildAdded);
-  };
+  return unsubscribe;
 };
 
 export const subscribeToNewMessages = (
   challengeId: string,
   onNewMessage: (messageId: string) => void
 ): (() => void) => {
-  const messagesRef = database().ref(`${MESSAGES_PATH}/${challengeId}/messages`);
+  const db = getDatabase();
+  const messagesRef = ref(db, `${MESSAGES_PATH}/${challengeId}/messages`);
 
-  const handleChildAdded = messagesRef.on(
-    'child_added',
-    (snapshot: FirebaseDatabaseTypes.DataSnapshot) => {
-      if (snapshot.exists()) {
-        const messageId = snapshot.key;
-        if (messageId) {
-          onNewMessage(messageId);
-        }
+  const unsubscribe = onChildAdded(messagesRef, (snapshot: DataSnapshot) => {
+    if (snapshot.exists()) {
+      const messageId = snapshot.key;
+      if (messageId) {
+        onNewMessage(messageId);
       }
     }
-  );
+  });
 
-  return () => {
-    messagesRef.off('child_added', handleChildAdded);
-  };
+  return unsubscribe;
 };
 
 export const writeMessageNotification = async (
@@ -62,10 +58,12 @@ export const writeMessageNotification = async (
   }
 ): Promise<void> => {
   try {
-    const messagesRef = database().ref(
+    const db = getDatabase();
+    const messagesRef = ref(
+      db,
       `${MESSAGES_PATH}/${challengeId}/messages/${messageId}`
     );
-    await messagesRef.set({
+    await set(messagesRef, {
       ...messageData,
       timestamp: Date.now(),
     });

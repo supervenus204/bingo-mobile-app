@@ -1,9 +1,8 @@
 import React, {
   useCallback,
-  useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react';
 import {
   ActivityIndicator,
@@ -17,13 +16,14 @@ import {
   View,
 } from 'react-native';
 import { Avatar } from '../../components/common';
-import { useMessages } from '../../hooks';
+import { useMessages, useToast } from '../../hooks';
 import { useAuthStore, useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
 export const ChatScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
   const { user } = useAuthStore();
+  const { showToast } = useToast();
   const challengeId = selectedChallenge?.id;
   const { messages, loading, hasMore, fetchMore, send, sending } = useMessages({
     challengeId,
@@ -129,9 +129,14 @@ export const ChatScreen: React.FC = () => {
       await send(toSend);
       listRef.current?.scrollToOffset({ offset: 0, animated: true });
     } catch (error) {
-      console.error('Failed to send message:', error);
+      setText(toSend);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to send message. Please try again.';
+      showToast(errorMessage, 'error');
     }
-  }, [canSend, challengeId, text, send]);
+  }, [canSend, challengeId, text, send, showToast]);
 
   return (
     <KeyboardAvoidingView

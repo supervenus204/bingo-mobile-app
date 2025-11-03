@@ -9,14 +9,23 @@ const refreshToken = async () => {
     throw new Error('No refresh token available');
   }
 
-  const response = await fetch(`${API_BASE_URL}/refresh-token`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Refresh-token': currentRefreshToken,
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/refresh-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Refresh-token': currentRefreshToken,
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Network request failed. Please check your connection.';
+    throw new Error(errorMessage);
+  }
 
   if (!response.ok) {
     throw new Error('Token refresh failed');
@@ -34,15 +43,24 @@ export const apiFetch = async (
 ): Promise<any> => {
   const { token, refreshToken: currentRefreshToken } = useAuthStore.getState();
 
-  const response = await fetch(`${API_BASE_URL}${url}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body:
-      method === 'GET' ? undefined : body ? JSON.stringify(body) : undefined,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${url}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body:
+        method === 'GET' ? undefined : body ? JSON.stringify(body) : undefined,
+    });
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Network request failed. Please check your connection.';
+    throw new Error(errorMessage);
+  }
 
   if (!response.ok) {
     if (response.status === 401 && retryCount === 0 && currentRefreshToken) {
@@ -58,9 +76,15 @@ export const apiFetch = async (
       }
     }
 
-    const { data } = await parseJsonSafe(response);
-    const message = (data && (data.message as string)) || 'failed to fetch';
-    throw new Error(message);
+    try {
+      const { data } = await parseJsonSafe(response);
+      const message =
+        (data && (data.message as string)) ||
+        `Request failed with status ${response.status}`;
+      throw new Error(message);
+    } catch (parseError) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
   }
 
   const { data } = await parseJsonSafe(response);
