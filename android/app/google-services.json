@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "936574859905",
-    "project_id": "healthbingo-a3be7",
-    "storage_bucket": "healthbingo-a3be7.firebasestorage.app"
+    "project_number": "131287056633",
+    "project_id": "healthbingo-581ea",
+    "storage_bucket": "healthbingo-581ea.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:936574859905:android:40537f4ff3f41090e1ab80",
+        "mobilesdk_app_id": "1:131287056633:android:bb60b5a444a6567dda6228",
         "android_client_info": {
           "package_name": "com.healthbingo"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCV-_bTYzbGEjBJKPROnPOox14qpJ0XRFk"
+          "current_key": "AIzaSyBDpHfngJIydEld-o4cyuTFr86im9YS6hM"
         }
       ],
       "services": {

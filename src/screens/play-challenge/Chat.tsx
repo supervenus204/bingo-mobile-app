@@ -20,7 +20,6 @@ import { Avatar } from '../../components/common';
 import { useMessages } from '../../hooks';
 import { useAuthStore, useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
-import { supabase } from '../../utils/supabase';
 
 export const ChatScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
@@ -35,27 +34,6 @@ export const ChatScreen: React.FC = () => {
   const listRef = useRef<FlatList>(null);
 
   const myId = user?.id;
-
-  // Set up real-time channel for this challenge
-  useEffect(() => {
-    if (!challengeId) return;
-
-    const channelName = `chat-${challengeId}`;
-    const channel = supabase.channel(channelName);
-
-    // Listen for new messages from other users
-    channel
-      .on('broadcast', { event: 'new_message' }, payload => {
-        const { message } = payload.payload;
-        // Trigger a refresh of messages to get the latest from backend
-        fetchMore();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [challengeId, fetchMore]);
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 
@@ -148,29 +126,12 @@ export const ChatScreen: React.FC = () => {
     setText('');
 
     try {
-      // Send message to backend first
       await send(toSend);
-
-      // After successful send, broadcast to other users
-      const channelName = `chat-${challengeId}`;
-      const channel = supabase.channel(channelName);
-      channel.send({
-        type: 'broadcast',
-        event: 'new_message',
-        payload: {
-          message: toSend,
-          userId: myId,
-          challengeId: challengeId,
-        },
-      });
-
-      // Scroll to top to show new message
       listRef.current?.scrollToOffset({ offset: 0, animated: true });
     } catch (error) {
-      // Handle error - maybe show toast or restore text
       console.error('Failed to send message:', error);
     }
-  }, [canSend, challengeId, text, send, myId]);
+  }, [canSend, challengeId, text, send]);
 
   return (
     <KeyboardAvoidingView

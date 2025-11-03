@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { addMessage, getMessages } from '../services/chat.service';
+import { subscribeToNewMessages } from '../services/firebase-chat.service';
 import { useAuthStore } from '../store/auth.store';
 import { ChatMessage } from '../types/chat.type';
 
@@ -22,6 +23,7 @@ export const useMessages = ({
   const [error, setError] = useState<string | null>(null);
   const isFetchingMoreRef = useRef(false);
   const loadingRef = useRef(false);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
   const { user } = useAuthStore();
 
   const loadPage = useCallback(
@@ -56,6 +58,25 @@ export const useMessages = ({
     setHasMore(true);
     loadPage(1, true);
   }, [challengeId, auto, loadPage]);
+
+  useEffect(() => {
+    if (!challengeId) return;
+
+    const unsubscribe = subscribeToNewMessages(challengeId, () => {
+      if (!loadingRef.current) {
+        loadPage(1, true);
+      }
+    });
+
+    unsubscribeRef.current = unsubscribe;
+
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+    };
+  }, [challengeId, loadPage]);
 
   const fetchMore = useCallback(() => {
     if (!hasMore || loadingRef.current || isFetchingMoreRef.current) return;

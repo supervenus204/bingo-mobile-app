@@ -21,8 +21,8 @@ import { useAuth } from '../../hooks';
 import { useToast } from '../../hooks/useToast';
 
 export const SignInScreen: React.FC = () => {
-  const [email, setEmail] = useState('seniordev55@gmail.com');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const { signIn, loading, isAuthenticated, signInWithGoogle } =
     useAuth();
