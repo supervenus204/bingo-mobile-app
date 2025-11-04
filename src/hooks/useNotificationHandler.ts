@@ -9,7 +9,7 @@ import {
 import { useChallengesStore } from '../store/challenges.store';
 
 export const useNotificationHandler = () => {
-  const { selectChallenge } = useChallengesStore();
+  const { ongoingChallenges, selectChallenge } = useChallengesStore();
 
   useEffect(() => {
     const messaging = getMessaging();
@@ -26,7 +26,7 @@ export const useNotificationHandler = () => {
           (navigationRef as any).navigate(SCREEN_NAMES.PLAY_CHALLENGE, {
             screen: SCREEN_NAMES._PLAY_CHALLENGE.CHAT,
           });
-        }, 100);
+        }, 1000);
       }
     };
 
@@ -99,29 +99,31 @@ export const useNotificationHandler = () => {
       }
     });
 
-    getInitialNotification(messaging)
-      .then(remoteMessage => {
-        if (remoteMessage) {
-          const data = remoteMessage?.data;
-          if (data) {
-            const notificationData: Record<string, string> = {};
-            Object.keys(data).forEach(key => {
-              const value = data[key];
-              if (typeof value === 'string') {
-                notificationData[key] = value;
-              } else if (value != null) {
-                notificationData[key] = String(value);
-              }
-            });
-            handleNotificationNavigation(notificationData);
+    if (ongoingChallenges.length > 0) {
+      getInitialNotification(messaging)
+        .then(remoteMessage => {
+          if (remoteMessage) {
+            const data = remoteMessage?.data;
+            if (data) {
+              const notificationData: Record<string, string> = {};
+              Object.keys(data).forEach(key => {
+                const value = data[key];
+                if (typeof value === 'string') {
+                  notificationData[key] = value;
+                } else if (value != null) {
+                  notificationData[key] = String(value);
+                }
+              });
+              handleNotificationNavigation(notificationData);
+            }
           }
-        }
-      });
+        });
+    }
 
     return () => {
       unsubscribeForeground();
       unsubscribeNotificationOpened();
     };
-  }, [selectChallenge]);
+  }, [ongoingChallenges]);
 };
 

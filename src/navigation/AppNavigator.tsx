@@ -2,10 +2,12 @@ import { NavigationContainer, createNavigationContainerRef } from '@react-naviga
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation.type';
 
+import { useMemo } from 'react';
 import { StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SCREEN_NAMES } from '../constants';
 import { OnboardingScreen, WelcomeScreen } from '../screens';
+import { useAuthStore } from '../store/auth.store';
 import { AuthNavigator } from './AuthNavigator';
 import { CreateChallengeNavigator } from './CreateChallengeNavigator';
 import { DashboardNavigator } from './DashboardNavigator';
@@ -17,6 +19,14 @@ export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
 export const AppNavigator = () => {
   const insets = useSafeAreaInsets();
+  const { isAuthenticated } = useAuthStore();
+
+  const initialRouteName = useMemo(() => {
+    if (isAuthenticated) {
+      return SCREEN_NAMES.DASHBOARD;
+    }
+    return SCREEN_NAMES.AUTH;
+  }, [isAuthenticated]);
 
   return (
     <>
@@ -31,7 +41,7 @@ export const AppNavigator = () => {
               paddingBottom: insets.bottom,
             },
           }}
-          initialRouteName={SCREEN_NAMES.AUTH}
+          initialRouteName={initialRouteName}
         >
           <Stack.Screen
             name={SCREEN_NAMES.WELCOME}
