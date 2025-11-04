@@ -15,7 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Avatar } from '../../components/common';
+import { ProfileIcon } from '../../components/common';
 import { useMessages, useToast } from '../../hooks';
 import { useAuthStore, useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
@@ -42,13 +42,15 @@ export const ChatScreen: React.FC = () => {
       const isMe = item.sent_by === myId;
       const sender = item.sender;
 
-      const first = sender?.first_name ?? sender?.firstName ?? '';
-      const last = sender?.last_name ?? sender?.lastName ?? '';
+      const initials = (sender?.first_name?.[0] || '') + (sender?.last_name?.[0] || '');
       const image = sender?.image ?? null;
 
       const time = item.sent_time || item.createdAt;
-      const timeText = time
-        ? new Date(time).toLocaleTimeString([], {
+      const dateTimeText = time
+        ? new Date(time).toLocaleString([], {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
           hour: '2-digit',
           minute: '2-digit',
         })
@@ -61,10 +63,9 @@ export const ChatScreen: React.FC = () => {
           >
             {!isMe && (
               <View style={styles.avatarContainer}>
-                <Avatar
-                  firstName={first}
-                  lastName={last}
+                <ProfileIcon
                   image={image}
+                  initialsText={initials || 'Player'}
                   size={40}
                 />
               </View>
@@ -75,21 +76,15 @@ export const ChatScreen: React.FC = () => {
                 isMe ? styles.bubbleMe : styles.bubbleOther,
               ]}
             >
-              {!isMe && (
-                <Text style={styles.senderName} numberOfLines={1}>
-                  {first || last ? `${first} ${last}`.trim() : 'Member'}
-                </Text>
-              )}
               <Text style={[styles.messageText, isMe && styles.messageTextMe]}>
                 {item.content}
               </Text>
             </View>
             {isMe && (
               <View style={styles.avatarContainer}>
-                <Avatar
-                  firstName={first}
-                  lastName={last}
+                <ProfileIcon
                   image={image}
+                  initialsText={initials || 'Player'}
                   size={40}
                 />
               </View>
@@ -102,7 +97,7 @@ export const ChatScreen: React.FC = () => {
             ]}
           >
             <Text style={[styles.timeText, isMe && styles.timeTextMe]}>
-              {timeText}
+              {dateTimeText}
             </Text>
           </View>
         </View>

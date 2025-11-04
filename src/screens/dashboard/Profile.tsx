@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import CountryPicker from 'react-native-country-picker-modal';
-import { Avatar, CustomButton, Input } from '../../components/common';
+import { CustomButton, Input, ProfileIcon } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
 import { useUser } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
@@ -74,10 +74,9 @@ export const Profile: React.FC = () => {
 
       <View style={styles.content}>
         <View style={styles.profileSection}>
-          <Avatar
-            firstName={user.firstName as string}
-            lastName={user.lastName as string}
+          <ProfileIcon
             image={user.image as string}
+            initialsText={(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')}
             size={80}
           />
 

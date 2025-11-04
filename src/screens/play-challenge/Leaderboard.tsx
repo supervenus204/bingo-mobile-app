@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Avatar, Pagination } from '../../components/common';
+import { Pagination, ProfileIcon } from '../../components/common';
 import { getLeaderboard } from '../../services';
 import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
@@ -47,10 +47,9 @@ const UserCard: React.FC<{ user: User }> = React.memo(({ user }) => {
       )}
 
       <View style={styles.avatarContainer}>
-        <Avatar
-          firstName={user.firstName}
-          lastName={user.lastName}
+        <ProfileIcon
           image={user.image}
+          initialsText={(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')}
           size={50}
         />
       </View>
@@ -75,10 +74,9 @@ const UserListItem: React.FC<{ user: User; index: number }> = React.memo(
         <View style={styles.listItemLeft}>
           <Text style={styles.listPosition}>{index + 1}</Text>
           <View style={styles.listAvatarContainer}>
-            <Avatar
-              firstName={user.firstName}
-              lastName={user.lastName}
+            <ProfileIcon
               image={user.image}
+              initialsText={(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')}
               size={44}
             />
           </View>
