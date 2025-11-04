@@ -9,8 +9,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import type { ToastOptions, ToastPosition } from '../../types';
 import { COLORS } from '../../theme';
+import type { ToastOptions, ToastPosition } from '../../types';
 
 type Props = {
   visible: boolean;
@@ -43,6 +43,8 @@ export function Toast({
   onRequestClose,
   onHidden,
 }: Props) {
+  console.log('options', options);
+
   const opacity = useRef(new Animated.Value(0)).current;
   const translate = useRef(
     new Animated.Value(position === 'top' ? -12 : 12)
@@ -150,7 +152,7 @@ export function Toast({
                       backgroundColor:
                         options.type === 'info'
                           ? COLORS.primary.green.sgbus
-                          : TYPE_BG[options.type],
+                          : TYPE_BG[options.type || 'info'],
                     },
                     pressed && { opacity: 0.8 },
                   ]}
@@ -175,7 +177,7 @@ export function Toast({
           </Animated.View>
         )}
       </View>
-    </View>
+    </View >
   );
 }
 

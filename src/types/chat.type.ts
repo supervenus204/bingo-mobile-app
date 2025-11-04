@@ -7,6 +7,7 @@ export interface ChatSender {
   lastName?: string | null;
   display_name?: string | null;
   image?: string | null;
+  country?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }

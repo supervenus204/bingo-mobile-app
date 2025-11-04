@@ -15,10 +15,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { ProfileIcon } from '../../components/common';
+import { ProfileIcon, UserIntroductionModal } from '../../components/common';
 import { useMessages, useToast } from '../../hooks';
 import { useAuthStore, useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
+import { ChatSender } from '../../types/chat.type';
 
 export const ChatScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
@@ -31,6 +32,8 @@ export const ChatScreen: React.FC = () => {
     auto: true,
   });
   const [text, setText] = useState('');
+  const [selectedUser, setSelectedUser] = useState<ChatSender | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const listRef = useRef<FlatList>(null);
 
   const myId = user?.id;
@@ -56,19 +59,30 @@ export const ChatScreen: React.FC = () => {
         })
         : '';
 
+      const handleUserIconPress = () => {
+        if (!isMe && sender) {
+          setSelectedUser(sender);
+          setIsModalVisible(true);
+        }
+      };
+
       return (
         <View style={styles.messageContainer}>
           <View
             style={[styles.messageRow, isMe ? styles.rowMe : styles.rowOther]}
           >
             {!isMe && (
-              <View style={styles.avatarContainer}>
+              <TouchableOpacity
+                style={styles.avatarContainer}
+                onPress={handleUserIconPress}
+                activeOpacity={0.7}
+              >
                 <ProfileIcon
                   image={image}
                   initialsText={initials || 'Player'}
                   size={40}
                 />
-              </View>
+              </TouchableOpacity>
             )}
             <View
               style={[
@@ -176,6 +190,14 @@ export const ChatScreen: React.FC = () => {
           <Text style={styles.sendText}>Send</Text>
         </TouchableOpacity>
       </View>
+      <UserIntroductionModal
+        visible={isModalVisible}
+        user={selectedUser}
+        onClose={() => {
+          setIsModalVisible(false);
+          setSelectedUser(null);
+        }}
+      />
     </KeyboardAvoidingView>
   );
 };

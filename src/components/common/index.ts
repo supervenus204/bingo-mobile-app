@@ -11,5 +11,6 @@ export * from './Modal';
 export * from './Pagination';
 export * from './ProfileIcon';
 export * from './Toast';
+export * from './UserIntroductionModal';
 export * from './WelcomeModal';
 

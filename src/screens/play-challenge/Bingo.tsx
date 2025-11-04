@@ -34,7 +34,7 @@ export const BingoScreen: React.FC = () => {
           selectedChallenge?.id as string,
           selectedWeek
         );
-        if (status === 'not_ready' || status === undefined || status === null) {
+        if (status === 'not_ready' || status === 'ready' || status === undefined || status === null) {
           const cards = await getAllBingoCards(selectedChallenge?.category_id as string);
           const _cardData = cards.map((card: any) => {
             const count = card_ids?.length
@@ -46,7 +46,6 @@ export const BingoScreen: React.FC = () => {
               color: card.color,
               type: card.type || 'default',
               count,
-              _count: count
             };
           })
           setBingoCardsData(_cardData);
@@ -143,7 +142,7 @@ export const BingoScreen: React.FC = () => {
 
   const handleResetTaskSetup = () => {
     if (!isSetupMode) return;
-    setBingoCardsData(prev => prev.filter(card => !card.id.startsWith('custom-')).map(card => ({ ...card, count: card._count || 0 })));
+    setBingoCardsData(prev => prev.filter(card => !card.id.startsWith('custom-')).map(card => ({ ...card, count: 0 })));
   };
 
   const handleAddCustomCard = (title: string, color: string, count: number) => {
