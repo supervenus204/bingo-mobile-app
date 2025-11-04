@@ -16,6 +16,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.bridge.Arguments
 
 class NotificationModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
@@ -24,6 +26,7 @@ class NotificationModule(reactContext: ReactApplicationContext) :
         reactContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     private var permissionPromise: Promise? = null
+    private var initialNotificationData: WritableMap? = null
 
     companion object {
         private const val CHANNEL_ID = "chat_messages"
@@ -47,6 +50,25 @@ class NotificationModule(reactContext: ReactApplicationContext) :
 
     override fun getName(): String {
         return "NotificationModule"
+    }
+
+    fun setInitialNotificationData(intent: Intent?) {
+        if (intent == null) {
+            initialNotificationData = null
+            return
+        }
+
+        val challengeId = intent.getStringExtra("challenge_id")
+        val type = intent.getStringExtra("type")
+
+        if (challengeId != null && type != null) {
+            val data = Arguments.createMap()
+            data.putString("challenge_id", challengeId)
+            data.putString("type", type)
+            initialNotificationData = data
+        } else {
+            initialNotificationData = null
+        }
     }
 
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -172,6 +194,17 @@ class NotificationModule(reactContext: ReactApplicationContext) :
             promise.resolve(null)
         } catch (e: Exception) {
             promise.reject("NOTIFICATION_ERROR", e.message ?: "Unknown error", e)
+        }
+    }
+
+    @ReactMethod
+    fun getInitialNotificationData(promise: Promise) {
+        val data = initialNotificationData
+        if (data != null) {
+            initialNotificationData = null
+            promise.resolve(data)
+        } else {
+            promise.resolve(null)
         }
     }
 }

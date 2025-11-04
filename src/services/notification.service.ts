@@ -47,3 +47,33 @@ export const displaySystemNotification = async (
     console.error('Failed to display system notification:', error);
   }
 };
+
+export const getInitialNotificationData = async (): Promise<Record<string, string> | null> => {
+  if (Platform.OS !== 'android') {
+    return null;
+  }
+
+  try {
+    if (!NotificationModule?.getInitialNotificationData) {
+      return null;
+    }
+
+    const data = await NotificationModule.getInitialNotificationData();
+    if (!data) {
+      return null;
+    }
+
+    const result: Record<string, string> = {};
+    Object.keys(data).forEach(key => {
+      const value = data[key];
+      if (typeof value === 'string') {
+        result[key] = value;
+      }
+    });
+
+    return Object.keys(result).length > 0 ? result : null;
+  } catch (error) {
+    console.error('Failed to get initial notification data:', error);
+    return null;
+  }
+};

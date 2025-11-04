@@ -1,20 +1,20 @@
-import { getMessaging } from '@react-native-firebase/messaging';
+import { getInitialNotification, getMessaging, onMessage, onNotificationOpenedApp } from '@react-native-firebase/messaging';
 import { useEffect } from 'react';
 import { SCREEN_NAMES } from '../constants';
 import { navigationRef } from '../navigation/AppNavigator';
-import { displaySystemNotification } from '../services/notification.service';
+import {
+  displaySystemNotification,
+  getInitialNotificationData,
+} from '../services/notification.service';
 import { useChallengesStore } from '../store/challenges.store';
-import { useNotificationBanner } from './useNotificationBanner';
 
 export const useNotificationHandler = () => {
   const { selectChallenge } = useChallengesStore();
-  const { showNotification } = useNotificationBanner();
 
   useEffect(() => {
     const messaging = getMessaging();
 
-    const handleNotificationNavigation = (remoteMessage: any) => {
-      const data = remoteMessage?.data;
+    const handleNotificationNavigation = (data: Record<string, string>) => {
       if (!data || data.type !== 'new_message') {
         return;
       }
@@ -30,7 +30,26 @@ export const useNotificationHandler = () => {
       }
     };
 
-    const unsubscribeForeground = messaging.onMessage(async remoteMessage => {
+    const handleInitialNotification = async () => {
+      const initialData = await getInitialNotificationData();
+      if (initialData) {
+        let attempts = 0;
+        const maxAttempts = 50;
+        const attemptNavigation = () => {
+          if (navigationRef.isReady()) {
+            handleNotificationNavigation(initialData);
+          } else if (attempts < maxAttempts) {
+            attempts++;
+            setTimeout(attemptNavigation, 100);
+          }
+        };
+        attemptNavigation();
+      }
+    };
+
+    handleInitialNotification();
+
+    const unsubscribeForeground = onMessage(messaging, async remoteMessage => {
       const notification = remoteMessage.notification;
       const data = remoteMessage?.data;
 
@@ -62,23 +81,40 @@ export const useNotificationHandler = () => {
       } catch (error) {
         console.error('Error showing notification:', error);
       }
-
-      showNotification(body, () => {
-        handleNotificationNavigation(remoteMessage);
-      });
     });
 
-    const unsubscribeNotificationOpened = messaging.onNotificationOpenedApp(remoteMessage => {
-      console.log('Notification opened app:', remoteMessage);
-      handleNotificationNavigation(remoteMessage);
+    const unsubscribeNotificationOpened = onNotificationOpenedApp(messaging, remoteMessage => {
+      const data = remoteMessage?.data;
+      if (data) {
+        const notificationData: Record<string, string> = {};
+        Object.keys(data).forEach(key => {
+          const value = data[key];
+          if (typeof value === 'string') {
+            notificationData[key] = value;
+          } else if (value != null) {
+            notificationData[key] = String(value);
+          }
+        });
+        handleNotificationNavigation(notificationData);
+      }
     });
 
-    messaging
-      .getInitialNotification()
+    getInitialNotification(messaging)
       .then(remoteMessage => {
         if (remoteMessage) {
-          console.log('Notification from quit state:', remoteMessage);
-          handleNotificationNavigation(remoteMessage);
+          const data = remoteMessage?.data;
+          if (data) {
+            const notificationData: Record<string, string> = {};
+            Object.keys(data).forEach(key => {
+              const value = data[key];
+              if (typeof value === 'string') {
+                notificationData[key] = value;
+              } else if (value != null) {
+                notificationData[key] = String(value);
+              }
+            });
+            handleNotificationNavigation(notificationData);
+          }
         }
       });
 
@@ -86,6 +122,6 @@ export const useNotificationHandler = () => {
       unsubscribeForeground();
       unsubscribeNotificationOpened();
     };
-  }, [selectChallenge, showNotification]);
+  }, [selectChallenge]);
 };
 

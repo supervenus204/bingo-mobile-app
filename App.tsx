@@ -13,7 +13,6 @@ import { STRIPE_PUBLISHABLE_KEY } from './src/constants/config';
 import { useFCM, useNotificationHandler } from './src/hooks';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ToastProvider } from './src/provider';
-import { NotificationProvider } from './src/provider/notification.provider';
 import { ThemeProvider } from './src/provider/theme.provider';
 
 import 'react-native-get-random-values';
@@ -36,11 +35,9 @@ function App(): React.JSX.Element {
     <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
       <ThemeProvider>
         <SafeAreaProvider>
-          <NotificationProvider>
-            <ToastProvider>
-              <AppContent />
-            </ToastProvider>
-          </NotificationProvider>
+          <ToastProvider>
+            <AppContent />
+          </ToastProvider>
         </SafeAreaProvider>
       </ThemeProvider>
     </StripeProvider>

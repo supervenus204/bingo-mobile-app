@@ -1,5 +1,6 @@
 package com.healthbingo
 
+import android.content.Intent
 import android.os.Bundle
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -24,6 +25,15 @@ class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     instance = this
+    NotificationModule.getInstance(application)?.setInitialNotificationData(intent)
+  }
+
+  override fun onNewIntent(intent: Intent?) {
+    super.onNewIntent(intent)
+    intent?.let {
+      setIntent(it)
+      NotificationModule.getInstance(application)?.setInitialNotificationData(it)
+    }
   }
 
   override fun onRequestPermissionsResult(
