@@ -5,5 +5,6 @@ export * from './useMessages';
 export * from './useNotificationHandler';
 export * from './usePlans';
 export * from './useToast';
+export * from './useUnreadMessages';
 export * from './useUser';
 

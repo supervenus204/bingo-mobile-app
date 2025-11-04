@@ -13,6 +13,7 @@ import { CustomButton, LoadingCard } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
 import { ChallengeCard } from '../../components/dashboard/ChallengeCard';
 import { SCREEN_NAMES } from '../../constants';
+import { useUnreadMessages } from '../../hooks';
 import { useChallengesStore } from '../../store/challenges.store';
 import { COLORS, FONTS } from '../../theme';
 import {
@@ -27,6 +28,7 @@ type NavigationProp = NativeStackNavigationProp<DashboardStackParamList>;
 
 export const OngoingChallenge: React.FC = () => {
   const { ongoingChallenges, loading, fetchChallenges, selectChallenge } = useChallengesStore();
+  const { unreadCounts } = useUnreadMessages();
 
   const navigation = useNavigation<NavigationProp>();
   const rootNavigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -141,6 +143,7 @@ export const OngoingChallenge: React.FC = () => {
                     totalWeeks={ch.duration}
                     progress={(ch.current_week ?? 0) / Math.max(1, ch.duration)}
                     isOrganizer={true}
+                    unreadCount={unreadCounts[ch.id] || 0}
                     onPress={() => {
                       selectChallenge(ch.id);
                       rootNavigation.navigate(SCREEN_NAMES.PLAY_CHALLENGE);

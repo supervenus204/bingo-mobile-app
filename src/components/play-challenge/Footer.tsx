@@ -3,8 +3,10 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SCREEN_NAMES } from '../../constants/screens';
+import { useUnreadMessages } from '../../hooks';
 import { useChallengesStore } from '../../store';
 import { COLORS } from '../../theme';
+import { Badge } from '../common/Badge';
 
 type FooterProps = {
   currentRoute: string;
@@ -13,6 +15,7 @@ type FooterProps = {
 export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
   const navigation = useNavigation();
   const { selectedChallenge } = useChallengesStore();
+  const { totalUnread } = useUnreadMessages();
 
   const isOrganizer = Boolean(selectedChallenge?.is_organizer);
 
@@ -30,20 +33,28 @@ export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
 
   return (
     <View style={styles.tabBar}>
-      {tabs.map((tab, index) => (
-        <TouchableOpacity
-          key={`${tab.name}-${index}`}
-          style={styles.tab}
-          onPress={() => navigation.navigate(tab.name as never)}
-          activeOpacity={0.7}
-        >
-          <Icon
-            name={tab.icon}
-            size={24}
-            color={currentRoute === tab.name ? COLORS.green.forest : '#6b7280'}
-          />
-        </TouchableOpacity>
-      ))}
+      {tabs.map((tab, index) => {
+        const isChatTab = tab.name === SCREEN_NAMES._PLAY_CHALLENGE.CHAT;
+        return (
+          <TouchableOpacity
+            key={`${tab.name}-${index}`}
+            style={styles.tab}
+            onPress={() => navigation.navigate(tab.name as never)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.iconContainer}>
+              <Icon
+                name={tab.icon}
+                size={24}
+                color={currentRoute === tab.name ? COLORS.green.forest : '#6b7280'}
+              />
+              {isChatTab && totalUnread > 0 && (
+                <Badge count={totalUnread} style={styles.chatBadge} />
+              )}
+            </View>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
@@ -62,6 +73,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  iconContainer: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chatBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
   },
 });
 

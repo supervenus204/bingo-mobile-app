@@ -7,6 +7,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { COLORS, FONTS } from '../../theme';
+import { Badge } from '../common/Badge';
 import { Label } from '../common/Label';
 
 type Props = {
@@ -21,6 +22,7 @@ type Props = {
   disabled?: boolean;
   onPress?: () => void;
   onPayPress?: () => void;
+  unreadCount?: number;
 };
 
 export const ChallengeCard: React.FC<Props> = ({
@@ -35,6 +37,7 @@ export const ChallengeCard: React.FC<Props> = ({
   onPayPress,
   status,
   disabled,
+  unreadCount = 0,
 }) => {
   const percent = Math.max(0, Math.min(progress, 1));
 
@@ -68,6 +71,9 @@ export const ChallengeCard: React.FC<Props> = ({
       ]}
       disabled={disabled}
     >
+      {unreadCount > 0 && (
+        <Badge count={unreadCount} style={styles.unreadBadge} />
+      )}
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
           {getStatusBadge()}
@@ -123,6 +129,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
+    position: 'relative',
   },
   organizerCard: {
     backgroundColor: COLORS.white,
@@ -163,6 +170,12 @@ const styles = StyleSheet.create({
   },
   statusPill: {},
   statusText: { fontSize: 12 },
+  unreadBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -2,
+    zIndex: 10,
+  },
   subRow: {
     flexDirection: 'row',
     alignItems: 'center',

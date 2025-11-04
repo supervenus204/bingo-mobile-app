@@ -1,3 +1,4 @@
+import { useFocusEffect } from '@react-navigation/native';
 import React, {
   useCallback,
   useMemo,
@@ -17,12 +18,13 @@ import {
 } from 'react-native';
 import { Avatar } from '../../components/common';
 import { useMessages, useToast } from '../../hooks';
-import { useAuthStore, useChallengesStore } from '../../store';
+import { useAuthStore, useChallengesStore, useLastSeenStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
 export const ChatScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
   const { user } = useAuthStore();
+  const { updateLastSeen } = useLastSeenStore();
   const { showToast } = useToast();
   const challengeId = selectedChallenge?.id;
   const { messages, loading, hasMore, fetchMore, send, sending } = useMessages({
@@ -34,6 +36,15 @@ export const ChatScreen: React.FC = () => {
   const listRef = useRef<FlatList>(null);
 
   const myId = user?.id;
+
+  // Update last seen timestamp when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      if (challengeId) {
+        updateLastSeen(challengeId);
+      }
+    }, [challengeId, updateLastSeen])
+  );
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 

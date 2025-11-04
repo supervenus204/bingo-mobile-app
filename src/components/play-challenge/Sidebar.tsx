@@ -10,10 +10,12 @@ import {
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useUnreadMessages } from '../../hooks';
 import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 import { Challenge } from '../../types/challenge.type';
 import { CustomButton } from '../common';
+import { Badge } from '../common/Badge';
 
 type Props = {
   visible: boolean;
@@ -35,6 +37,7 @@ export const Sidebar: React.FC<Props> = ({
   onGoToDashboard,
 }) => {
   const { ongoingChallenges, selectedChallenge } = useChallengesStore();
+  const { unreadCounts } = useUnreadMessages();
   const activeChallenges = ongoingChallenges.filter(
     (challenge: Challenge) => challenge.status === 'active'
   );
@@ -129,16 +132,24 @@ export const Sidebar: React.FC<Props> = ({
                         onPress={() => onSwitchChallenge(challenge)}
                         activeOpacity={0.6}
                       >
+                        {unreadCounts[challenge.id] > 0 && (
+                          <Badge
+                            count={unreadCounts[challenge.id]}
+                            style={styles.sidebarBadge}
+                          />
+                        )}
                         <View style={styles.challengeInfo}>
-                          <Text
-                            style={[
-                              styles.challengeTitle,
-                              challenge.id === selectedChallenge?.id &&
-                              styles.currentChallengeTitle,
-                            ]}
-                          >
-                            {challenge.title}
-                          </Text>
+                          <View style={styles.challengeTitleRow}>
+                            <Text
+                              style={[
+                                styles.challengeTitle,
+                                challenge.id === selectedChallenge?.id &&
+                                styles.currentChallengeTitle,
+                              ]}
+                            >
+                              {challenge.title}
+                            </Text>
+                          </View>
                           <Text style={styles.challengeWeek}>
                             Week {challenge.current_week}
                           </Text>
@@ -344,6 +355,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     borderWidth: 1,
     borderColor: COLORS.gray.light,
+    position: 'relative',
   },
   currentChallenge: {
     backgroundColor: COLORS.secondary.blue.alice,
@@ -354,12 +366,19 @@ const styles = StyleSheet.create({
   challengeInfo: {
     flex: 1,
   },
+  challengeTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
   challengeTitle: {
     fontSize: 15,
     fontFamily: FONTS.family.poppinsMedium,
     color: COLORS.black,
     marginBottom: 4,
     letterSpacing: 0.1,
+    flex: 1,
   },
   currentChallengeTitle: {
     color: COLORS.blue.oxford,
@@ -371,5 +390,11 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsRegular,
     color: COLORS.gray.darker,
     opacity: 0.85,
+  },
+  sidebarBadge: {
+    position: 'absolute',
+    top: -8,
+    right: -2,
+    zIndex: 10,
   },
 });

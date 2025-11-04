@@ -1,4 +1,5 @@
 export * from './Avatar';
+export * from './Badge';
 export * from './BingoBoard';
 export * from './BingoCard';
 export * from './Button';

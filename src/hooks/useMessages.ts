@@ -36,8 +36,30 @@ export const useMessages = ({
           limit: pageSize,
           page: nextPage,
         });
+
+        // Sort messages by timestamp (newest first) for inverted FlatList
+        const sortedData = [...data].sort((a, b) => {
+          const timeA = new Date(a.sent_time || a.createdAt || 0).getTime();
+          const timeB = new Date(b.sent_time || b.createdAt || 0).getTime();
+          return timeB - timeA; // DESC order (newest first)
+        });
+
         setHasMore(data.length === pageSize);
-        setMessages(prev => (replace ? data : [...prev, ...data]));
+
+        if (replace) {
+          // Replace all messages with sorted data (newest first)
+          setMessages(sortedData);
+        } else {
+          // Append older messages and re-sort entire array to maintain order
+          setMessages(prev => {
+            const combined = [...prev, ...sortedData];
+            return combined.sort((a, b) => {
+              const timeA = new Date(a.sent_time || a.createdAt || 0).getTime();
+              const timeB = new Date(b.sent_time || b.createdAt || 0).getTime();
+              return timeB - timeA; // DESC order (newest first)
+            });
+          });
+        }
         setPage(nextPage);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load messages');
@@ -88,12 +110,14 @@ export const useMessages = ({
     async (content: string) => {
       if (!challengeId || !content?.trim()) return;
       const tempId = `temp-${Date.now()}`;
+      const now = new Date().toISOString();
       const optimistic: ChatMessage = {
         id: tempId,
         content,
         sent_by: user?.id || 'me',
         challenge_id: challengeId,
-        createdAt: new Date().toISOString(),
+        createdAt: now,
+        sent_time: now,
         sender: user
           ? {
             id: user.id,
@@ -106,11 +130,17 @@ export const useMessages = ({
           }
           : undefined,
       };
+      // Prepend to beginning (newest first for inverted list)
       setMessages(prev => [optimistic, ...prev]);
       try {
         setSending(true);
         const saved = await addMessage(challengeId, content);
-        setMessages(prev => [saved, ...prev.filter(m => m.id !== tempId)]);
+        // Replace temp message with saved message, ensuring it's at the beginning
+        setMessages(prev => {
+          const filtered = prev.filter(m => m.id !== tempId);
+          // Ensure saved message is at the beginning (newest)
+          return [saved, ...filtered];
+        });
       } catch (e) {
         setMessages(prev => prev.filter(m => m.id !== tempId));
         setError(e instanceof Error ? e.message : 'Failed to send message');
