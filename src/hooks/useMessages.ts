@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { addMessage, getMessages } from '../services/chat.service';
 import { subscribeToNewMessages } from '../services/firebase-chat.service';
+import { useLastSeenStore } from '../store';
 import { useAuthStore } from '../store/auth.store';
 import { ChatMessage } from '../types/chat.type';
 
@@ -25,6 +26,7 @@ export const useMessages = ({
   const loadingRef = useRef(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
   const { user } = useAuthStore();
+  const { updateLastSeen } = useLastSeenStore();
 
   const loadPage = useCallback(
     async (nextPage: number, replace = false) => {
@@ -32,6 +34,7 @@ export const useMessages = ({
       try {
         loadingRef.current = true;
         setLoading(true);
+        updateLastSeen(challengeId);
         const data = await getMessages(challengeId, {
           limit: pageSize,
           page: nextPage,
