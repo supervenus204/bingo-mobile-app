@@ -31,7 +31,6 @@ export function ToastProvider({
 }: ProviderProps) {
   const [opts, setOpts] = useState<ToastOptions | null>(null);
   const [visible, setVisible] = useState(false);
-
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingRef = useRef<ToastOptions | null>(null); // for smooth replace
 
@@ -60,6 +59,7 @@ export function ToastProvider({
         type: 'info',
         duration: 2000,
         ...next,
+        message: next.message || '1111',
       };
 
       // If a toast is already visible, fade it out, then show the new one
@@ -77,7 +77,7 @@ export function ToastProvider({
     [visible]
   );
 
-  const onHidden = () => {
+  const onHidden = useCallback(() => {
     if (pendingRef.current) {
       const toShow = pendingRef.current;
       pendingRef.current = null;
@@ -87,7 +87,7 @@ export function ToastProvider({
     } else {
       setOpts(null);
     }
-  };
+  }, [visible]);
 
   const value = useMemo<ToastAPI>(
     () => ({ show, hide, isVisible: visible }),

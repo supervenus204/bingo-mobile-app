@@ -1,6 +1,8 @@
 import React from 'react';
-import { ActivityIndicator, Modal, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Modal, StyleSheet, Text, View } from 'react-native';
 import { COLORS, FONTS } from '../../theme';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 type Props = {
   visible: boolean;
@@ -13,8 +15,6 @@ export const LoadingCard: React.FC<Props> = ({
   message,
   subMessage,
 }) => {
-  if (!visible) return null;
-
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
@@ -30,11 +30,8 @@ export const LoadingCard: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT,
     backgroundColor: 'rgba(0,0,0,0.25)',
     alignItems: 'center',
     justifyContent: 'center',

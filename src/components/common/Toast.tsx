@@ -43,8 +43,6 @@ export function Toast({
   onRequestClose,
   onHidden,
 }: Props) {
-  console.log('options', options);
-
   const opacity = useRef(new Animated.Value(0)).current;
   const translate = useRef(
     new Animated.Value(position === 'top' ? -12 : 12)
@@ -134,11 +132,9 @@ export function Toast({
             ]}
           >
             <View style={styles.contentRow}>
-              <View style={styles.messageContainer}>
-                <Text style={[styles.text, { color: textColor }]} numberOfLines={2}>
-                  {options.message}
-                </Text>
-              </View>
+              <Text style={[styles.text, { color: textColor }]} numberOfLines={2}>
+                {options.message}
+              </Text>
 
               {!!options.action && (
                 <Pressable
@@ -200,10 +196,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  messageContainer: {
-    flex: 1,
-    marginRight: 12,
   },
   text: {
     fontSize: 15,
