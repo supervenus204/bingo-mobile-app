@@ -9,10 +9,45 @@ import {
 import { useChallengesStore } from '../store/challenges.store';
 
 export const useNotificationHandler = () => {
-  const { ongoingChallenges, selectChallenge } = useChallengesStore();
+  const { ongoingChallenges, selectChallenge, selectedChallenge } = useChallengesStore();
 
   useEffect(() => {
     const messaging = getMessaging();
+
+    // Helper function to check if user is currently viewing the chat screen for a specific challenge
+    const isViewingChatForChallenge = (challengeId: string): boolean => {
+      if (!navigationRef.isReady() || !selectedChallenge) {
+        return false;
+      }
+
+      try {
+        const state = navigationRef.getState();
+        if (!state) return false;
+
+        // Check if we're on the PlayChallenge screen
+        const currentRoute = state.routes[state.index];
+        if (currentRoute.name !== SCREEN_NAMES.PLAY_CHALLENGE) {
+          return false;
+        }
+
+        // Check if we're on the Chat tab within PlayChallenge
+        const playChallengeState = currentRoute.state as any;
+        if (!playChallengeState || !playChallengeState.routes) {
+          return false;
+        }
+
+        const currentTabRoute = playChallengeState.routes[playChallengeState.index];
+        const isOnChatScreen = currentTabRoute?.name === SCREEN_NAMES._PLAY_CHALLENGE.CHAT;
+
+        // Check if the challenge matches
+        const isMatchingChallenge = selectedChallenge.id === challengeId;
+
+        return isOnChatScreen && isMatchingChallenge;
+      } catch (error) {
+        console.error('Error checking navigation state:', error);
+        return false;
+      }
+    };
 
     const handleNotificationNavigation = (data: Record<string, string>) => {
       if (!data || data.type !== 'new_message') {
@@ -54,6 +89,13 @@ export const useNotificationHandler = () => {
       const data = remoteMessage?.data;
 
       if (!data || data.type !== 'new_message') {
+        return;
+      }
+
+      const challenge_id = data?.challenge_id;
+
+      // Don't show notification if user is currently viewing the chat for this challenge
+      if (challenge_id && typeof challenge_id === 'string' && isViewingChatForChallenge(challenge_id)) {
         return;
       }
 
@@ -124,6 +166,6 @@ export const useNotificationHandler = () => {
       unsubscribeForeground();
       unsubscribeNotificationOpened();
     };
-  }, [ongoingChallenges]);
+  }, [ongoingChallenges, selectedChallenge]);
 };
 

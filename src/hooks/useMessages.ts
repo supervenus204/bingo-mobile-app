@@ -25,6 +25,7 @@ export const useMessages = ({
   const isFetchingMoreRef = useRef(false);
   const loadingRef = useRef(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const loadPageRef = useRef<((nextPage: number, replace?: boolean) => Promise<void>) | null>(null);
   const { user } = useAuthStore();
   const { updateLastSeen } = useLastSeenStore();
 
@@ -34,11 +35,11 @@ export const useMessages = ({
       try {
         loadingRef.current = true;
         setLoading(true);
-        updateLastSeen(challengeId);
         const data = await getMessages(challengeId, {
           limit: pageSize,
           page: nextPage,
         });
+        updateLastSeen(challengeId);
 
         // Sort messages by timestamp (newest first) for inverted FlatList
         const sortedData = [...data].sort((a, b) => {
@@ -72,8 +73,11 @@ export const useMessages = ({
         isFetchingMoreRef.current = false;
       }
     },
-    [challengeId, pageSize]
+    [challengeId, pageSize, updateLastSeen]
   );
+
+  // Keep ref updated with latest loadPage function
+  loadPageRef.current = loadPage;
 
   useEffect(() => {
     if (!auto) return;
@@ -87,9 +91,15 @@ export const useMessages = ({
   useEffect(() => {
     if (!challengeId) return;
 
+    // Clean up existing subscription before creating new one
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+
     const unsubscribe = subscribeToNewMessages(challengeId, () => {
-      if (!loadingRef.current) {
-        loadPage(1, true);
+      if (!loadingRef.current && loadPageRef.current) {
+        loadPageRef.current(1, true);
       }
     });
 
@@ -101,7 +111,7 @@ export const useMessages = ({
         unsubscribeRef.current = null;
       }
     };
-  }, [challengeId, loadPage]);
+  }, [challengeId]);
 
   const fetchMore = useCallback(() => {
     if (!hasMore || loadingRef.current || isFetchingMoreRef.current) return;
