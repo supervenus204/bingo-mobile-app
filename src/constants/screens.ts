@@ -1,6 +1,5 @@
 export const SCREEN_NAMES = {
   WELCOME: 'Welcome',
-  ONBOARDING: 'Onboarding',
   AUTH: 'Auth',
   DASHBOARD: 'Dashboard',
   CREATE_CHALLENGE: 'CreateChallenge',

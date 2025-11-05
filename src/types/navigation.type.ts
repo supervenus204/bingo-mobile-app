@@ -3,7 +3,6 @@ import { SCREEN_NAMES } from '../constants/screens';
 
 export type RootStackParamList = {
   [SCREEN_NAMES.WELCOME]: undefined;
-  [SCREEN_NAMES.ONBOARDING]: undefined;
   [SCREEN_NAMES.AUTH]: undefined;
   [SCREEN_NAMES.DASHBOARD]: undefined;
   [SCREEN_NAMES.CREATE_CHALLENGE]: undefined;

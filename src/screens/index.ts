@@ -1,5 +1,4 @@
 export * from './Welcome';
-export * from './Onboarding';
 
 // Auth screens
 export * from './auth';

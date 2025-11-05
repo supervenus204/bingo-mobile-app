@@ -21,6 +21,7 @@ type AuthState = {
   user: AuthUser | null;
   loading: boolean;
   error?: string | null;
+  hasHydrated: boolean;
 };
 
 type AuthActions = {
@@ -30,6 +31,7 @@ type AuthActions = {
   setAuthenticated: (authenticated: boolean) => void;
   setLoading: (loading: boolean) => void;
   setError: (message?: string | null) => void;
+  setHasHydrated: (hydrated: boolean) => void;
   reset: () => void;
   logout: () => void;
 };
@@ -43,6 +45,7 @@ const initialState: AuthState = {
   user: null,
   loading: false,
   error: null,
+  hasHydrated: false,
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -59,6 +62,9 @@ export const useAuthStore = create<AuthStore>()(
         set({ isAuthenticated: authenticated }),
       setLoading: (loading: boolean) => set({ loading }),
       setError: (message?: string | null) => set({ error: message ?? null }),
+      setHasHydrated: (hydrated: boolean) => {
+        set({ hasHydrated: hydrated });
+      },
       reset: () => set({ ...initialState }),
       logout: () => set({ ...initialState }),
     }),
@@ -71,12 +77,11 @@ export const useAuthStore = create<AuthStore>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHasHydrated(true);
+        }
+      },
     }
   )
 );
-
-// Selectors
-export const useAuthToken = () => useAuthStore(s => s.token);
-export const useAuthUser = () => useAuthStore(s => s.user);
-export const useAuthLoading = () => useAuthStore(s => s.loading);
-export const useIsAuthenticated = () => useAuthStore(s => s.isAuthenticated);
