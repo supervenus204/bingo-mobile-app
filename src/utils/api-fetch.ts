@@ -43,6 +43,10 @@ export const apiFetch = async (
 ): Promise<any> => {
   const { token, refreshToken: currentRefreshToken } = useAuthStore.getState();
 
+  if (!token) {
+    throw new Error('No authentication token available');
+  }
+
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}${url}`, {
@@ -55,6 +59,11 @@ export const apiFetch = async (
         method === 'GET' ? undefined : body ? JSON.stringify(body) : undefined,
     });
   } catch (error) {
+    if (error instanceof TypeError && error.message.includes('Network request failed')) {
+      const networkError = new Error('Network request failed. Please check your connection and ensure the server is running.');
+      networkError.name = 'NetworkError';
+      throw networkError;
+    }
     const errorMessage =
       error instanceof Error
         ? error.message
@@ -77,12 +86,16 @@ export const apiFetch = async (
     }
 
     try {
-      const { data } = await parseJsonSafe(response);
+      const { data, error } = await parseJsonSafe(response);
       const message =
         (data && (data.message as string)) ||
+        (error && (error.message as string)) ||
         `Request failed with status ${response.status}`;
       throw new Error(message);
     } catch (parseError) {
+      if (parseError instanceof Error && parseError.message) {
+        throw parseError;
+      }
       throw new Error(`Request failed with status ${response.status}`);
     }
   }

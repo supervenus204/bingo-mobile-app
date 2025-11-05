@@ -85,11 +85,11 @@ export const BingoScreen: React.FC = () => {
   }, [selectedChallenge?.id, selectedWeek, isSetupMode]);
 
   useEffect(() => {
-    if (showWelcomeModal || saving) {
+    if (!selectedChallenge || showWelcomeModal || saving) {
       return;
     }
     getData();
-  }, [getData, showWelcomeModal, saving]);
+  }, [selectedChallenge, getData, showWelcomeModal, saving]);
 
   const handleLetsGo = async () => {
     try {

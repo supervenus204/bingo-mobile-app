@@ -20,7 +20,6 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
 
     return enabled;
   } catch (error) {
-    console.error('Failed to request notification permission:', error);
     return false;
   }
 };
@@ -31,7 +30,6 @@ export const getFCMToken = async (): Promise<string | null> => {
     const token = await getToken(messaging);
     return token;
   } catch (error) {
-    console.error('Failed to get FCM token:', error);
     return null;
   }
 };
@@ -40,7 +38,10 @@ export const registerFCMToken = async (token: string): Promise<void> => {
   try {
     await apiFetch('/api/user/fcm-token', 'POST', { fcm_token: token });
   } catch (error) {
-    console.error('Failed to register FCM token:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('No authentication token available')) {
+      throw new Error('Session expired');
+    }
     throw error;
   }
 };
@@ -50,7 +51,7 @@ export const deleteFCMToken = async (): Promise<void> => {
     const messaging = getMessaging();
     await deleteToken(messaging);
   } catch (error) {
-    console.error('Failed to delete FCM token:', error);
+    // Silently handle delete errors
   }
 };
 

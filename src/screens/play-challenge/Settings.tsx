@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
-import { CustomButton, LoadingCard, Input } from '../../components/common';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { CustomButton, Input, LoadingCard } from '../../components/common';
 import { useCategories } from '../../hooks/useCategories';
 import { usePlans } from '../../hooks/usePlans';
 import { updateChallenge } from '../../services/challenge.service';
@@ -25,7 +25,6 @@ export const SettingsScreen: React.FC = () => {
     plan: selectedChallenge?.plan || '',
     cardSize: selectedChallenge?.card_size || 16,
     duration: selectedChallenge?.duration || 12,
-    isOrganizerParticipant: selectedChallenge?.is_organizer_participant || false,
   });
 
   const isOrganizer = selectedChallenge?.is_organizer;
@@ -38,7 +37,6 @@ export const SettingsScreen: React.FC = () => {
         plan: selectedChallenge.plan,
         cardSize: selectedChallenge.card_size,
         duration: selectedChallenge.duration,
-        isOrganizerParticipant: selectedChallenge.is_organizer_participant,
       });
     }
   }, [selectedChallenge]);
@@ -51,7 +49,6 @@ export const SettingsScreen: React.FC = () => {
         ...(formData.plan !== selectedChallenge?.plan && { plan: formData.plan }),
         ...(formData.cardSize !== selectedChallenge?.card_size && { card_size: formData.cardSize }),
         ...(formData.duration !== selectedChallenge?.duration && { duration: formData.duration }),
-        ...(formData.isOrganizerParticipant !== selectedChallenge?.is_organizer_participant && { is_organizer_participant: formData.isOrganizerParticipant }),
       });
 
       selectChallenge(selectedChallenge?.id as string);
@@ -70,7 +67,6 @@ export const SettingsScreen: React.FC = () => {
       plan: selectedChallenge?.plan || '',
       cardSize: selectedChallenge?.card_size || 16,
       duration: selectedChallenge?.duration || 12,
-      isOrganizerParticipant: selectedChallenge?.is_organizer_participant || false,
     });
     setIsEditing(false);
   };
@@ -215,20 +211,6 @@ export const SettingsScreen: React.FC = () => {
     </View>
   );
 
-  const renderOrganizerParticipantToggle = () => (
-    <View style={styles.fieldContainer}>
-      <View style={styles.toggleContainer}>
-        <Text style={styles.fieldLabel}>Organizer Participates</Text>
-        <Switch
-          value={formData.isOrganizerParticipant}
-          onValueChange={(value) => setFormData(prev => ({ ...prev, isOrganizerParticipant: value }))}
-          trackColor={{ false: COLORS.gray.lightMedium, true: COLORS.green.forest }}
-          thumbColor={formData.isOrganizerParticipant ? COLORS.white : COLORS.gray.medium}
-        />
-      </View>
-    </View>
-  );
-
   return (
     <>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -243,7 +225,6 @@ export const SettingsScreen: React.FC = () => {
                 {renderField('Plan', getPlanById(selectedChallenge?.plan || '')?.name || '')}
                 {renderField('Duration', `${selectedChallenge?.duration || 0} weeks`)}
                 {renderField('Card Size', layoutOptions.find(l => l.id === selectedChallenge?.card_size)?.size || '')}
-                {isOrganizer && renderField('Organizer Participates', selectedChallenge?.is_organizer_participant ? 'Yes' : 'No')}
               </View>
 
               {isOrganizer && (
@@ -267,7 +248,6 @@ export const SettingsScreen: React.FC = () => {
                 {renderPlanSelector()}
                 {renderDurationSelector()}
                 {renderCardSizeSelector()}
-                {renderOrganizerParticipantToggle()}
               </View>
 
               <View style={styles.buttonGroup}>

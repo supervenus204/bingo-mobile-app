@@ -10,10 +10,10 @@ import { ChallengeStackParamList } from '../types/navigation.type';
 const Stack = createNativeStackNavigator<ChallengeStackParamList>();
 
 export const LayoutWrapper = (Component: React.ComponentType<any>) => {
-  const { selectedChallenge } = useChallengesStore();
-  const title = selectedChallenge?.title || 'Bingo';
-
   return (props: any) => {
+    const { selectedChallenge } = useChallengesStore();
+    const title = selectedChallenge?.title || 'Bingo';
+
     return (
       <View style={{ flex: 1 }}>
         <Header title={title} />

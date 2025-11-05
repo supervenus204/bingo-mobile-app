@@ -64,7 +64,16 @@ export const ParticipantManagementScreen: React.FC = () => {
     setShowDetailModal(true);
   };
 
-  const joinedParticipants = useMemo(() => participants.filter(p => p.status === 'joined'), [participants]);
+  const joinedParticipants = useMemo(() =>
+    participants
+      .filter(p => p.status === 'joined')
+      .sort((a, b) => {
+        if (a.is_organizer && !b.is_organizer) return -1;
+        if (!a.is_organizer && b.is_organizer) return 1;
+        return 0;
+      }),
+    [participants]
+  );
   const pendingParticipants = useMemo(() => participants.filter(p => p.status === 'pending'), [participants]);
 
   return (

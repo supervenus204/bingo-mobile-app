@@ -4,11 +4,11 @@ import { deleteFCMToken, getFCMToken, registerFCMToken, requestNotificationPermi
 import { useAuthStore } from '../store/auth.store';
 
 export const useFCM = () => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, token } = useAuthStore();
   const tokenRegisteredRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !token) {
       return;
     }
 
@@ -16,21 +16,24 @@ export const useFCM = () => {
       try {
         const hasPermission = await requestNotificationPermission();
         if (!hasPermission) {
-          console.log('Notification permission denied');
           return;
         }
 
-        const token = await getFCMToken();
-        if (token && !tokenRegisteredRef.current) {
+        const fcmToken = await getFCMToken();
+        if (fcmToken && !tokenRegisteredRef.current) {
           try {
-            await registerFCMToken(token);
+            await registerFCMToken(fcmToken);
             tokenRegisteredRef.current = true;
           } catch (error) {
-            console.error('Failed to register FCM token:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            if (errorMessage.includes('Network request failed') || errorMessage.includes('NetworkError')) {
+              // Silently handle network errors - will retry on next app open or token refresh
+              return;
+            }
           }
         }
       } catch (error) {
-        console.error('Failed to setup FCM:', error);
+        // Silently handle setup errors
       }
     };
 
@@ -38,23 +41,35 @@ export const useFCM = () => {
 
     const messaging = getMessaging();
     const unsubscribeTokenRefresh = onTokenRefresh(messaging, async (newToken) => {
+      const { isAuthenticated: currentAuthState, token: currentToken } = useAuthStore.getState();
+      if (!currentAuthState || !currentToken) {
+        return;
+      }
+
       try {
         await registerFCMToken(newToken);
         tokenRegisteredRef.current = true;
       } catch (error) {
-        console.error('Failed to register refreshed FCM token:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (errorMessage.includes('Session expired') ||
+          errorMessage.includes('Network request failed') ||
+          errorMessage.includes('NetworkError')) {
+          return;
+        }
       }
     });
 
     return () => {
       unsubscribeTokenRefresh();
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, token]);
 
   useEffect(() => {
     if (!isAuthenticated) {
       tokenRegisteredRef.current = false;
-      deleteFCMToken().catch(console.error);
+      deleteFCMToken().catch(() => {
+        // Silently handle delete errors
+      });
     }
   }, [isAuthenticated]);
 };

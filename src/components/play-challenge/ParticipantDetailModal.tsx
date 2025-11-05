@@ -32,15 +32,16 @@ export const ParticipantDetailModal: React.FC<ParticipantDetailModalProps> = ({
   onClose,
   onRemove,
 }) => {
-  const { currentChallenge } = useChallengesStore();
+  const { selectedChallenge } = useChallengesStore();
   const [removing, setRemoving] = useState(false);
+
 
   const handleRemoveParticipant = async () => {
     if (!participant) return;
 
     Alert.alert(
       'Remove Participant',
-      `Are you sure you want to remove ${participant.user?.first_name} ${participant.user?.last_name} from this challenge?`,
+      `Are you sure you want to remove ${participant.user ? participant.user.first_name + ' ' + participant.user.last_name : participant.email} from the challenge?`,
       [
         {
           text: 'Cancel',
@@ -52,7 +53,7 @@ export const ParticipantDetailModal: React.FC<ParticipantDetailModalProps> = ({
           onPress: async () => {
             try {
               setRemoving(true);
-              await removeParticipant(currentChallenge!.id, participant.id);
+              await removeParticipant(selectedChallenge!.id, participant.id);
               onClose();
               onRemove();
             } catch (error) {

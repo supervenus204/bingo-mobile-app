@@ -1,11 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { LoadingCard } from '../../components/common';
+import { CustomButton, LoadingCard } from '../../components/common';
 import { BingoBoard } from '../../components/common/BingoBoard';
 import { Footer, Header } from '../../components/create-challenge';
 import { DashboardHeader } from '../../components/dashboard';
-import { CustomButton } from '../../components/common';
 import { SCREEN_NAMES } from '../../constants/screens';
 import { useCards } from '../../hooks/useCards';
 import { useCreateStore } from '../../store';
@@ -13,7 +12,7 @@ import { COLORS } from '../../theme';
 
 export const CardSetup: React.FC = () => {
   const navigation = useNavigation();
-  const { bingoCards, setBingoCards, cardSize, title, categoryId } =
+  const { bingoCards, setBingoCards, cardSize, categoryId } =
     useCreateStore();
   const { cards } = useCards(categoryId as string);
 
@@ -31,22 +30,12 @@ export const CardSetup: React.FC = () => {
     [bingoCards]
   );
 
-  const handleIncrement = (id: string) => {
+  const handleClick = (cardId: number, _status?: string) => {
     if (selectedCardsCount >= cardSize) return;
 
-    setBingoCards(prev =>
-      prev.map(card =>
-        card.id === id ? { ...card, count: card.count + 1 } : card
-      )
-    );
-  };
-
-  const handleDecrement = (id: string) => {
-    setBingoCards(prev =>
-      prev.map(card =>
-        card.id === id ? { ...card, count: Math.max(0, card.count - 1) } : card
-      )
-    );
+    const selectedCard = bingoCards[cardId];
+    selectedCard.count++;
+    setBingoCards(prev => prev.map(card => card.id === selectedCard.id ? selectedCard : card));
   };
 
   const handleReset = () => {
@@ -92,14 +81,11 @@ export const CardSetup: React.FC = () => {
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
             >
-              <Text style={styles.subtitle}>
-                Selected {selectedCardsCount} of {cardSize} - {title}
-              </Text>
               <BingoBoard
                 bingoCardsData={bingoCards}
-                handleIncrement={handleIncrement}
-                handleDecrement={handleDecrement}
                 mode="setup"
+                handleClick={handleClick}
+                totalCount={cardSize}
               />
             </ScrollView>
 

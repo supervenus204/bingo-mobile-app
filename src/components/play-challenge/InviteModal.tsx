@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { usePlans } from '../../hooks/usePlans';
@@ -15,6 +14,7 @@ import { inviteParticipants } from '../../services/participant.service';
 import { searchUsers } from '../../services/user.service';
 import { useChallengesStore } from '../../store/challenges.store';
 import { COLORS } from '../../theme';
+import { CustomButton } from '../common/Button';
 import { Modal } from '../common/Modal';
 
 export type Candidate = {
@@ -95,6 +95,8 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
       }
 
       setValue('');
+    } catch (error) {
+      console.error('Error', 'Failed to add email');
     } finally {
       setAddingEmail(false);
     }
@@ -137,18 +139,14 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
             autoCorrect={false}
             returnKeyType="done"
           />
-          <TouchableOpacity
-            style={[
-              styles.addButton,
-              (isAtLimit || !value.trim() || addingEmail) && styles.addButtonDisabled,
-            ]}
+          <CustomButton
+            text="Add"
             onPress={addEmail}
             disabled={isAtLimit || !value.trim() || addingEmail}
-          >
-            <Text style={{ ...styles.addButtonText, opacity: (isAtLimit || !value.trim() || addingEmail) ? 0.5 : 1 }}>
-              Add
-            </Text>
-          </TouchableOpacity>
+            variant="outline"
+            buttonStyle={styles.addButton}
+            textStyle={styles.addButtonText}
+          />
         </View>
       </View>
 
@@ -163,12 +161,13 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
                   style={styles.avatar}
                 />
                 <Text style={styles.rowText}>{candidate.displayName || candidate.email}</Text>
-                <TouchableOpacity
+                <CustomButton
+                  text="×"
                   onPress={() => removeEmail(candidate.email)}
-                  style={styles.deleteBtn}
-                >
-                  <Text style={styles.deleteBtnText}>×</Text>
-                </TouchableOpacity>
+                  variant="default"
+                  buttonStyle={styles.deleteBtn}
+                  textStyle={styles.deleteBtnText}
+                />
               </View>
             ))}
           </ScrollView>
@@ -176,21 +175,22 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
       )}
 
       <View style={styles.modalButtons}>
-        <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-          <Text style={styles.cancelButtonText}>Cancel</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            (candidates.length === 0 || inviting) && styles.sendButtonDisabled
-          ]}
+        <CustomButton
+          text="Cancel"
+          onPress={onClose}
+          variant="outline"
+          buttonStyle={styles.cancelButton}
+          textStyle={styles.cancelButtonText}
+        />
+        <CustomButton
+          text={inviting ? "Sending..." : 'Send'}
           onPress={sendInvitations}
           disabled={candidates.length === 0 || inviting}
-        >
-          <Text style={styles.sendButtonText}>
-            {inviting ? "Sending..." : 'Send'}
-          </Text>
-        </TouchableOpacity>
+          loading={inviting}
+          variant="primary"
+          buttonStyle={styles.sendButton}
+          textStyle={styles.sendButtonText}
+        />
       </View>
     </Modal>
   );
@@ -303,6 +303,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 0,
+    gap: 0,
   },
   deleteBtnText: {
     color: COLORS.secondary.purple.mauve_1,
