@@ -1,12 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CustomButton, LoadingCard } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
@@ -25,11 +20,12 @@ export const ArchivedChallenge: React.FC = () => {
   }, []);
 
   const goToOngoingChallenges = () => {
-    navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE);
+    navigation.navigate(SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST);
   };
 
   const renderChallengeCard = (challenge: any, index: number) => {
-    const progress = (challenge.current_week ?? 0) / Math.max(1, challenge.duration);
+    const progress =
+      (challenge.current_week ?? 0) / Math.max(1, challenge.duration);
     const showUpgradeButton = index === 1; // Show upgrade button on second card
 
     return (
@@ -48,7 +44,12 @@ export const ArchivedChallenge: React.FC = () => {
 
         <View style={styles.progressContainer}>
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${Math.min(progress * 100, 100)}%` }]} />
+            <View
+              style={[
+                styles.progressFill,
+                { width: `${Math.min(progress * 100, 100)}%` },
+              ]}
+            />
           </View>
           <Text style={styles.lockIcon}>🔒</Text>
         </View>
@@ -58,8 +59,8 @@ export const ArchivedChallenge: React.FC = () => {
             buttonStyle={styles.upgradeButton}
             textStyle={styles.upgradeButtonText}
             text="UPGRADE PLAN"
-            variant='default'
-            onPress={() => { }}
+            variant="default"
+            onPress={() => {}}
           />
         )}
       </View>
@@ -71,7 +72,11 @@ export const ArchivedChallenge: React.FC = () => {
       <DashboardHeader
         title="Archive Challenges"
         action={
-          <CustomButton text="View Ongoing" variant='default' onPress={goToOngoingChallenges} />
+          <CustomButton
+            text="View Ongoing"
+            variant="default"
+            onPress={goToOngoingChallenges}
+          />
         }
       />
 
@@ -85,7 +90,9 @@ export const ArchivedChallenge: React.FC = () => {
         ) : archivedChallenges.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyTitle}>No Archived Challenges</Text>
-            <Text style={styles.emptySubtitle}>Your completed challenges will appear here</Text>
+            <Text style={styles.emptySubtitle}>
+              Your completed challenges will appear here
+            </Text>
           </View>
         ) : (
           <ScrollView

@@ -15,6 +15,7 @@ import { useAuthStore, useWelcomeScreenStore } from '../store';
 import { AuthNavigator } from './AuthNavigator';
 import { CreateChallengeNavigator } from './CreateChallengeNavigator';
 import { DashboardNavigator } from './DashboardNavigator';
+import { JoinChallengeNavigator } from './JoinChallengeNavigator';
 import { PlayChallengeNavigator } from './PlayChallengeNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -39,18 +40,13 @@ export const AppNavigator = () => {
       return SCREEN_NAMES.DASHBOARD;
     }
     return SCREEN_NAMES.AUTH;
-  }, [
-    isAuthenticated,
-    completedWelcomeScreen,
-    hasWelcomeHydrated,
-    hasAuthHydrated,
-  ]);
+  }, [hasWelcomeHydrated, hasAuthHydrated]);
 
   return (
     <>
       <StatusBar hidden={true} />
 
-      {initialRouteName ? (
+      {!!initialRouteName && (
         <NavigationContainer ref={navigationRef}>
           <Stack.Navigator
             screenOptions={{
@@ -72,22 +68,26 @@ export const AppNavigator = () => {
               component={DashboardNavigator}
             />
             <Stack.Screen
-              name={SCREEN_NAMES.PLAY_CHALLENGE}
-              component={PlayChallengeNavigator}
-            />
-            <Stack.Screen
               name={SCREEN_NAMES.CREATE_CHALLENGE}
               component={CreateChallengeNavigator}
             />
+            <Stack.Screen
+              name={SCREEN_NAMES.JOIN_CHALLENGE}
+              component={JoinChallengeNavigator}
+            />
+            <Stack.Screen
+              name={SCREEN_NAMES.PLAY_CHALLENGE}
+              component={PlayChallengeNavigator}
+            />
           </Stack.Navigator>
         </NavigationContainer>
-      ) : (
-        <LoadingCard
-          visible={true}
-          message="Loading app..."
-          subMessage="Please wait while we load the app..."
-        />
       )}
+
+      <LoadingCard
+        visible={!initialRouteName}
+        message="Loading app..."
+        subMessage="Please wait while we load the app..."
+      />
     </>
   );
 };

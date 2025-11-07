@@ -1,34 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { CustomButton, GoogleSignInButton, Input } from '../../components/common';
-import { GOOGLE_WEB_CLIENT_ID } from '../../constants/config';
-import { COLORS, FONTS } from '../../theme';
-
 import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
-import { SCREEN_NAMES } from '../../constants';
-import { useAuth } from '../../hooks';
-import { useToast } from '../../hooks/useToast';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AuthLogo, GoogleSignInButton } from '../../components/auth';
+import { CustomButton, Input } from '../../components/common';
+import { GOOGLE_WEB_CLIENT_ID, SCREEN_NAMES } from '../../constants';
+import { useAuth, useToast } from '../../hooks';
+import { COLORS, FONTS } from '../../theme';
+import { AuthStackParamList } from '../../types';
 
 export const SignInScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { signIn, loading, isAuthenticated, signInWithGoogle } =
-    useAuth();
+  const { signIn, loading, signInWithGoogle, error } = useAuth();
   const { showToast } = useToast();
 
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -41,22 +35,19 @@ export const SignInScreen: React.FC = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
-    }
-  }, [isAuthenticated]);
-
   const handleSubmit = async () => {
     try {
-      await signIn(email, password);
-
-      navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+      const activated = await signIn(email, password);
+      if (activated) {
+        navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+      } else {
+        navigation.navigate(SCREEN_NAMES._AUTH.VERIFY_CODE, {
+          email,
+          type: 'account_activation',
+        });
+      }
     } catch (err) {
-      showToast(
-        err instanceof Error ? err.message : 'Something went wrong',
-        'error'
-      );
+      showToast(error ?? 'Failed to sign in', 'error');
     }
   };
 
@@ -84,11 +75,11 @@ export const SignInScreen: React.FC = () => {
   };
 
   const handleForgotPassword = () => {
-    showToast('Password reset link will be sent to your email', 'info');
+    navigation.navigate(SCREEN_NAMES._AUTH.FORGOT_PASSWORD);
   };
 
   const handleCreateAccount = () => {
-    navigation.navigate(SCREEN_NAMES._AUTH.SIGN_UP as never);
+    navigation.navigate(SCREEN_NAMES._AUTH.SIGN_UP);
   };
 
   return (
@@ -99,11 +90,9 @@ export const SignInScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        <AuthLogo />
+
         <View style={styles.header}>
-          <Image
-            source={require('../../assets/images/auth/signin-logo.png')}
-            style={styles.logo}
-          />
           <Text style={styles.title}>SIGN IN</Text>
         </View>
 
@@ -122,45 +111,51 @@ export const SignInScreen: React.FC = () => {
             secureTextEntry
           />
 
-          {/* Forgot Password */}
-          {/* <TouchableOpacity
-            style={styles.forgotPasswordContainer}
-            onPress={handleForgotPassword}
-          >
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity> */}
+          <View style={styles.forgotPasswordContainer}>
+            <Text style={styles.forgotPasswordText}>
+              Forgot your password?{' '}
+            </Text>
+            <CustomButton
+              text="Reset it"
+              onPress={handleForgotPassword}
+              variant="default"
+              buttonStyle={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
+            />
+          </View>
 
           <CustomButton
             text="Sign In"
             onPress={handleSubmit}
-            buttonStyle={styles.submitButton}
-            textStyle={styles.submitButtonText}
+            buttonStyle={styles.buttonStyle}
+            textStyle={styles.buttonTextStyle}
             disabled={!email || !password}
             loading={loading}
           />
 
-          {/* Divider */}
           <View style={styles.dividerContainer}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>OR</Text>
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Google Sign In */}
           <GoogleSignInButton
             onPress={handleGoogleSignIn}
             disabled={loading}
             loading={loading}
           />
 
-          {/* Create Account Section */}
           <View style={styles.createAccountContainer}>
             <Text style={styles.createAccountText}>
               Don't have an account?{' '}
             </Text>
-            <TouchableOpacity onPress={handleCreateAccount}>
-              <Text style={styles.createAccountLink}>Create one</Text>
-            </TouchableOpacity>
+            <CustomButton
+              text="Create one"
+              onPress={handleCreateAccount}
+              variant="default"
+              buttonStyle={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
+            />
           </View>
         </View>
 
@@ -180,18 +175,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    justifyContent: 'center',
     paddingHorizontal: 24,
-    paddingTop: 32,
+    padding: 32,
   },
   header: {
     alignItems: 'center',
     marginBottom: 16,
-  },
-  logo: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-    marginBottom: 8,
   },
   title: {
     fontFamily: FONTS.family.poppinsBold,
@@ -211,26 +201,16 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     fontSize: 14,
   },
-  submitButton: {
-    backgroundColor: COLORS.green.forest,
-    borderRadius: 999,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  submitButtonText: {
-    color: COLORS.white,
-    fontFamily: FONTS.family.poppinsMedium,
-    fontSize: 14,
-  },
   forgotPasswordContainer: {
-    alignItems: 'flex-end',
-    marginTop: -8,
-    marginBottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: -4,
+    marginBottom: 4,
   },
   forgotPasswordText: {
-    color: COLORS.blue.indigo,
-    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.gray.mediumDark,
+    fontFamily: FONTS.family.poppinsRegular,
     fontSize: 14,
   },
   dividerContainer: {
@@ -258,9 +238,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsRegular,
     fontSize: 14,
   },
-  createAccountLink: {
-    color: COLORS.blue.indigo,
-    fontFamily: FONTS.family.poppinsBold,
+  buttonStyle: {
+    height: 48,
+  },
+  buttonTextStyle: {
     fontSize: 14,
   },
   bottomSpacing: {

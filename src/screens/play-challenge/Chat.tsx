@@ -205,7 +205,7 @@ export const ChatScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: COLORS.white,
   },
   listContainer: {
     flex: 1,

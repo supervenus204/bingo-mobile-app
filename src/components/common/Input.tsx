@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TextInputProps,
   TextStyle,
   View,
   ViewStyle,
@@ -20,6 +21,8 @@ type InputProps = {
   secureTextEntry?: boolean;
   isValid?: boolean;
   showValidation?: boolean;
+  keyboardType?: TextInputProps['keyboardType'];
+  maxLength?: number;
 };
 
 export const Input: React.FC<InputProps> = ({
@@ -33,13 +36,20 @@ export const Input: React.FC<InputProps> = ({
   secureTextEntry,
   isValid,
   showValidation,
+  keyboardType,
+  maxLength,
 }) => {
   const renderValidationIcon = () => {
     if (!showValidation || isValid === undefined) return null;
 
     return (
       <View style={styles.validationIcon}>
-        <Text style={[styles.iconText, { color: isValid ? COLORS.green.pigment : COLORS.red.bright }]}>
+        <Text
+          style={[
+            styles.iconText,
+            { color: isValid ? COLORS.green.pigment : COLORS.red.bright },
+          ]}
+        >
           {isValid ? '✓' : '✗'}
         </Text>
       </View>
@@ -54,9 +64,10 @@ export const Input: React.FC<InputProps> = ({
           style={[
             styles.input,
             inputStyle,
-            showValidation && isValid !== undefined && {
-              borderColor: isValid ? COLORS.green.pigment : COLORS.red.bright,
-            }
+            showValidation &&
+              isValid !== undefined && {
+                borderColor: isValid ? COLORS.green.pigment : COLORS.red.bright,
+              },
           ]}
           placeholder={placeholder}
           placeholderTextColor={COLORS.gray.mediumDark}
@@ -64,6 +75,8 @@ export const Input: React.FC<InputProps> = ({
           onChangeText={onChangeText}
           editable={!disabled}
           secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType}
+          maxLength={maxLength}
         />
         {renderValidationIcon()}
       </View>

@@ -35,7 +35,7 @@ export const CreateChallengeNavigator = () => {
         component={InviteParticipants}
       />
       <Stack.Screen
-        name={SCREEN_NAMES._CREATE_CHALLENGE.CHALLENGE_PUBLISHED}
+        name={SCREEN_NAMES._CREATE_CHALLENGE.PAY_CHALLENGE}
         component={ChallengePublished}
       />
     </Stack.Navigator>

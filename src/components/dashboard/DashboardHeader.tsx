@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SCREEN_NAMES } from '../../constants';
-import { useAuthStore } from '../../store';
+import { useAuth } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
 import { Dropdown } from '../common/Dropdown';
 import { ProfileIcon } from '../common/ProfileIcon';
@@ -20,7 +20,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const navigation = useNavigation();
-  const { user, logout } = useAuthStore();
+  const { user, logout } = useAuth();
 
   const handleProfileSettings = () => {
     navigation.navigate(SCREEN_NAMES._DASHBOARD.PROFILE as never);
@@ -57,7 +57,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               trigger={
                 <ProfileIcon
                   image={user?.image}
-                  initialsText={(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')}
+                  initialsText={
+                    (user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')
+                  }
                   size={40}
                 />
               }

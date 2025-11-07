@@ -1,10 +1,10 @@
-import { useNavigation } from '@react-navigation/native';
 import { useMemo } from 'react';
-import { SCREEN_NAMES } from '../constants';
 import {
+  sendVerificationCodeService,
   signInService,
   signInWithGoogleService,
   signUpService,
+  verifyCodeService,
 } from '../services';
 import { useAuthStore } from '../store';
 
@@ -21,14 +21,21 @@ export const useAuth = () => {
     setLoading,
     setAuthenticated,
     setRefreshToken,
+    reset: logout,
   } = useAuthStore();
-
-  const navigation = useNavigation();
 
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
       const { data } = await signInService(email, password);
+
+      if (
+        !data.user.activated ||
+        data.token === null ||
+        data.refreshToken === null
+      ) {
+        return false;
+      }
 
       setToken(data.token);
       setRefreshToken(data.refreshToken);
@@ -43,6 +50,8 @@ export const useAuth = () => {
         pushReminders: data.user.push_reminders,
       });
       setAuthenticated(true);
+
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign in');
       throw err;
@@ -93,10 +102,45 @@ export const useAuth = () => {
         email,
         password
       );
-      setToken(data.token);
-      navigation.navigate(SCREEN_NAMES._AUTH.PROFILE_SETUP as never);
+      return { data };
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign up');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendVerificationCode = async (email: string, type: string) => {
+    try {
+      setLoading(true);
+      await sendVerificationCodeService(email, type);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to send verification code'
+      );
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyCode = async (
+    email: string,
+    code: string,
+    type: string,
+    password?: string
+  ) => {
+    try {
+      setLoading(true);
+      const { data } = await verifyCodeService(email, code, type, password);
+      setUser(data.user);
+      setToken(data.token);
+      setRefreshToken(data.refreshToken);
+      setAuthenticated(true);
+      return { data };
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to verify code');
       throw err;
     } finally {
       setLoading(false);
@@ -108,6 +152,9 @@ export const useAuth = () => {
       signIn,
       signUp,
       signInWithGoogle,
+      verifyCode,
+      sendVerificationCode,
+      logout,
       token,
       isAuthenticated,
       user,
@@ -118,6 +165,9 @@ export const useAuth = () => {
       signIn,
       signUp,
       signInWithGoogle,
+      verifyCode,
+      sendVerificationCode,
+      logout,
       token,
       isAuthenticated,
       user,

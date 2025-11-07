@@ -1,6 +1,4 @@
 import { useNavigation } from '@react-navigation/native';
-import { getCode, getName } from 'country-list';
-import isTimezone from 'is-timezone';
 import React, { useCallback, useState } from 'react';
 import {
   Alert,
@@ -11,31 +9,34 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { CustomButton, Input } from '../../components/common';
+import CountryPicker from 'react-native-country-picker-modal';
+import { CustomButton, Input, TimezonePicker } from '../../components/common';
 import { SCREEN_NAMES } from '../../constants';
 import { checkDisplayName, updateProfile } from '../../services';
 import { useAuthStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
-
 export const ProfileSetupScreen: React.FC = () => {
   const { setUser } = useAuthStore();
 
   const [displayName, setDisplayName] = useState('');
-  const [country, setCountry] = useState('');
+  const [country, setCountry] = useState<string>('');
   const [timezone, setTimezone] = useState('');
   const [pushReminders, setPushReminders] = useState(true);
   // Validation states
-  const [displayNameValid, setDisplayNameValid] = useState<boolean | undefined>(undefined);
-  const [countryValid, setCountryValid] = useState<boolean | undefined>(undefined);
-  const [timezoneValid, setTimezoneValid] = useState<boolean | undefined>(undefined);
+  const [displayNameValid, setDisplayNameValid] = useState<boolean | undefined>(
+    undefined
+  );
 
   const [loading, setLoading] = useState(false);
 
   const navigation = useNavigation();
 
   const handleProfilePictureUpload = () => {
-    Alert.alert('Profile Picture', 'Profile picture upload functionality would be implemented here');
+    Alert.alert(
+      'Profile Picture',
+      'Profile picture upload functionality would be implemented here'
+    );
   };
 
   const changeDisplayName = useCallback((text: string) => {
@@ -48,53 +49,48 @@ export const ProfileSetupScreen: React.FC = () => {
       setDisplayNameValid(false);
       return;
     }
-    checkDisplayName(text.trim()).then((available) => {
+    checkDisplayName(text.trim()).then(available => {
       setDisplayNameValid(available);
     });
   }, []);
 
-  const changeCountry = (text: string) => {
-    const countryCode = getCode(text);
-    if (countryCode) {
-      const countryName = getName(countryCode) || '';
-      setCountry(countryName);
-      setCountryValid(true);
-    } else {
-      setCountry(text);
-      setCountryValid(text.trim().length > 0 ? false : undefined);
-    }
+  const handleCountrySelect = (selectedCountry: { cca2: string }) => {
+    setCountry(selectedCountry.cca2);
   };
 
-  const changeTimezone = (text: string) => {
-    setTimezone(text);
-    if (isTimezone(text)) {
-      setTimezoneValid(true);
-    } else {
-      setTimezoneValid(false);
-    }
+  const handleTimezoneSelect = (selectedTimezone: string) => {
+    setTimezone(selectedTimezone);
   };
 
   const handleSave = () => {
     setLoading(true);
     updateProfile({
       display_name: displayName.trim(),
-      country: country.trim(),
+      country: country,
       timezone: timezone.trim(),
       push_reminders: pushReminders,
-    }).then((data) => {
-      setLoading(false);
-      setUser(data);
-      navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
-    }).catch((error) => {
-      setLoading(false);
-      Alert.alert('Error', error.message);
-    });
+    })
+      .then(data => {
+        setLoading(false);
+        setUser(data);
+        navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+      })
+      .catch(error => {
+        setLoading(false);
+        Alert.alert('Error', error.message);
+      });
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       <View style={styles.profilePictureContainer}>
-        <TouchableOpacity style={styles.profilePicture} onPress={handleProfilePictureUpload}>
+        <TouchableOpacity
+          style={styles.profilePicture}
+          onPress={handleProfilePictureUpload}
+        >
           <View style={styles.uploadIcon}>
             <Text style={styles.uploadIconText}>↑</Text>
           </View>
@@ -113,23 +109,30 @@ export const ProfileSetupScreen: React.FC = () => {
           showValidation={displayName.trim().length > 0}
         />
 
-        <Input
-          placeholder="Country (e.g. Australia)"
-          value={country}
-          onChangeText={changeCountry}
-          inputStyle={styles.input}
-          isValid={countryValid}
-          showValidation={country.trim().length > 0}
-        />
+        <View style={styles.countryContainer}>
+          <Text style={styles.countryLabel}>Country</Text>
+          <CountryPicker
+            {...{
+              countryCode: country as any,
+              withFilter: true,
+              withFlag: true,
+              withCountryNameButton: true,
+              withAlphaFilter: false,
+              withCallingCode: false,
+              withEmoji: true,
+              onSelect: handleCountrySelect,
+            }}
+          />
+        </View>
 
-        <Input
-          placeholder="Timezone (e.g. Australia/Sydney)"
-          value={timezone}
-          onChangeText={changeTimezone}
-          inputStyle={styles.input}
-          isValid={timezoneValid}
-          showValidation={timezone.trim().length > 0}
-        />
+        <View style={styles.timezoneContainer}>
+          <Text style={styles.timezoneLabel}>Timezone</Text>
+          <TimezonePicker
+            value={timezone}
+            onSelect={handleTimezoneSelect}
+            placeholder="Select timezone"
+          />
+        </View>
       </View>
 
       <View style={styles.toggleContainer}>
@@ -137,7 +140,10 @@ export const ProfileSetupScreen: React.FC = () => {
         <Switch
           value={pushReminders}
           onValueChange={setPushReminders}
-          trackColor={{ false: COLORS.gray.lightMedium, true: COLORS.primary.main }}
+          trackColor={{
+            false: COLORS.gray.lightMedium,
+            true: COLORS.primary.main,
+          }}
           thumbColor={pushReminders ? COLORS.white : COLORS.gray.medium}
         />
       </View>
@@ -147,7 +153,7 @@ export const ProfileSetupScreen: React.FC = () => {
         onPress={handleSave}
         buttonStyle={styles.saveButton}
         textStyle={styles.saveButtonText}
-        disabled={loading || !displayNameValid || !countryValid || !timezoneValid}
+        disabled={loading || !displayNameValid || !country || !timezone}
         loading={loading}
       />
     </ScrollView>
@@ -214,6 +220,24 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsRegular,
     color: COLORS.text.primary,
   },
+  countryContainer: {
+    marginBottom: 16,
+  },
+  countryLabel: {
+    fontSize: FONTS.size.sm,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.text.primary,
+    marginBottom: 8,
+  },
+  timezoneContainer: {
+    marginBottom: 16,
+  },
+  timezoneLabel: {
+    fontSize: FONTS.size.sm,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.text.primary,
+    marginBottom: 8,
+  },
   toggleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -227,10 +251,7 @@ const styles = StyleSheet.create({
     color: COLORS.text.primary,
   },
   saveButton: {
-    backgroundColor: COLORS.primary.main,
-    borderRadius: 12,
-    paddingVertical: 16,
-    marginBottom: 24,
+    height: 48,
   },
   saveButtonText: {
     color: COLORS.white,

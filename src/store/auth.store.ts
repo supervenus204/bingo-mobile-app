@@ -12,6 +12,7 @@ export type AuthUser = {
   pushReminders?: boolean;
   image?: string | null;
   country?: string | null;
+  activated?: boolean;
 };
 
 type AuthState = {
@@ -25,15 +26,14 @@ type AuthState = {
 };
 
 type AuthActions = {
+  setAuthenticated: (authenticated: boolean) => void;
   setToken: (token: string | null) => void;
   setRefreshToken: (refreshToken: string | null) => void;
   setUser: (user: AuthUser | null) => void;
-  setAuthenticated: (authenticated: boolean) => void;
   setLoading: (loading: boolean) => void;
   setError: (message?: string | null) => void;
   setHasHydrated: (hydrated: boolean) => void;
   reset: () => void;
-  logout: () => void;
 };
 
 export type AuthStore = AuthState & AuthActions;
@@ -65,8 +65,11 @@ export const useAuthStore = create<AuthStore>()(
       setHasHydrated: (hydrated: boolean) => {
         set({ hasHydrated: hydrated });
       },
-      reset: () => set({ ...initialState }),
-      logout: () => set({ ...initialState }),
+      reset: () =>
+        set({
+          ...initialState,
+          hasHydrated: true,
+        }),
     }),
     {
       name: 'auth-storage',
@@ -77,7 +80,7 @@ export const useAuthStore = create<AuthStore>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => state => {
         if (state) {
           state.setHasHydrated(true);
         }

@@ -23,7 +23,7 @@ import { CreateChallengeStackParamList } from '../../types/navigation.type';
 
 type ChallengePublishedRouteProp = RouteProp<
   CreateChallengeStackParamList,
-  typeof SCREEN_NAMES._CREATE_CHALLENGE.CHALLENGE_PUBLISHED
+  typeof SCREEN_NAMES._CREATE_CHALLENGE.PAY_CHALLENGE
 >;
 
 export const ChallengePublished: React.FC = () => {
@@ -133,7 +133,8 @@ export const ChallengePublished: React.FC = () => {
           console.log('Stripe Payment Error:', error);
           if (error.code !== 'Canceled') {
             showToast(
-              `Payment failed: ${error.message || error.code
+              `Payment failed: ${
+                error.message || error.code
               }. Please try again.`,
               'error'
             );
@@ -181,10 +182,7 @@ export const ChallengePublished: React.FC = () => {
 
   return (
     <>
-      <DashboardHeader
-        title="Challenge Published"
-        showProfileIcon={false}
-      />
+      <DashboardHeader title="Challenge Published" showProfileIcon={false} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
@@ -273,7 +271,9 @@ export const ChallengePublished: React.FC = () => {
             ) : (
               <CustomButton
                 text="Start Challenge"
-                onPress={() => navigation.navigate(SCREEN_NAMES.DASHBOARD as never)}
+                onPress={() =>
+                  navigation.navigate(SCREEN_NAMES.DASHBOARD as never)
+                }
                 variant="primary"
                 buttonStyle={styles.button}
                 textStyle={{ ...styles.buttonText, color: COLORS.white }}

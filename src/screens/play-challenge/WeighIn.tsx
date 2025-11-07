@@ -47,7 +47,9 @@ export const WeighInScreen: React.FC = () => {
     }
   };
 
-  const transformMeasuresToWeightHistory = (measures: MeasureData[]): WeightEntry[] => {
+  const transformMeasuresToWeightHistory = (
+    measures: MeasureData[]
+  ): WeightEntry[] => {
     const sortedMeasures = [...measures].sort(
       (a, b) => a.week_number - b.week_number
     );
@@ -106,7 +108,8 @@ export const WeighInScreen: React.FC = () => {
       await createMeasure(selectedChallenge.id, 'weight', newWeight);
 
       const updatedHistory = await getMeasureHistory(selectedChallenge.id);
-      const transformedHistory = transformMeasuresToWeightHistory(updatedHistory);
+      const transformedHistory =
+        transformMeasuresToWeightHistory(updatedHistory);
       setWeightHistory(transformedHistory);
     } catch (error) {
       console.error('Failed to save weight:', error);
@@ -228,9 +231,7 @@ export const WeighInScreen: React.FC = () => {
 
           {weightHistory.length === 0 ? (
             <View style={styles.emptyHistoryRow}>
-              <Text style={styles.emptyHistoryText}>
-                No weight entries yet
-              </Text>
+              <Text style={styles.emptyHistoryText}>No weight entries yet</Text>
             </View>
           ) : (
             weightHistory.map((entry, index) => (

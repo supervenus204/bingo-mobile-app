@@ -7,7 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 
@@ -18,67 +17,52 @@ import { useAuth, useToast } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
 import type { AuthStackParamList } from '../../types/navigation.type';
 
-export const SignUpScreen: React.FC = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+export const ForgotPasswordScreen: React.FC = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [agreeTerms, setAgreeTerms] = useState(false);
 
-  const { signUp, loading } = useAuth();
+  const { sendVerificationCode, loading } = useAuth();
   const { showToast } = useToast();
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   const isFormValid = useMemo(
-    () =>
-      firstName &&
-      lastName &&
-      email &&
-      password &&
-      confirmPassword &&
-      agreeTerms,
-    [firstName, lastName, email, password, confirmPassword, agreeTerms]
+    () => email && newPassword && confirmPassword,
+    [email, newPassword, confirmPassword]
   );
 
   const handleSubmit = async () => {
     if (!isFormValid) {
-      showToast('Please fill all fields and agree to terms', 'error');
+      showToast('Please fill all fields', 'error');
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       showToast('Passwords do not match', 'error');
       return;
     }
 
     try {
-      const { data: user } = await signUp(firstName, lastName, email, password);
-
-      if (!user.id) {
-        showToast('Failed to get user information', 'error');
-        return;
-      }
+      await sendVerificationCode(email, 'password_reset');
 
       navigation.navigate(SCREEN_NAMES._AUTH.VERIFY_CODE, {
-        email: user.email,
-        type: 'account_activation',
+        email: email,
+        type: 'password_reset',
+        password: newPassword,
       });
     } catch (err) {
       showToast(
-        err instanceof Error ? err.message : 'Something went wrong',
+        err instanceof Error
+          ? err.message
+          : 'Failed to send password reset code',
         'error'
       );
     }
   };
 
-  const handleSignInNavigation = () => {
-    navigation.navigate(SCREEN_NAMES._AUTH.SIGN_IN as never);
-  };
-
-  const toggleTermsAgreement = () => {
-    setAgreeTerms(!agreeTerms);
+  const handleBackToSignIn = () => {
+    navigation.navigate(SCREEN_NAMES._AUTH.SIGN_IN);
   };
 
   return (
@@ -95,65 +79,41 @@ export const SignUpScreen: React.FC = () => {
         <AuthLogo />
 
         <View style={styles.header}>
-          <Text style={styles.title}>SIGN UP</Text>
+          <Text style={styles.title}>RESET PASSWORD</Text>
         </View>
 
         <View style={styles.form}>
-          <Input
-            placeholder="Enter your first name ..."
-            value={firstName}
-            onChangeText={setFirstName}
-            inputStyle={styles.input}
-          />
-
-          <Input
-            placeholder="Enter your last name ..."
-            value={lastName}
-            onChangeText={setLastName}
-            inputStyle={styles.input}
-          />
+          <Text style={styles.instructionText}>
+            Enter your email and new password. We'll send a verification code to
+            your email to confirm the password reset.
+          </Text>
 
           <Input
             placeholder="Enter your email ..."
             value={email}
             onChangeText={setEmail}
             inputStyle={styles.input}
+            keyboardType="email-address"
           />
 
           <Input
-            placeholder="Enter your password ..."
-            value={password}
-            onChangeText={setPassword}
+            placeholder="Enter new password ..."
+            value={newPassword}
+            onChangeText={setNewPassword}
             inputStyle={styles.input}
             secureTextEntry
           />
 
           <Input
-            placeholder="Confirm your password ..."
+            placeholder="Confirm new password ..."
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             inputStyle={styles.input}
             secureTextEntry
           />
 
-          <TouchableOpacity
-            style={styles.termsContainer}
-            onPress={toggleTermsAgreement}
-          >
-            <View
-              style={[styles.checkbox, agreeTerms && styles.checkboxChecked]}
-            >
-              {agreeTerms && <Text style={styles.checkmark}>✓</Text>}
-            </View>
-            <Text style={styles.termsText}>
-              I agree to the{' '}
-              <Text style={styles.termsLink}>Terms of Service</Text> and{' '}
-              <Text style={styles.termsLink}>Privacy Policy</Text>
-            </Text>
-          </TouchableOpacity>
-
           <CustomButton
-            text="Sign Up"
+            text="Send Verification Code"
             onPress={handleSubmit}
             buttonStyle={styles.submitButton}
             textStyle={styles.submitButtonText}
@@ -162,10 +122,10 @@ export const SignUpScreen: React.FC = () => {
           />
 
           <View style={styles.signInContainer}>
-            <Text style={styles.signInText}>Already have an account? </Text>
+            <Text style={styles.signInText}>Remember your password? </Text>
             <CustomButton
               text="Sign In"
-              onPress={handleSignInNavigation}
+              onPress={handleBackToSignIn}
               variant="default"
               buttonStyle={styles.signInButton}
               textStyle={styles.signInButtonText}
@@ -205,6 +165,14 @@ const styles = StyleSheet.create({
   form: {
     gap: 12,
   },
+  instructionText: {
+    fontSize: 14,
+    color: COLORS.gray.dark,
+    fontFamily: FONTS.family.poppinsRegular,
+    textAlign: 'center',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
   input: {
     borderRadius: 12,
     borderWidth: 1,
@@ -214,43 +182,6 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsMedium,
     backgroundColor: COLORS.white,
     fontSize: 14,
-  },
-  termsContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginVertical: 6,
-    paddingHorizontal: 4,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderWidth: 2,
-    borderColor: COLORS.gray.mediumDark,
-    borderRadius: 4,
-    marginRight: 12,
-    marginTop: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxChecked: {
-    backgroundColor: COLORS.green.forest,
-    borderColor: COLORS.green.forest,
-  },
-  checkmark: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  termsText: {
-    flex: 1,
-    fontSize: 14,
-    color: COLORS.gray.dark,
-    fontFamily: FONTS.family.poppinsRegular,
-    lineHeight: 20,
-  },
-  termsLink: {
-    color: COLORS.blue.indigo,
-    fontFamily: FONTS.family.poppinsMedium,
   },
   submitButton: {
     backgroundColor: COLORS.green.forest,

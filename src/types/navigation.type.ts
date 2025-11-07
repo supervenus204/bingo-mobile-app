@@ -6,21 +6,23 @@ export type RootStackParamList = {
   [SCREEN_NAMES.AUTH]: undefined;
   [SCREEN_NAMES.DASHBOARD]: undefined;
   [SCREEN_NAMES.CREATE_CHALLENGE]: undefined;
+  [SCREEN_NAMES.JOIN_CHALLENGE]: undefined;
   [SCREEN_NAMES.PLAY_CHALLENGE]: undefined;
 };
 
 export type AuthStackParamList = {
   [SCREEN_NAMES._AUTH.SIGN_IN]: undefined;
   [SCREEN_NAMES._AUTH.SIGN_UP]: undefined;
-  [SCREEN_NAMES._AUTH.PROFILE_SETUP]: undefined;
+  [SCREEN_NAMES._AUTH.VERIFY_CODE]: {
+    email: string;
+    type: string;
+    password?: string;
+  };
+  [SCREEN_NAMES._AUTH.FORGOT_PASSWORD]: undefined;
 };
 
 export type DashboardStackParamList = {
-  [SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE]: undefined;
-  [SCREEN_NAMES._DASHBOARD.ARCHIVED_CHALLENGE]: undefined;
-  [SCREEN_NAMES._DASHBOARD.ENTER_CODE]: undefined;
-  [SCREEN_NAMES._DASHBOARD.JOIN_CHALLENGE]: { challenge: any };
-  [SCREEN_NAMES._DASHBOARD.SCAN_QR_CODE]: undefined;
+  [SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST]: undefined;
   [SCREEN_NAMES._DASHBOARD.PROFILE]: undefined;
 };
 
@@ -29,9 +31,15 @@ export type CreateChallengeStackParamList = {
   [SCREEN_NAMES._CREATE_CHALLENGE.DEFINE_CHALLENGE]: undefined;
   [SCREEN_NAMES._CREATE_CHALLENGE.CARD_SETUP]: undefined;
   [SCREEN_NAMES._CREATE_CHALLENGE.INVITE_PARTICIPANTS]: undefined;
-  [SCREEN_NAMES._CREATE_CHALLENGE.CHALLENGE_PUBLISHED]: {
+  [SCREEN_NAMES._CREATE_CHALLENGE.PAY_CHALLENGE]: {
     challenge: Challenge;
   };
+};
+
+export type JoinChallengeStackParamList = {
+  [SCREEN_NAMES._JOIN_CHALLENGE.INVITE_CODE]: undefined;
+  [SCREEN_NAMES._JOIN_CHALLENGE.JOIN]: { challenge: Challenge };
+  [SCREEN_NAMES._JOIN_CHALLENGE.SCAN_QR_CODE]: undefined;
 };
 
 export type ChallengeStackParamList = {

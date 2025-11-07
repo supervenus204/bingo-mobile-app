@@ -3,19 +3,17 @@ export const SCREEN_NAMES = {
   AUTH: 'Auth',
   DASHBOARD: 'Dashboard',
   CREATE_CHALLENGE: 'CreateChallenge',
+  JOIN_CHALLENGE: 'JoinChallenge',
   PLAY_CHALLENGE: 'PlayChallenge',
 
   _AUTH: {
     SIGN_IN: 'SignIn',
     SIGN_UP: 'SignUp',
-    PROFILE_SETUP: 'ProfileSetup',
+    VERIFY_CODE: 'VerifyCode',
+    FORGOT_PASSWORD: 'ForgotPassword',
   },
   _DASHBOARD: {
-    ONGOING_CHALLENGE: 'OngoingChallenge',
-    ARCHIVED_CHALLENGE: 'ArchivedChallenge',
-    ENTER_CODE: 'EnterCode',
-    JOIN_CHALLENGE: 'JoinChallenge',
-    SCAN_QR_CODE: 'ScanQRCode',
+    CHALLENGES_LIST: 'ChallengesList',
     PROFILE: 'Profile',
   },
   _CREATE_CHALLENGE: {
@@ -23,7 +21,12 @@ export const SCREEN_NAMES = {
     DEFINE_CHALLENGE: 'DefineChallenge',
     CARD_SETUP: 'CardSetup',
     INVITE_PARTICIPANTS: 'InviteParticipants',
-    CHALLENGE_PUBLISHED: 'ChallengePublished',
+    PAY_CHALLENGE: 'PayChallenge',
+  },
+  _JOIN_CHALLENGE: {
+    INVITE_CODE: 'InviteCode',
+    JOIN: 'Join',
+    SCAN_QR_CODE: 'ScanQRCode',
   },
   _PLAY_CHALLENGE: {
     BINGO: 'Bingo',
