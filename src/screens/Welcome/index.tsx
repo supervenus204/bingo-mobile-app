@@ -1,32 +1,26 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useMemo } from 'react';
-import {
-  Dimensions,
-  Image as RNImage,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { CustomButton } from '../components/common';
-import { SCREEN_NAMES } from '../constants/screens';
-import { useWelcomeScreenStore } from '../store';
-import { COLORS, FONTS } from '../theme';
+import { Dimensions, Image, StyleSheet, Text, View } from 'react-native';
+import { CustomButton } from '../../components/common';
+import { SCREEN_NAMES } from '../../constants/screens';
+import { useWelcomeScreenStore } from '../../store';
+import { COLORS, FONTS } from '../../theme';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 const WelcomeScreens = [
   {
-    image: require('../assets/images/welcome/logo.png'),
-    mark: require('../assets/images/welcome/mark-1.png'),
+    image: require('../../assets/images/welcome/logo.png'),
+    mark: require('../../assets/images/welcome/mark-1.png'),
     title: 'Join fun health challenges with friends and family.',
     titleColor: COLORS.primary.welcome.tertiary,
     bgColor: COLORS.green.light_2,
     buttonColor: COLORS.primary.pink.bright_1,
   },
   {
-    image: require('../assets/images/welcome/image-1.png'),
-    mark: require('../assets/images/welcome/mark-1.png'),
+    image: require('../../assets/images/welcome/image-1.png'),
+    mark: require('../../assets/images/welcome/mark-1.png'),
     title: 'Turn Habits Into Fun!',
     titleColor: COLORS.white,
     description:
@@ -35,8 +29,8 @@ const WelcomeScreens = [
     buttonColor: COLORS.primary.welcome.secondary,
   },
   {
-    image: require('../assets/images/welcome/image-2.png'),
-    mark: require('../assets/images/welcome/mark-2.png'),
+    image: require('../../assets/images/welcome/image-2.png'),
+    mark: require('../../assets/images/welcome/mark-2.png'),
     title: 'Track Your Weekly Wins!',
     titleColor: COLORS.white,
     description:
@@ -45,8 +39,8 @@ const WelcomeScreens = [
     buttonColor: COLORS.primary.welcome.tertiary,
   },
   {
-    image: require('../assets/images/welcome/image-3.png'),
-    mark: require('../assets/images/welcome/mark-3.png'),
+    image: require('../../assets/images/welcome/image-3.png'),
+    mark: require('../../assets/images/welcome/mark-3.png'),
     title: 'Stay Motivated Together',
     titleColor: COLORS.white,
     description:
@@ -91,15 +85,15 @@ export const WelcomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <RNImage
+        <Image
           source={currentScreen.image}
-          style={isFirstStep ? styles.logo : styles.image}
+          style={styles.image}
           resizeMode={isFirstStep ? 'contain' : 'cover'}
         />
       </View>
 
       <View style={styles.transitionIcon}>
-        <RNImage source={currentScreen.mark} style={styles.markIcon} />
+        <Image source={currentScreen.mark} style={styles.markIcon} />
       </View>
 
       <View
@@ -166,11 +160,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
-  logo: {
-    width: 0.75 * DEVICE_WIDTH,
-    flex: 1,
-    resizeMode: 'contain',
-  },
   imageContainer: {
     width: DEVICE_WIDTH,
     height: DEVICE_HEIGHT * 0.4,
@@ -187,14 +176,13 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 40,
-    paddingHorizontal: 32,
-    paddingBottom: 40,
+    gap: 24,
+    padding: 32,
   },
   title: {
-    fontSize: 32,
+    fontSize: 30,
     textAlign: 'center',
-    lineHeight: 48,
+    lineHeight: 36,
     fontFamily: FONTS.family.poppinsSemiBold,
     fontWeight: 'bold',
     paddingHorizontal: 12,
@@ -202,14 +190,14 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 20,
     textAlign: 'center',
-    lineHeight: 32,
+    lineHeight: 28,
     fontFamily: FONTS.family.poppinsRegular,
     color: COLORS.white,
     maxWidth: '100%',
   },
   buttonStyle: {
     width: DEVICE_WIDTH * 0.8,
-    height: 56,
+    height: 48,
     backgroundColor: COLORS.primary.pink.bright_1,
     borderRadius: 28,
     shadowColor: COLORS.primary.pink.bright_1,
