@@ -115,8 +115,8 @@ export const ForgotPasswordScreen: React.FC = () => {
           <CustomButton
             text="Send Verification Code"
             onPress={handleSubmit}
-            buttonStyle={styles.submitButton}
-            textStyle={styles.submitButtonText}
+            buttonStyle={styles.buttonStyle}
+            textStyle={styles.buttonTextStyle}
             disabled={!isFormValid}
             loading={loading}
           />
@@ -127,8 +127,8 @@ export const ForgotPasswordScreen: React.FC = () => {
               text="Sign In"
               onPress={handleBackToSignIn}
               variant="default"
-              buttonStyle={styles.signInButton}
-              textStyle={styles.signInButtonText}
+              buttonStyle={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
             />
           </View>
         </View>
@@ -183,18 +183,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.white,
     fontSize: 14,
   },
-  submitButton: {
-    backgroundColor: COLORS.green.forest,
-    borderRadius: 999,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  submitButtonText: {
-    color: COLORS.white,
-    fontFamily: FONTS.family.poppinsMedium,
-    fontSize: 14,
-  },
   signInContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -206,13 +194,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsRegular,
     fontSize: 14,
   },
-  signInButton: {
-    paddingVertical: 0,
-    paddingHorizontal: 0,
+  buttonStyle: {
+    height: 48,
   },
-  signInButtonText: {
-    color: COLORS.blue.indigo,
-    fontFamily: FONTS.family.poppinsBold,
+  buttonTextStyle: {
     fontSize: 14,
   },
   bottomSpacing: {

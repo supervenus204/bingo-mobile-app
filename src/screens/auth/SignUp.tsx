@@ -155,8 +155,8 @@ export const SignUpScreen: React.FC = () => {
           <CustomButton
             text="Sign Up"
             onPress={handleSubmit}
-            buttonStyle={styles.submitButton}
-            textStyle={styles.submitButtonText}
+            buttonStyle={styles.buttonStyle}
+            textStyle={styles.buttonTextStyle}
             disabled={!isFormValid}
             loading={loading}
           />
@@ -167,8 +167,8 @@ export const SignUpScreen: React.FC = () => {
               text="Sign In"
               onPress={handleSignInNavigation}
               variant="default"
-              buttonStyle={styles.signInButton}
-              textStyle={styles.signInButtonText}
+              buttonStyle={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
             />
           </View>
         </View>
@@ -252,16 +252,10 @@ const styles = StyleSheet.create({
     color: COLORS.blue.indigo,
     fontFamily: FONTS.family.poppinsMedium,
   },
-  submitButton: {
-    backgroundColor: COLORS.green.forest,
-    borderRadius: 999,
-    paddingVertical: 12,
-    alignItems: 'center',
-    marginTop: 4,
+  buttonStyle: {
+    height: 48,
   },
-  submitButtonText: {
-    color: COLORS.white,
-    fontFamily: FONTS.family.poppinsMedium,
+  buttonTextStyle: {
     fontSize: 14,
   },
   signInContainer: {
@@ -273,15 +267,6 @@ const styles = StyleSheet.create({
   signInText: {
     color: COLORS.gray.mediumDark,
     fontFamily: FONTS.family.poppinsRegular,
-    fontSize: 14,
-  },
-  signInButton: {
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-  },
-  signInButtonText: {
-    color: COLORS.blue.indigo,
-    fontFamily: FONTS.family.poppinsBold,
     fontSize: 14,
   },
   bottomSpacing: {

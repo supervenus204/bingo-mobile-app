@@ -98,7 +98,7 @@ export const VerifyCodeScreen: React.FC = () => {
             text="Verify Code"
             onPress={handleVerifyCode}
             buttonStyle={styles.buttonStyle}
-            textStyle={styles.buttonText}
+            textStyle={styles.buttonTextStyle}
             disabled={!verificationCode}
             loading={verifyLoading}
           />
@@ -113,7 +113,7 @@ export const VerifyCodeScreen: React.FC = () => {
             onPress={handleResendCode}
             variant="outline"
             buttonStyle={styles.buttonStyle}
-            textStyle={styles.buttonText}
+            textStyle={styles.buttonTextStyle}
             loading={resendLoading}
           />
 
@@ -129,8 +129,8 @@ export const VerifyCodeScreen: React.FC = () => {
               text="Sign In"
               onPress={handleBackToSignIn}
               variant="default"
-              buttonStyle={styles.signInButton}
-              textStyle={styles.signInButtonText}
+              buttonStyle={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
             />
           </View>
         </View>
@@ -189,8 +189,8 @@ const styles = StyleSheet.create({
   buttonStyle: {
     height: 48,
   },
-  buttonText: {
-    fontSize: 16,
+  buttonTextStyle: {
+    fontSize: 14,
   },
   subInstructionText: {
     fontSize: 14,
@@ -222,15 +222,6 @@ const styles = StyleSheet.create({
   backToSignInText: {
     color: COLORS.gray.mediumDark,
     fontFamily: FONTS.family.poppinsRegular,
-    fontSize: 14,
-  },
-  signInButton: {
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-  },
-  signInButtonText: {
-    color: COLORS.blue.indigo,
-    fontFamily: FONTS.family.poppinsBold,
     fontSize: 14,
   },
   bottomSpacing: {
