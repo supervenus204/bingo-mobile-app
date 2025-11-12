@@ -2,10 +2,11 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+
 import { CustomButton, LoadingCard } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
-import { useChallengesStore } from '../../store/challenges.store';
+import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 import { DashboardStackParamList } from '../../types/navigation.type';
 

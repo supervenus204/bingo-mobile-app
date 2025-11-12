@@ -7,4 +7,3 @@ export * from './lastSeen.store';
 export * from './plans.store';
 export * from './theme.store';
 export * from './welcome.store';
-

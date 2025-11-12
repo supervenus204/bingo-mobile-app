@@ -1,206 +1,174 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import CountryPicker from 'react-native-country-picker-modal';
-import { CustomButton, Input, ProfileIcon } from '../../components/common';
-import { DashboardHeader } from '../../components/dashboard';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+import { CustomButton } from '../../components/common';
+import { ProfileIcon } from '../../components/common/ProfileIcon';
+import {
+  CountrySelector,
+  DashboardHeader,
+  ProfileInput,
+  TimezoneSelector,
+} from '../../components/dashboard';
+import { SCREEN_NAMES } from '../../constants';
 import { useUser } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
 
-export const Profile: React.FC = () => {
-  const { user, updateProfile, loading } = useUser();
-  const [country, setCountry] = useState<string>('');
-  const [isEditMode, setIsEditMode] = useState(false);
+type ProfileMode = 'setup' | 'view' | 'edit';
 
-  // Form states
-  const [firstName, setFirstName] = useState(user?.firstName || '');
-  const [lastName, setLastName] = useState(user?.lastName || '');
-  const [displayName, setDisplayName] = useState(user?.displayName || '');
-  const [timezone, setTimezone] = useState(user?.timezone || '');
-  const [pushReminders, setPushReminders] = useState(user?.pushReminders || false);
+export const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation();
+  const {
+    user,
+    firstName,
+    lastName,
+    displayName,
+    timezone,
+    country,
+    uploadAvatar,
+    setFirstName,
+    setLastName,
+    setDisplayName,
+    setTimezone,
+    setCountry,
+    saveProfile,
+  } = useUser();
+
+  const [mode, setMode] = useState<ProfileMode>('view');
 
   useEffect(() => {
-    if (user) {
-      setFirstName(user.firstName || '');
-      setLastName(user.lastName || '');
-      setDisplayName(user.displayName || '');
-      setCountry(user.country || '');
-      setTimezone(user.timezone || '');
-      setPushReminders(user.pushReminders || false);
+    if (user && (!user.displayName || !user.country || !user.timezone)) {
+      setMode('setup');
+    } else {
+      setMode('view');
     }
   }, [user]);
 
-  const handleSaveProfile = async () => {
-    try {
-      await updateProfile({
-        first_name: firstName,
-        last_name: lastName,
-        display_name: displayName,
-        country,
-        timezone,
-        push_reminders: pushReminders,
-      });
-    } catch (err) {
-      // Error is handled in useUser hook
-    }
+  const goToDashboard = () => {
+    navigation.navigate(SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST as never);
   };
-
-  const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
-    if (isEditMode) {
-      // Reset form values when canceling edit
-      setFirstName(user?.firstName || '');
-      setLastName(user?.lastName || '');
-      setDisplayName(user?.displayName || '');
-      setCountry(user?.country || '');
-      setTimezone(user?.timezone || '');
-      setPushReminders(user?.pushReminders || false);
-    }
-  };
-
-  if (!user) {
-    return (
-      <View style={styles.wrapper}>
-        <DashboardHeader title="Profile" />
-        <View style={styles.content}>
-          <Text style={styles.errorText}>No user data available</Text>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.wrapper}>
-      <DashboardHeader title="Profile" />
-
-      <View style={styles.content}>
-        <View style={styles.profileSection}>
+      {mode !== 'setup' && (
+        <DashboardHeader
+          title="Profile"
+          action={
+            <TouchableOpacity onPress={goToDashboard}>
+              <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>
+                Dashboard
+              </Text>
+            </TouchableOpacity>
+          }
+        />
+      )}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <View style={styles.profilePictureContainer}>
           <ProfileIcon
-            image={user.image as string}
-            initialsText={(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')}
-            size={80}
+            image={user?.image}
+            initialsText={
+              (user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')
+            }
+            size={100}
+            editable={mode !== 'view'}
+            onUpload={async (imageUri: string) => {
+              await uploadAvatar(imageUri);
+            }}
           />
-
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>
-              {user.firstName || ''} {user.lastName || ''}
-            </Text>
-            <Text style={styles.userEmail}>{user.email}</Text>
-          </View>
         </View>
 
-        {isEditMode ? (
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>
+            {mode === 'setup'
+              ? 'Profile set up'
+              : `${user?.firstName} ${user?.lastName}`}
+          </Text>
+
+          {mode !== 'setup' && (
+            <Text style={styles.subTitle}>{user?.email}</Text>
+          )}
+        </View>
+
+        {mode !== 'setup' && (
           <>
-            <View style={styles.inputContainer}>
-              <Text style={styles.sectionTitle}>First Name</Text>
-              <Input
-                inputStyle={styles.input}
-                value={firstName}
-                onChangeText={setFirstName}
-                placeholder="Enter your first name"
-              />
-            </View>
+            <ProfileInput
+              mode={mode}
+              label="First Name"
+              value={firstName}
+              onChangeText={setFirstName}
+            />
+            <ProfileInput
+              mode={mode}
+              label="Last Name"
+              value={lastName}
+              onChangeText={setLastName}
+            />
+          </>
+        )}
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.sectionTitle}>Last Name</Text>
-              <Input
-                inputStyle={styles.input}
-                value={lastName}
-                onChangeText={setLastName}
-                placeholder="Enter your last name"
-              />
-            </View>
+        <ProfileInput
+          mode={mode !== 'view' ? 'edit' : 'view'}
+          label="Display Name"
+          value={displayName}
+          onChangeText={setDisplayName}
+        />
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.sectionTitle}>Display Name</Text>
-              <Input
-                inputStyle={styles.input}
-                value={displayName}
-                onChangeText={setDisplayName}
-                placeholder="Enter your display name"
-              />
-            </View>
+        <CountrySelector
+          mode={mode !== 'view' ? 'edit' : 'view'}
+          countryCode={country}
+          onSelect={setCountry}
+        />
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.sectionTitle}>Timezone</Text>
-              <Input
-                inputStyle={styles.input}
-                value={timezone}
-                onChangeText={setTimezone}
-                placeholder="Enter your timezone"
-              />
-            </View>
+        <TimezoneSelector
+          mode={mode !== 'view' ? 'edit' : 'view'}
+          timezone={timezone}
+          onSelect={setTimezone}
+        />
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.sectionTitle}>Country</Text>
-              <CountryPicker
-                {...{
-                  countryCode: country as any,
-                  withFilter: true,
-                  withFlag: true,
-                  withCountryNameButton: true,
-                  withAlphaFilter: false,
-                  withCallingCode: false,
-                  withEmoji: true,
-                  onSelect: country => setCountry(country.cca2),
-                }}
-              />
-            </View>
-
-            <View style={styles.buttonContainer}>
+        <View style={styles.buttonContainer}>
+          {mode === 'view' && (
+            <CustomButton
+              text="Edit"
+              onPress={() => setMode('edit')}
+              buttonStyle={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
+            />
+          )}
+          {mode === 'edit' && (
+            <>
               <CustomButton
                 text="Cancel"
-                onPress={toggleEditMode}
-                buttonStyle={styles.cancelButton}
-                textStyle={styles.cancelButtonText}
-                variant="outline"
+                onPress={() => setMode('view')}
+                buttonStyle={styles.shortbuttonStyle}
+                textStyle={styles.buttonTextStyle}
               />
               <CustomButton
-                text={loading ? 'Saving...' : 'Save'}
-                onPress={handleSaveProfile}
-                buttonStyle={styles.saveButton}
-                textStyle={styles.saveButtonText}
-                disabled={loading}
+                text="Save"
+                onPress={saveProfile}
+                buttonStyle={styles.shortbuttonStyle}
+                textStyle={styles.buttonTextStyle}
               />
-            </View>
-          </>
-        ) : (
-          <View style={styles.viewMode}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>First Name</Text>
-              <Text style={styles.infoValue}>{user.firstName || 'Not set'}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Last Name</Text>
-              <Text style={styles.infoValue}>{user.lastName || 'Not set'}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Display Name</Text>
-              <Text style={styles.infoValue}>{user.displayName || 'Not set'}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Country</Text>
-              <Text style={styles.infoValue}>
-                {country ? `${country}` : 'Not selected'}
-              </Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Timezone</Text>
-              <Text style={styles.infoValue}>{user.timezone || 'Not set'}</Text>
-            </View>
-
+            </>
+          )}
+          {mode === 'setup' && (
             <CustomButton
-              text="Edit Profile"
-              onPress={toggleEditMode}
-              buttonStyle={styles.editButton}
-              textStyle={styles.editButtonText}
+              text="Save"
+              onPress={saveProfile}
+              buttonStyle={styles.buttonStyle}
+              textStyle={styles.buttonTextStyle}
             />
-          </View>
-        )}
-      </View>
+          )}
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -210,119 +178,49 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
-  content: {
+  container: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  profileSection: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  userInfo: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  userName: {
-    fontSize: FONTS.size['2xl'],
-    fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.black,
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: FONTS.size.base,
-    fontFamily: FONTS.family.poppinsRegular,
-    color: COLORS.text.secondary,
-  },
-  countrySection: {
-    marginTop: 20,
-  },
-  sectionTitle: {
-    fontSize: FONTS.size.sm,
-    fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.black,
-  },
-  errorText: {
-    fontSize: FONTS.size.base,
-    fontFamily: FONTS.family.poppinsRegular,
-    color: COLORS.red.bright,
-    textAlign: 'center',
-  },
-  input: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: COLORS.gray.mediumDark,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontFamily: FONTS.family.poppinsMedium,
     backgroundColor: COLORS.white,
-    fontSize: 14,
   },
-  inputContainer: {
-    marginBottom: 10,
+  contentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    paddingBottom: 40,
+  },
+  profilePictureContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: FONTS.size['2xl'],
+    color: COLORS.primary.blue.oxford,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subTitle: {
+    fontSize: FONTS.size.base,
+    color: COLORS.text.secondary,
+    textAlign: 'center',
   },
   buttonContainer: {
     flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  saveButton: {
-    flex: 1,
-    backgroundColor: COLORS.green.forest,
-    borderRadius: 8,
-    paddingVertical: 12,
-  },
-  saveButtonText: {
-    color: COLORS.white,
-    fontSize: FONTS.size.base,
-    fontFamily: FONTS.family.poppinsSemiBold,
-  },
-  cancelButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: COLORS.gray.medium,
-    backgroundColor: COLORS.white,
-    borderRadius: 8,
-    paddingVertical: 12,
-  },
-  cancelButtonText: {
-    color: COLORS.gray.darker,
-    fontSize: FONTS.size.base,
-    fontFamily: FONTS.family.poppinsSemiBold,
-  },
-  editButton: {
-    backgroundColor: COLORS.green.forest,
-    borderRadius: 8,
-    paddingVertical: 12,
-    marginTop: 20,
-  },
-  editButtonText: {
-    color: COLORS.white,
-    fontSize: FONTS.size.base,
-    fontFamily: FONTS.family.poppinsSemiBold,
-  },
-  viewMode: {
-    marginTop: 20,
-  },
-  infoRow: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray.light,
+    marginTop: 20,
   },
-  infoLabel: {
-    fontSize: FONTS.size.base,
-    fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.text.primary,
+  buttonStyle: {
+    height: 48,
+    width: '100%',
   },
-  infoValue: {
+  shortbuttonStyle: {
+    height: 48,
+    width: '48%',
+  },
+  buttonTextStyle: {
     fontSize: FONTS.size.base,
-    fontFamily: FONTS.family.poppinsRegular,
-    color: COLORS.text.secondary,
-    textAlign: 'right',
-    flex: 1,
-    marginLeft: 16,
   },
 });

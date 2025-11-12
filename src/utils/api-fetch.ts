@@ -11,7 +11,7 @@ const refreshToken = async () => {
 
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}/refresh-token`, {
+    response = await fetch(`${API_BASE_URL}/api/auth/refresh-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,6 +39,7 @@ export const apiFetch = async (
   url: string,
   method: string,
   body: any,
+  multipart: boolean = false,
   retryCount = 0
 ): Promise<any> => {
   const { token, refreshToken: currentRefreshToken } = useAuthStore.getState();
@@ -52,15 +53,26 @@ export const apiFetch = async (
     response = await fetch(`${API_BASE_URL}${url}`, {
       method,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': multipart ? 'multipart/form-data' : 'application/json',
         Authorization: `Bearer ${token}`,
       },
       body:
-        method === 'GET' ? undefined : body ? JSON.stringify(body) : undefined,
+        method === 'GET'
+          ? undefined
+          : body
+          ? multipart
+            ? (body as unknown as FormData)
+            : JSON.stringify(body)
+          : undefined,
     });
   } catch (error) {
-    if (error instanceof TypeError && error.message.includes('Network request failed')) {
-      const networkError = new Error('Network request failed. Please check your connection and ensure the server is running.');
+    if (
+      error instanceof TypeError &&
+      error.message.includes('Network request failed')
+    ) {
+      const networkError = new Error(
+        'Network request failed. Please check your connection and ensure the server is running.'
+      );
       networkError.name = 'NetworkError';
       throw networkError;
     }
@@ -78,9 +90,9 @@ export const apiFetch = async (
         useAuthStore.getState().setToken(newTokens.token);
         useAuthStore.getState().setRefreshToken(newTokens.refreshToken);
 
-        return apiFetch(url, method, body, 1);
+        return apiFetch(url, method, body, false, 1);
       } catch (error) {
-        useAuthStore.getState().logout();
+        useAuthStore.getState().reset();
         throw new Error('Session expired. Please login again.');
       }
     }

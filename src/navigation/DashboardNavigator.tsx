@@ -1,26 +1,40 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { SCREEN_NAMES } from '../constants/screens';
-import { OngoingChallenge, Profile } from '../screens/dashboard';
+import { ChallengesListScreen, ProfileScreen } from '../screens/dashboard';
+import { useAuthStore } from '../store';
 import { DashboardStackParamList } from '../types';
 
 const Stack = createNativeStackNavigator<DashboardStackParamList>();
 
 export const DashboardNavigator = () => {
+  const { user, refreshUser } = useAuthStore();
+
+  useEffect(() => {
+    refreshUser();
+  }, []);
+
+  const initialRouteName = useMemo(() => {
+    if (user?.displayName && user?.country && user?.timezone) {
+      return SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST;
+    }
+    return SCREEN_NAMES._DASHBOARD.PROFILE;
+  }, [user]);
+
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
       }}
-      initialRouteName={SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST}
+      initialRouteName={initialRouteName}
     >
       <Stack.Screen
         name={SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST}
-        component={OngoingChallenge}
+        component={ChallengesListScreen}
       />
       <Stack.Screen
         name={SCREEN_NAMES._DASHBOARD.PROFILE}
-        component={Profile}
+        component={ProfileScreen}
       />
     </Stack.Navigator>
   );

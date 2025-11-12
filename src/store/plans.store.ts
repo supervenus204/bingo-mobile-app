@@ -4,6 +4,7 @@ import { getPaymentPlans } from '../services/payment.service';
 export interface SubscriptionPlan {
   id: string;
   name: string;
+  description: string;
   price: number;
   currency: string;
   maxWeek: number;
@@ -51,7 +52,7 @@ export const usePlansStore = create<PlansStore>()((set, get) => ({
       }
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to fetch plans'
+        error: error instanceof Error ? error.message : 'Failed to fetch plans',
       });
     } finally {
       set({ loading: false });

@@ -1,26 +1,42 @@
-import { useMemo, useState } from 'react';
-import {
-  changePassword,
-  ChangePasswordData,
-  deleteAccount,
-  getUserProfile,
-  updateProfile,
-  UpdateProfileData,
-  uploadImage,
-} from '../services/user.service';
+import { useEffect, useMemo, useState } from 'react';
+import { updateProfile, uploadImage } from '../services/user.service';
 import { useAuthStore } from '../store/auth.store';
 
 export const useUser = () => {
   const { user, setUser } = useAuthStore();
+
+  const [image, setImage] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [displayName, setDisplayName] = useState<string>('');
+  const [timezone, setTimezone] = useState<string>('');
+  const [country, setCountry] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateUserProfile = async (data: UpdateProfileData) => {
+  useEffect(() => {
+    if (user) {
+      setImage(user.image ?? null);
+      setFirstName(user.firstName ?? '');
+      setLastName(user.lastName ?? '');
+      setDisplayName(user.displayName ?? '');
+      setTimezone(user.timezone ?? '');
+      setCountry(user.country ?? '');
+    }
+  }, [user]);
+
+  const saveProfile = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const updatedUser = await updateProfile(data);
+      const updatedUser = await updateProfile({
+        ...(firstName && { first_name: firstName }),
+        ...(lastName && { last_name: lastName }),
+        ...(displayName && { display_name: displayName }),
+        ...(country && { country: country }),
+        ...(timezone && { timezone: timezone }),
+      });
       setUser({
         firstName: updatedUser.first_name || '',
         lastName: updatedUser.last_name || '',
@@ -30,7 +46,6 @@ export const useUser = () => {
         email: updatedUser.email,
         displayName: updatedUser.display_name,
         timezone: updatedUser.timezone,
-        pushReminders: updatedUser.push_reminders,
       });
 
       return updatedUser;
@@ -44,23 +59,7 @@ export const useUser = () => {
     }
   };
 
-  const changeUserPassword = async (data: ChangePasswordData) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      await changePassword(data);
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to change password';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const uploadUserAvatar = async (imageUri: string) => {
+  const uploadAvatar = async (imageUri: string) => {
     try {
       setLoading(true);
       setError(null);
@@ -84,61 +83,50 @@ export const useUser = () => {
     }
   };
 
-  const refreshUserProfile = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const updatedUser = await getUserProfile();
-      setUser(updatedUser);
-
-      return updatedUser;
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to refresh profile';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const deleteUserAccount = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      await deleteAccount();
-
-      // Clear user data after successful deletion
-      useAuthStore.getState().logout();
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to delete account';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const clearError = () => setError(null);
 
   return useMemo(
     () => ({
       // User data
       user,
+      image,
+      firstName,
+      lastName,
+      displayName,
+      timezone,
+      country,
       loading,
       error,
 
       // Actions
-      updateProfile: updateUserProfile,
-      changePassword: changeUserPassword,
-      uploadAvatar: uploadUserAvatar,
-      refreshProfile: refreshUserProfile,
-      deleteAccount: deleteUserAccount,
+      saveProfile,
+      setFirstName,
+      setLastName,
+      setDisplayName,
+      setTimezone,
+      setCountry,
+      setImage,
+      uploadAvatar,
       clearError,
     }),
-    [user, loading, error]
+    [
+      image,
+      firstName,
+      lastName,
+      displayName,
+      timezone,
+      country,
+      loading,
+      error,
+      setFirstName,
+      setLastName,
+      setDisplayName,
+      setTimezone,
+      setCountry,
+      setImage,
+      uploadAvatar,
+      saveProfile,
+      clearError,
+    ]
   );
 };

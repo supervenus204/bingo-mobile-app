@@ -47,7 +47,6 @@ export const useAuth = () => {
         id: data.user.id,
         displayName: data.user.display_name,
         timezone: data.user.timezone,
-        pushReminders: data.user.push_reminders,
       });
       setAuthenticated(true);
 
@@ -75,7 +74,6 @@ export const useAuth = () => {
         id: data.user.id,
         displayName: data.user.display_name,
         timezone: data.user.timezone,
-        pushReminders: data.user.push_reminders,
       });
       setAuthenticated(true);
     } catch (err) {
@@ -134,7 +132,15 @@ export const useAuth = () => {
     try {
       setLoading(true);
       const { data } = await verifyCodeService(email, code, type, password);
-      setUser(data.user);
+      setUser({
+        email: data.user.email,
+        firstName: data.user.first_name,
+        lastName: data.user.last_name,
+        image: data.user.image,
+        id: data.user.id,
+        displayName: data.user.display_name,
+        timezone: data.user.timezone,
+      });
       setToken(data.token);
       setRefreshToken(data.refreshToken);
       setAuthenticated(true);

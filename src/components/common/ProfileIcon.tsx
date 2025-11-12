@@ -1,18 +1,36 @@
-import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {
+  ImagePickerResponse,
+  launchCamera,
+  launchImageLibrary,
+} from 'react-native-image-picker';
 import { COLORS, FONTS } from '../../theme';
 
 interface ProfileIconProps {
   image?: string | null;
   initialsText?: string;
   size?: number;
+  editable?: boolean;
+  onUpload?: (imageUri: string) => Promise<void>;
 }
 
 export const ProfileIcon: React.FC<ProfileIconProps> = ({
   image,
   initialsText,
   size = 40,
+  editable = false,
+  onUpload,
 }) => {
+  const [uploading, setUploading] = useState(false);
+
   const getBackgroundColor = () => {
     const name = initialsText || '';
     let value = 0;
@@ -30,17 +48,86 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
     return colors[index];
   };
 
-  if (image) {
-    return (
-      <View style={[styles.container, { width: size, height: size }]}>
-        <Image
-          source={{ uri: image }}
-          style={[styles.image, { width: size, height: size }]}
-          resizeMode="cover"
-        />
-      </View>
+  const handleImageResponse = async (response: ImagePickerResponse) => {
+    console.log('response', response);
+    if (!onUpload) return;
+
+    if (response.didCancel) {
+      return;
+    }
+
+    if (response.errorCode) {
+      let errorMessage = 'Failed to open image picker';
+      if (response.errorCode === 'permission') {
+        errorMessage =
+          'Permission denied. Please enable camera and photo library access in settings.';
+      } else if (response.errorMessage) {
+        errorMessage = response.errorMessage;
+      }
+      Alert.alert('Error', errorMessage);
+      return;
+    }
+
+    const imageUri = response.assets?.[0]?.uri;
+    if (!imageUri) {
+      Alert.alert('Error', 'Failed to select image');
+      return;
+    }
+
+    try {
+      await onUpload(imageUri);
+    } catch (error) {
+      Alert.alert(
+        'Upload Error',
+        error instanceof Error ? error.message : 'Failed to upload image'
+      );
+    }
+  };
+
+  const handleImagePicker = () => {
+    if (!editable || !onUpload || uploading) return;
+
+    Alert.alert(
+      'Select Photo',
+      'Choose an option',
+      [
+        {
+          text: 'Camera',
+          onPress: () => {
+            launchCamera(
+              {
+                mediaType: 'photo',
+                quality: 0.8,
+                maxWidth: 500,
+                maxHeight: 500,
+              },
+              handleImageResponse
+            );
+          },
+        },
+        {
+          text: 'Photo Library',
+          onPress: () => {
+            launchImageLibrary(
+              {
+                mediaType: 'photo',
+                quality: 0.8,
+                maxWidth: 500,
+                maxHeight: 500,
+                selectionLimit: 1,
+              },
+              handleImageResponse
+            );
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
     );
-  }
+  };
 
   return (
     <View
@@ -50,21 +137,29 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
         { width: size, height: size, backgroundColor: getBackgroundColor() },
       ]}
     >
-      <Text
-        style={[
-          styles.initials,
-          { fontSize: size * 0.4 },
-        ]}
+      <TouchableOpacity
+        onPress={handleImagePicker}
+        disabled={!editable || uploading}
       >
-        {initialsText?.toUpperCase()}
-      </Text>
+        {image ? (
+          <Image
+            source={{ uri: image }}
+            style={[styles.image, { width: size, height: size }]}
+            resizeMode="cover"
+          />
+        ) : (
+          <Text style={[styles.initials, { fontSize: size * 0.4 }]}>
+            {initialsText?.toUpperCase()}
+          </Text>
+        )}
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 20,
+    borderRadius: 999,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: COLORS.white,

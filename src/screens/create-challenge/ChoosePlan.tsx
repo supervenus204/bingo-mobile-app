@@ -40,6 +40,7 @@ export const ChoosePlan: React.FC = () => {
               <PriceCard
                 key={plan.id}
                 title={plan.name}
+                description={plan.description}
                 price={plan.price / 100}
                 features={plan.features}
                 buttonText={plan.buttonText}

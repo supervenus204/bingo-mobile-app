@@ -1,8 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { COLORS, FONTS } from '../../theme';
 
 interface PriceCardProps {
   title: string;
+  description: string;
   features: string[];
   buttonText: string;
   bgColor: string;
@@ -14,6 +16,7 @@ interface PriceCardProps {
 
 export const PriceCard: React.FC<PriceCardProps> = ({
   title,
+  description,
   features,
   buttonText,
   bgColor,
@@ -35,6 +38,8 @@ export const PriceCard: React.FC<PriceCardProps> = ({
       </View>
 
       <Text style={[styles.title, { color: titleColor }]}>{title}</Text>
+
+      <Text style={styles.description}>{description}</Text>
 
       <View style={styles.featuresContainer}>
         {features.map((feature, index) => (
@@ -65,29 +70,36 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontFamily: FONTS.family.poppinsBold,
     marginBottom: 10,
     textAlign: 'left',
+  },
+  description: {
+    fontSize: 18,
+    color: COLORS.gray.veryDark,
+    marginBottom: 12,
+    textAlign: 'left',
+    lineHeight: 20,
   },
   featuresContainer: {
     marginBottom: 10,
   },
   feature: {
     fontSize: 16,
-    color: '#374151',
+    color: COLORS.gray.dark,
     marginBottom: 8,
     textAlign: 'left',
     lineHeight: 20,
   },
   button: {
-    backgroundColor: '#22C55E',
+    backgroundColor: COLORS.primary.green.forest,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -100,7 +112,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   price: {
-    color: '#1E3A8A',
+    color: COLORS.blue.oxford,
     fontSize: 16,
     fontWeight: 'bold',
   },

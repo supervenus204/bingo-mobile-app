@@ -9,12 +9,12 @@ import {
   Text,
   View,
 } from 'react-native';
+
 import { CustomButton, LoadingCard } from '../../components/common';
-import { DashboardHeader } from '../../components/dashboard';
-import { ChallengeCard } from '../../components/dashboard/ChallengeCard';
+import { ChallengeCard, DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
 import { useUnreadMessages } from '../../hooks';
-import { useChallengesStore } from '../../store/challenges.store';
+import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 import {
   DashboardStackParamList,

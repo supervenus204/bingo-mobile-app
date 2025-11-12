@@ -26,7 +26,7 @@ type ChallengePublishedRouteProp = RouteProp<
   typeof SCREEN_NAMES._CREATE_CHALLENGE.PAY_CHALLENGE
 >;
 
-export const ChallengePublished: React.FC = () => {
+export const PayChallenge: React.FC = () => {
   const route = useRoute<ChallengePublishedRouteProp>();
   const { challenge } = route.params;
   const { showToast } = useToast();

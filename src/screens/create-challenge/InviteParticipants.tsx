@@ -48,11 +48,12 @@ export const InviteParticipants: React.FC = () => {
   const isUsernameSearch = (input: string) => input.startsWith('@');
 
   const checkEmailExists = (email: string) => {
-    return participants.some(p => p.email.toLowerCase() === email.toLowerCase());
-  }
+    return participants.some(
+      p => p.email.toLowerCase() === email.toLowerCase()
+    );
+  };
 
-  const maxParticipants =
-    getPlanById(plan as string)?.maxParticipants || 3;
+  const maxParticipants = getPlanById(plan as string)?.maxParticipants || 3;
   const isAtLimit = participants.length >= maxParticipants;
 
   const handleAddParticipant = async () => {
@@ -76,7 +77,14 @@ export const InviteParticipants: React.FC = () => {
           setLoading(false);
           return;
         }
-        setParticipants((prev: Participant[]) => [...prev, { email: user.email, displayName: user.display_name, image: user.image }]);
+        setParticipants((prev: Participant[]) => [
+          ...prev,
+          {
+            email: user.email,
+            displayName: user.display_name,
+            image: user.image,
+          },
+        ]);
       } else {
         showToast('User not found');
         setLoading(false);
@@ -98,7 +106,9 @@ export const InviteParticipants: React.FC = () => {
   };
 
   const handleRemove = (participant: Participant) => {
-    setParticipants((prev: Participant[]) => prev.filter(p => p !== participant));
+    setParticipants((prev: Participant[]) =>
+      prev.filter(p => p !== participant)
+    );
   };
 
   const handlePublish = async () => {
@@ -129,7 +139,7 @@ export const InviteParticipants: React.FC = () => {
     try {
       const { data } = await createChallenge(challenge);
 
-      navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.CHALLENGE_PUBLISHED, {
+      navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.PAY_CHALLENGE, {
         challenge: data,
       });
     } catch (error) {
@@ -141,10 +151,12 @@ export const InviteParticipants: React.FC = () => {
 
   const handleCancel = () => {
     navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
-  }
+  };
 
   const handleBack = () => {
-    navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.DEFINE_CHALLENGE as never);
+    navigation.navigate(
+      SCREEN_NAMES._CREATE_CHALLENGE.DEFINE_CHALLENGE as never
+    );
   };
 
   return (
@@ -153,7 +165,9 @@ export const InviteParticipants: React.FC = () => {
         title="Create Challenge"
         action={
           <TouchableOpacity onPress={handleCancel}>
-            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>Cancel</Text>
+            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>
+              Cancel
+            </Text>
           </TouchableOpacity>
         }
         showProfileIcon={false}
@@ -181,10 +195,16 @@ export const InviteParticipants: React.FC = () => {
             {participants.map((item, index) => (
               <View key={index} style={styles.row}>
                 <Image
-                  source={item.image ? { uri: item.image } : require('../../assets/images/create-challenge/default-avatar.png')}
+                  source={
+                    item.image
+                      ? { uri: item.image }
+                      : require('../../assets/images/create-challenge/default-avatar.png')
+                  }
                   style={styles.avatar}
                 />
-                <Text style={styles.rowText}>{item.displayName || item.email}</Text>
+                <Text style={styles.rowText}>
+                  {item.displayName || item.email}
+                </Text>
                 <TouchableOpacity
                   onPress={() => handleRemove(item)}
                   style={styles.deleteBtn}
@@ -208,21 +228,33 @@ export const InviteParticipants: React.FC = () => {
               returnKeyType="done"
             />
             <TouchableOpacity
-              style={[
-                styles.addButton,
-                (isAtLimit) && styles.addButtonDisabled,
-              ]}
+              style={[styles.addButton, isAtLimit && styles.addButtonDisabled]}
               onPress={handleAddParticipant}
               disabled={loading}
             >
-              <Text style={{ ...styles.addButtonText, opacity: loading ? 0.5 : 1 }}>Add</Text>
+              <Text
+                style={{ ...styles.addButtonText, opacity: loading ? 0.5 : 1 }}
+              >
+                Add
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
 
         <Footer>
-          <TouchableOpacity style={styles.publishButton} onPress={handlePublish} disabled={publishing}>
-            <Text style={{ ...styles.publishButtonText, opacity: publishing ? 0.5 : 1 }}>Publish & Send Invites{publishing && '...'}</Text>
+          <TouchableOpacity
+            style={styles.publishButton}
+            onPress={handlePublish}
+            disabled={publishing}
+          >
+            <Text
+              style={{
+                ...styles.publishButtonText,
+                opacity: publishing ? 0.5 : 1,
+              }}
+            >
+              Publish & Send Invites{publishing && '...'}
+            </Text>
           </TouchableOpacity>
         </Footer>
       </View>

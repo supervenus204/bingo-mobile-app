@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { getProfile } from '../services';
 
 export type AuthUser = {
   id: string;
@@ -9,7 +10,6 @@ export type AuthUser = {
   lastName?: string;
   displayName?: string;
   timezone?: string;
-  pushReminders?: boolean;
   image?: string | null;
   country?: string | null;
   activated?: boolean;
@@ -33,6 +33,7 @@ type AuthActions = {
   setLoading: (loading: boolean) => void;
   setError: (message?: string | null) => void;
   setHasHydrated: (hydrated: boolean) => void;
+  refreshUser: () => void;
   reset: () => void;
 };
 
@@ -64,6 +65,13 @@ export const useAuthStore = create<AuthStore>()(
       setError: (message?: string | null) => set({ error: message ?? null }),
       setHasHydrated: (hydrated: boolean) => {
         set({ hasHydrated: hydrated });
+      },
+      refreshUser: () => {
+        const getUserProfile = async () => {
+          const data = await getProfile();
+          set({ user: data });
+        };
+        getUserProfile();
       },
       reset: () =>
         set({
