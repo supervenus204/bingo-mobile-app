@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { CustomButton, Input, LoadingCard } from '../../components/common';
+import { LayoutCard } from '../../components/create-challenge/LayoutCard';
+import { boardLayoutOptions } from '../../constants';
 import { useCategories } from '../../hooks/useCategories';
 import { usePlans } from '../../hooks/usePlans';
 import { updateChallenge } from '../../services/challenge.service';
 import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
-
-const layoutOptions = [
-  { id: 16, size: '4x4', taskCount: 16 },
-  { id: 20, size: '4x5', taskCount: 20 },
-  { id: 24, size: '4x6', taskCount: 24 },
-];
 
 export const SettingsScreen: React.FC = () => {
   const { selectedChallenge, selectChallenge } = useChallengesStore();
@@ -28,7 +31,9 @@ export const SettingsScreen: React.FC = () => {
   });
 
   const isOrganizer = selectedChallenge?.is_organizer;
-  const category = categories?.find(cat => cat.id === selectedChallenge?.category_id);
+  const category = categories?.find(
+    cat => cat.id === selectedChallenge?.category_id
+  );
 
   useEffect(() => {
     if (selectedChallenge) {
@@ -45,10 +50,18 @@ export const SettingsScreen: React.FC = () => {
     try {
       setLoading(true);
       const response = await updateChallenge(selectedChallenge?.id as string, {
-        ...(formData.title !== selectedChallenge?.title && { title: formData.title }),
-        ...(formData.plan !== selectedChallenge?.plan && { plan: formData.plan }),
-        ...(formData.cardSize !== selectedChallenge?.card_size && { card_size: formData.cardSize }),
-        ...(formData.duration !== selectedChallenge?.duration && { duration: formData.duration }),
+        ...(formData.title !== selectedChallenge?.title && {
+          title: formData.title,
+        }),
+        ...(formData.plan !== selectedChallenge?.plan && {
+          plan: formData.plan,
+        }),
+        ...(formData.cardSize !== selectedChallenge?.card_size && {
+          card_size: formData.cardSize,
+        }),
+        ...(formData.duration !== selectedChallenge?.duration && {
+          duration: formData.duration,
+        }),
       });
 
       selectChallenge(selectedChallenge?.id as string);
@@ -76,12 +89,12 @@ export const SettingsScreen: React.FC = () => {
     if (increment) {
       setFormData(prev => ({
         ...prev,
-        duration: Math.min(prev.duration + 1, maxWeeks)
+        duration: Math.min(prev.duration + 1, maxWeeks),
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        duration: Math.max(prev.duration - 1, 1)
+        duration: Math.max(prev.duration - 1, 1),
       }));
     }
   };
@@ -89,18 +102,26 @@ export const SettingsScreen: React.FC = () => {
   const handleLayoutSelect = (layoutId: number) => {
     setFormData(prev => ({
       ...prev,
-      cardSize: layoutId
+      cardSize: layoutId,
     }));
   };
 
-  const renderField = (label: string, value: string | number, isEditable: boolean = false) => (
+  const renderField = (
+    label: string,
+    value: string | number,
+    isEditable: boolean = false
+  ) => (
     <View style={styles.fieldContainer}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <Text style={styles.fieldValue}>{value}</Text>
     </View>
   );
 
-  const renderEditableField = (label: string, value: string, onChange: (value: string) => void) => (
+  const renderEditableField = (
+    label: string,
+    value: string,
+    onChange: (value: string) => void
+  ) => (
     <View style={styles.fieldContainer}>
       <Input
         label={label}
@@ -125,7 +146,7 @@ export const SettingsScreen: React.FC = () => {
               style={[
                 styles.planButton,
                 formData.plan === plan.id && styles.planButtonSelected,
-                !isCurrentPlanFree && styles.planButtonDisabled
+                !isCurrentPlanFree && styles.planButtonDisabled,
               ]}
               onPress={() => {
                 if (isCurrentPlanFree) {
@@ -134,11 +155,13 @@ export const SettingsScreen: React.FC = () => {
               }}
               disabled={!isCurrentPlanFree}
             >
-              <Text style={[
-                styles.planButtonText,
-                formData.plan === plan.id && styles.planButtonTextSelected,
-                !isCurrentPlanFree && styles.planButtonTextDisabled
-              ]}>
+              <Text
+                style={[
+                  styles.planButtonText,
+                  formData.plan === plan.id && styles.planButtonTextSelected,
+                  !isCurrentPlanFree && styles.planButtonTextDisabled,
+                ]}
+              >
                 {plan.name}
               </Text>
             </TouchableOpacity>
@@ -156,10 +179,19 @@ export const SettingsScreen: React.FC = () => {
           style={styles.durationButton}
           onPress={() => handleDurationChange(false)}
         >
-          <Text style={[
-            styles.durationButtonText,
-            { color: formData.duration === 1 ? COLORS.gray.medium : COLORS.text.primary }
-          ]}>-</Text>
+          <Text
+            style={[
+              styles.durationButtonText,
+              {
+                color:
+                  formData.duration === 1
+                    ? COLORS.gray.medium
+                    : COLORS.text.primary,
+              },
+            ]}
+          >
+            -
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.durationDisplay}>
@@ -171,10 +203,20 @@ export const SettingsScreen: React.FC = () => {
           style={styles.durationButton}
           onPress={() => handleDurationChange(true)}
         >
-          <Text style={[
-            styles.durationButtonText,
-            { color: formData.duration === (getPlanById(formData.plan)?.maxWeek || 12) ? COLORS.gray.medium : COLORS.text.primary }
-          ]}>+</Text>
+          <Text
+            style={[
+              styles.durationButtonText,
+              {
+                color:
+                  formData.duration ===
+                  (getPlanById(formData.plan)?.maxWeek || 12)
+                    ? COLORS.gray.medium
+                    : COLORS.text.primary,
+              },
+            ]}
+          >
+            +
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -184,28 +226,14 @@ export const SettingsScreen: React.FC = () => {
     <View style={styles.fieldContainer}>
       <Text style={styles.fieldLabel}>Bingo Board Layout</Text>
       <View style={styles.layoutContainer}>
-        {layoutOptions.map(layout => (
-          <TouchableOpacity
+        {boardLayoutOptions.map(layout => (
+          <LayoutCard
             key={layout.id}
-            style={[
-              styles.layoutCard,
-              formData.cardSize === layout.id && styles.layoutCardSelected
-            ]}
+            size={layout.size}
+            taskCount={layout.taskCount}
+            isSelected={formData.cardSize === layout.id}
             onPress={() => handleLayoutSelect(layout.id)}
-          >
-            <Text style={[
-              styles.layoutText,
-              formData.cardSize === layout.id && styles.layoutTextSelected
-            ]}>
-              {layout.size}
-            </Text>
-            <Text style={[
-              styles.layoutSubtext,
-              formData.cardSize === layout.id && styles.layoutSubtextSelected
-            ]}>
-              {layout.taskCount} tasks
-            </Text>
-          </TouchableOpacity>
+          />
         ))}
       </View>
     </View>
@@ -222,9 +250,20 @@ export const SettingsScreen: React.FC = () => {
                 <Text style={styles.sectionTitle}>Challenge Details</Text>
                 {renderField('Title', selectedChallenge?.title || '')}
                 {renderField('Category', category?.name || '')}
-                {renderField('Plan', getPlanById(selectedChallenge?.plan || '')?.name || '')}
-                {renderField('Duration', `${selectedChallenge?.duration || 0} weeks`)}
-                {renderField('Card Size', layoutOptions.find(l => l.id === selectedChallenge?.card_size)?.size || '')}
+                {renderField(
+                  'Plan',
+                  getPlanById(selectedChallenge?.plan || '')?.name || ''
+                )}
+                {renderField(
+                  'Duration',
+                  `${selectedChallenge?.duration || 0} weeks`
+                )}
+                {renderField(
+                  'Card Size',
+                  boardLayoutOptions.find(
+                    l => l.id === selectedChallenge?.card_size
+                  )?.size || ''
+                )}
               </View>
 
               {isOrganizer && (
@@ -243,7 +282,9 @@ export const SettingsScreen: React.FC = () => {
               {/* Edit Mode */}
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Edit Challenge Settings</Text>
-                {renderEditableField('Title', formData.title, (value) => setFormData(prev => ({ ...prev, title: value })))}
+                {renderEditableField('Title', formData.title, value =>
+                  setFormData(prev => ({ ...prev, title: value }))
+                )}
                 {renderField('Category', category?.name || '')}
                 {renderPlanSelector()}
                 {renderDurationSelector()}
@@ -364,13 +405,6 @@ const styles = StyleSheet.create({
   planButtonTextDisabled: {
     color: COLORS.gray.medium,
   },
-  disabledText: {
-    fontSize: 12,
-    fontFamily: FONTS.family.poppinsRegular,
-    color: COLORS.gray.medium,
-    marginBottom: 8,
-    fontStyle: 'italic',
-  },
   durationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -436,11 +470,6 @@ const styles = StyleSheet.create({
   },
   layoutSubtextSelected: {
     color: COLORS.white,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   buttonGroup: {
     flexDirection: 'row',

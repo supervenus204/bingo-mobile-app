@@ -38,17 +38,25 @@ export const createChallenge = async (challenge: any) => {
 };
 
 export const getChallengeByCode = async (code: string) => {
-  const response = await apiFetch(`/api/challenge/invitation/${code}`, 'GET', {});
+  const response = await apiFetch(
+    `/api/challenge/invitation/${code}`,
+    'GET',
+    {}
+  );
   return response;
 };
 
 export const joinChallenge = async (invitationCode: string) => {
-  const response = await apiFetch(`/api/challenge/invitation/join`, 'POST', { invitation_code: invitationCode });
+  const response = await apiFetch(`/api/challenge/invitation/join`, 'POST', {
+    invitation_code: invitationCode,
+  });
   return response;
 };
 
 export const rejectChallenge = async (invitationCode: string) => {
-  const response = await apiFetch(`/api/challenge/invitation/reject`, 'POST', { invitation_code: invitationCode });
+  const response = await apiFetch(`/api/challenge/invitation/reject`, 'POST', {
+    invitation_code: invitationCode,
+  });
   return response;
 };
 
@@ -63,11 +71,23 @@ export const getAllBingoCards = async (categoryId: string) => {
 };
 
 export const updateChallenge = async (challengeId: string, updateData: any) => {
-  const response = await apiFetch(`/api/challenge/${challengeId}`, 'PATCH', updateData);
+  const response = await apiFetch(
+    `/api/challenge/${challengeId}`,
+    'PATCH',
+    updateData
+  );
   return response;
 };
 
-export const getLeaderboard = async (challengeId: string, weekNumber: number) => {
-  const response = await apiFetch(`/api/challenge/${challengeId}/leaderboard/${weekNumber}`, 'GET', {});
+export const getLeaderboard = async (
+  challengeId: string,
+  weekNumber: number,
+  measure_type: 'points' | 'weight' = 'points'
+) => {
+  const response = await apiFetch(
+    `/api/challenge/${challengeId}/leaderboard/${weekNumber}/${measure_type}`,
+    'GET',
+    {}
+  );
   return response;
 };

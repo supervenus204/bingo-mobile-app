@@ -1,27 +1,34 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { CustomButton, LoadingCard } from '../../components/common';
 import { BingoBoard } from '../../components/common/BingoBoard';
 import { Footer, Header } from '../../components/create-challenge';
 import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants/screens';
-import { useCards } from '../../hooks/useCards';
+import { useCards } from '../../hooks';
 import { useCreateStore } from '../../store';
 import { COLORS } from '../../theme';
 
 export const CardSetup: React.FC = () => {
   const navigation = useNavigation();
-  const { bingoCards, setBingoCards, cardSize, categoryId } =
-    useCreateStore();
-  const { cards } = useCards(categoryId as string);
+  const { bingoCards, setBingoCards, cardSize, categoryId } = useCreateStore();
+  const { cards, loading } = useCards(categoryId as string);
 
   useEffect(() => {
     if (cards && cards.length > 0) {
-      setBingoCards(cards.map(card => ({
-        ...card,
-        count: 0,
-      })));
+      setBingoCards(
+        cards.map(card => ({
+          ...card,
+          count: 0,
+        }))
+      );
     }
   }, [cards]);
 
@@ -35,7 +42,9 @@ export const CardSetup: React.FC = () => {
 
     const selectedCard = bingoCards[cardId];
     selectedCard.count++;
-    setBingoCards(prev => prev.map(card => card.id === selectedCard.id ? selectedCard : card));
+    setBingoCards(prev =>
+      prev.map(card => (card.id === selectedCard.id ? selectedCard : card))
+    );
   };
 
   const handleReset = () => {
@@ -43,12 +52,14 @@ export const CardSetup: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigation.navigate(SCREEN_NAMES._CREATE_CHALLENGE.DEFINE_CHALLENGE as never);
+    navigation.navigate(
+      SCREEN_NAMES._CREATE_CHALLENGE.DEFINE_CHALLENGE as never
+    );
   };
 
   const handleCancel = () => {
     navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
-  }
+  };
 
   return (
     <>
@@ -56,7 +67,9 @@ export const CardSetup: React.FC = () => {
         title="Create Challenge"
         action={
           <TouchableOpacity onPress={handleCancel}>
-            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>Cancel</Text>
+            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>
+              Cancel
+            </Text>
           </TouchableOpacity>
         }
         showProfileIcon={false}
@@ -69,9 +82,9 @@ export const CardSetup: React.FC = () => {
           onBack={handleBack}
           bgColor={COLORS.gray.veryLight}
         />
-        {cards === undefined || cards.length === 0 ? (
+        {loading ? (
           <LoadingCard
-            visible={cards === undefined || cards.length === 0}
+            visible={loading}
             message="Loading Bingo Cards..."
             subMessage="Please wait a moment while we load the bingo cards for you"
           />
@@ -101,7 +114,8 @@ export const CardSetup: React.FC = () => {
                   text="Next: Invite Participants"
                   onPress={() =>
                     navigation.navigate(
-                      SCREEN_NAMES._CREATE_CHALLENGE.INVITE_PARTICIPANTS as never
+                      SCREEN_NAMES._CREATE_CHALLENGE
+                        .INVITE_PARTICIPANTS as never
                     )
                   }
                   disabled={selectedCardsCount !== cardSize}

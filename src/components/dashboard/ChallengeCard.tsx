@@ -21,7 +21,6 @@ type Props = {
   isOrganizer?: boolean;
   disabled?: boolean;
   onPress?: () => void;
-  onPayPress?: () => void;
   unreadCount?: number;
 };
 
@@ -34,7 +33,6 @@ export const ChallengeCard: React.FC<Props> = ({
   containerStyle,
   isOrganizer,
   onPress,
-  onPayPress,
   status,
   disabled,
   unreadCount = 0,
@@ -88,7 +86,14 @@ export const ChallengeCard: React.FC<Props> = ({
 
       <View style={styles.subRow}>
         {categoryName ? (
-          <Text style={[styles.planText, { fontFamily: FONTS.family.poppinsMedium }]}>{categoryName}</Text>
+          <Text
+            style={[
+              styles.planText,
+              { fontFamily: FONTS.family.poppinsMedium },
+            ]}
+          >
+            {categoryName}
+          </Text>
         ) : null}
       </View>
 
@@ -104,16 +109,6 @@ export const ChallengeCard: React.FC<Props> = ({
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${percent * 100}%` }]} />
       </View>
-
-      {status === 'unpaid' && onPayPress && (
-        <TouchableOpacity
-          style={styles.payButton}
-          onPress={onPayPress}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.payButtonText}>Pay Now</Text>
-        </TouchableOpacity>
-      )}
     </TouchableOpacity>
   );
 };
@@ -196,18 +191,5 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     backgroundColor: COLORS.green.forest,
-  },
-  payButton: {
-    backgroundColor: COLORS.green.forest,
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  payButtonText: {
-    color: COLORS.white,
-    fontSize: 14,
-    fontFamily: FONTS.family.poppinsMedium,
   },
 });

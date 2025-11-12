@@ -148,19 +148,6 @@ export const ChallengesListScreen: React.FC = () => {
                   selectChallenge(ch.id);
                   rootNavigation.navigate(SCREEN_NAMES.PLAY_CHALLENGE);
                 }}
-                onPayPress={
-                  ch.status === 'unpaid'
-                    ? () => {
-                        const parent = navigation.getParent();
-                        if (parent) {
-                          parent.navigate(SCREEN_NAMES.CREATE_CHALLENGE, {
-                            screen: SCREEN_NAMES.CREATE_CHALLENGE,
-                            params: { challenge: ch },
-                          });
-                        }
-                      }
-                    : undefined
-                }
                 disabled={!ch.is_organizer && ch.status !== 'active'}
               />
             ))}
@@ -199,7 +186,9 @@ export const ChallengesListScreen: React.FC = () => {
   return (
     <View style={styles.wrapper}>
       <DashboardHeader
-        title="Challenges"
+        title={
+          activeTab === 'ongoing' ? 'Ongoing Challenges' : 'Archived Challenges'
+        }
         action={
           <TouchableOpacity
             onPress={() =>

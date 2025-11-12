@@ -1,17 +1,43 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useIsFocused } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { BingoBoard, CustomButton, LoadingCard, WelcomeModal } from "../../components/common";
-import { AddCustomCardModal, WeekTabBar } from "../../components/play-challenge";
-import { createProgress, getAllBingoCards, getBingoTasks, getProgress, updateBingoTasks, updateProgress } from "../../services";
-import { useChallengesStore } from "../../store";
-import { COLORS } from "../../theme";
-import { BingoCard } from "../../types";
+
+import {
+  BingoBoard,
+  CustomButton,
+  LoadingCard,
+  WelcomeModal,
+} from '../../components/common';
+import {
+  AddCustomCardModal,
+  WeekTabBar,
+} from '../../components/play-challenge';
+import {
+  createProgress,
+  getAllBingoCards,
+  getBingoTasks,
+  getProgress,
+  updateBingoTasks,
+  updateProgress,
+} from '../../services';
+import { useChallengesStore } from '../../store';
+import { COLORS } from '../../theme';
+import { BingoCard } from '../../types';
 
 export const BingoScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
+  const isFocused = useIsFocused();
 
-  const [selectedWeek, setSelectedWeek] = useState<number>(selectedChallenge?.current_week || 1);
+  const [selectedWeek, setSelectedWeek] = useState<number>(
+    selectedChallenge?.current_week || 1
+  );
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -19,14 +45,28 @@ export const BingoScreen: React.FC = () => {
   const [showAddCustomModal, setShowAddCustomModal] = useState(false);
 
   const availableWeeks = useMemo(() => {
-    return Array.from({ length: selectedChallenge?.duration || 12 }, (_, index) => index + 1);
+    return Array.from(
+      { length: selectedChallenge?.duration || 12 },
+      (_, index) => index + 1
+    );
   }, [selectedChallenge?.duration]);
 
   const isSetupMode = useMemo(() => {
-    return selectedChallenge?.is_organizer && selectedWeek > (selectedChallenge?.current_week || 1);
-  }, [selectedChallenge?.is_organizer, selectedChallenge?.current_week, selectedWeek]);
+    return (
+      selectedChallenge?.is_organizer &&
+      selectedWeek > (selectedChallenge?.current_week || 0)
+    );
+  }, [
+    selectedChallenge?.is_organizer,
+    selectedChallenge?.current_week,
+    selectedWeek,
+  ]);
 
   const getData = useCallback(async () => {
+    if (!isFocused) {
+      return;
+    }
+
     try {
       setLoading(true);
       if (isSetupMode) {
@@ -34,8 +74,15 @@ export const BingoScreen: React.FC = () => {
           selectedChallenge?.id as string,
           selectedWeek
         );
-        if (status === 'not_ready' || status === 'ready' || status === undefined || status === null) {
-          const cards = await getAllBingoCards(selectedChallenge?.category_id as string);
+        if (
+          status === 'not_ready' ||
+          status === 'ready' ||
+          status === undefined ||
+          status === null
+        ) {
+          const cards = await getAllBingoCards(
+            selectedChallenge?.category_id as string
+          );
           const _cardData = cards.map((card: any) => {
             const count = card_ids?.length
               ? card_ids.filter((id: string) => id === card.id).length
@@ -47,7 +94,7 @@ export const BingoScreen: React.FC = () => {
               type: card.type || 'default',
               count,
             };
-          })
+          });
           setBingoCardsData(_cardData);
         }
       } else {
@@ -71,7 +118,9 @@ export const BingoScreen: React.FC = () => {
               status:
                 _progress === 'mark' || _progress === 'unmark'
                   ? _progress
-                  : (Date.parse(_progress) ? 'check' : 'unmark'),
+                  : Date.parse(_progress)
+                  ? 'check'
+                  : 'unmark',
             };
           });
           setBingoCardsData(_cardData);
@@ -82,14 +131,14 @@ export const BingoScreen: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedChallenge?.id, selectedWeek, isSetupMode]);
+  }, [selectedChallenge?.id, selectedWeek, isSetupMode, isFocused]);
 
   useEffect(() => {
-    if (!selectedChallenge || showWelcomeModal || saving) {
+    if (!selectedChallenge || showWelcomeModal || saving || !isFocused) {
       return;
     }
     getData();
-  }, [selectedChallenge, getData, showWelcomeModal, saving]);
+  }, [getData, showWelcomeModal, saving]);
 
   const handleLetsGo = async () => {
     try {
@@ -103,7 +152,11 @@ export const BingoScreen: React.FC = () => {
 
   const handleSaveTaskSetup = async () => {
     const defaultCard: string[] = [];
-    const customCardData: Array<{ title: string; color: string; count: number }> = [];
+    const customCardData: Array<{
+      title: string;
+      color: string;
+      count: number;
+    }> = [];
 
     for (let i = 0; i < bingoCardsData.length; i++) {
       const card = bingoCardsData[i];
@@ -112,7 +165,7 @@ export const BingoScreen: React.FC = () => {
           customCardData.push({
             title: card.name,
             color: card.color,
-            count: card.count
+            count: card.count,
           });
         }
       } else {
@@ -142,12 +195,19 @@ export const BingoScreen: React.FC = () => {
 
   const handleResetTaskSetup = () => {
     if (!isSetupMode) return;
-    setBingoCardsData(prev => prev.filter(card => !card.id.startsWith('custom-')).map(card => ({ ...card, count: 0 })));
+    setBingoCardsData(prev =>
+      prev
+        .filter(card => !card.id.startsWith('custom-'))
+        .map(card => ({ ...card, count: 0 }))
+    );
   };
 
   const handleAddCustomCard = (title: string, color: string, count: number) => {
     const maxCount = selectedChallenge?.card_size ?? 24;
-    const currentTotal = bingoCardsData.reduce((sum, card) => sum + card.count, 0);
+    const currentTotal = bingoCardsData.reduce(
+      (sum, card) => sum + card.count,
+      0
+    );
     const availableSpots = maxCount - currentTotal;
     const cardCount = Math.max(0, Math.min(count, availableSpots));
 
@@ -156,18 +216,24 @@ export const BingoScreen: React.FC = () => {
       name: title,
       color: color,
       type: 'custom',
-      count: cardCount
+      count: cardCount,
     };
     setBingoCardsData(prev => [...prev, newCard]);
   };
 
   const handleClick = async (cardId: number, status?: string) => {
     if (isSetupMode) {
-      if (bingoCardsData.reduce((acc, card) => acc + card.count, 0) >= (selectedChallenge?.card_size || 24)) return;
+      if (
+        bingoCardsData.reduce((acc, card) => acc + card.count, 0) >=
+        (selectedChallenge?.card_size || 24)
+      )
+        return;
 
       const selectedCard = bingoCardsData[cardId];
       selectedCard.count++;
-      setBingoCardsData(prev => prev.map(card => card.id === selectedCard.id ? selectedCard : card));
+      setBingoCardsData(prev =>
+        prev.map(card => (card.id === selectedCard.id ? selectedCard : card))
+      );
     } else {
       const { current_progress } = await updateProgress(
         selectedChallenge?.id as string,
@@ -179,9 +245,11 @@ export const BingoScreen: React.FC = () => {
           ...card,
           status:
             current_progress[index] === 'unmark' ||
-              current_progress[index] === 'mark'
+            current_progress[index] === 'mark'
               ? current_progress[index]
-              : (Date.parse(current_progress[index]) ? 'check' : 'unmark'),
+              : Date.parse(current_progress[index])
+              ? 'check'
+              : 'unmark',
         };
       });
       setBingoCardsData(_cardData);
@@ -208,7 +276,7 @@ export const BingoScreen: React.FC = () => {
             <Text style={styles.text}>
               {isSetupMode
                 ? 'Setup Week ' + selectedWeek + ' Tasks'
-                : 'Let\'s get started with Week ' + selectedWeek + ' Bingo'}
+                : "Let's get started with Week " + selectedWeek + ' Bingo'}
             </Text>
           </View>
           <BingoBoard
@@ -247,7 +315,7 @@ export const BingoScreen: React.FC = () => {
 
         <WelcomeModal
           visible={showWelcomeModal}
-          onClose={() => { }}
+          onClose={() => {}}
           onLetsGo={handleLetsGo}
           title="Welcome aboard!"
           subtitle="Week 1 starts now—let's get moving."
@@ -263,12 +331,14 @@ export const BingoScreen: React.FC = () => {
 
       <LoadingCard
         visible={loading}
-        message={isSetupMode ? "Loading bingo cards..." : "Fetching progress..."}
+        message={
+          isSetupMode ? 'Loading bingo cards...' : 'Fetching progress...'
+        }
         subMessage="Please wait a moment"
       />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

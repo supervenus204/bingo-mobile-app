@@ -48,10 +48,19 @@ export const ProfileScreen: React.FC = () => {
     } else {
       setMode('view');
     }
-  }, [user]);
+  }, []);
 
   const goToDashboard = () => {
     navigation.navigate(SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST as never);
+  };
+
+  const handleSave = async () => {
+    await saveProfile();
+    if (mode === 'edit') {
+      setMode('view');
+    } else {
+      navigation.navigate(SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST as never);
+    }
   };
 
   return (
@@ -153,7 +162,7 @@ export const ProfileScreen: React.FC = () => {
               />
               <CustomButton
                 text="Save"
-                onPress={saveProfile}
+                onPress={handleSave}
                 buttonStyle={styles.shortbuttonStyle}
                 textStyle={styles.buttonTextStyle}
               />
@@ -162,7 +171,7 @@ export const ProfileScreen: React.FC = () => {
           {mode === 'setup' && (
             <CustomButton
               text="Save"
-              onPress={saveProfile}
+              onPress={handleSave}
               buttonStyle={styles.buttonStyle}
               textStyle={styles.buttonTextStyle}
             />

@@ -13,16 +13,11 @@ import { Header } from '../../components/create-challenge/Header';
 import { LayoutCard } from '../../components/create-challenge/LayoutCard';
 import { TypeButton } from '../../components/create-challenge/TypeButton';
 import { DashboardHeader } from '../../components/dashboard';
+import { boardLayoutOptions } from '../../constants';
 import { SCREEN_NAMES } from '../../constants/screens';
 import { useCategories, usePlans } from '../../hooks';
 import { useCreateStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
-
-const layoutOptions = [
-  { id: 16, size: '4x4', taskCount: 16 },
-  { id: 20, size: '4x5', taskCount: 20 },
-  { id: 24, size: '4x6', taskCount: 24 },
-];
 
 export const DefineChallenge: React.FC = () => {
   const {
@@ -68,7 +63,7 @@ export const DefineChallenge: React.FC = () => {
 
   const handleCancel = () => {
     navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
-  }
+  };
 
   return (
     <>
@@ -76,7 +71,9 @@ export const DefineChallenge: React.FC = () => {
         title="Create Challenge"
         action={
           <TouchableOpacity onPress={handleCancel}>
-            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>Cancel</Text>
+            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>
+              Cancel
+            </Text>
           </TouchableOpacity>
         }
         showProfileIcon={false}
@@ -127,7 +124,17 @@ export const DefineChallenge: React.FC = () => {
               style={styles.durationButton}
               onPress={() => handleDurationChange(false)}
             >
-              <Text style={[styles.durationButtonText, { color: duration === 1 ? COLORS.gray.medium : COLORS.text.primary }]}>-</Text>
+              <Text
+                style={[
+                  styles.durationButtonText,
+                  {
+                    color:
+                      duration === 1 ? COLORS.gray.medium : COLORS.text.primary,
+                  },
+                ]}
+              >
+                -
+              </Text>
             </TouchableOpacity>
 
             <View style={styles.durationDisplay}>
@@ -139,7 +146,19 @@ export const DefineChallenge: React.FC = () => {
               style={styles.durationButton}
               onPress={() => handleDurationChange(true)}
             >
-              <Text style={[styles.durationButtonText, { color: duration === getPlanById(plan as string)?.maxWeek ? COLORS.gray.medium : COLORS.text.primary }]}>+</Text>
+              <Text
+                style={[
+                  styles.durationButtonText,
+                  {
+                    color:
+                      duration === getPlanById(plan as string)?.maxWeek
+                        ? COLORS.gray.medium
+                        : COLORS.text.primary,
+                  },
+                ]}
+              >
+                +
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -147,7 +166,7 @@ export const DefineChallenge: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.subTitle}>Bingo Board Layout</Text>
           <View style={styles.layoutContainer}>
-            {layoutOptions.map(layout => (
+            {boardLayoutOptions.map(layout => (
               <LayoutCard
                 key={layout.id}
                 size={layout.size}

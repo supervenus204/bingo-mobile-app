@@ -1,252 +1,289 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
+  FlatList,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Pagination, ProfileIcon } from '../../components/common';
-import { getLeaderboard } from '../../services';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import {
+  CustomButton,
+  LoadingCard,
+  ProfileIcon,
+} from '../../components/common';
+import { PointWeekCard, WeightWeekCard } from '../../components/play-challenge';
+import { AWARDS } from '../../constants';
+import { useLeaderboard } from '../../hooks';
 import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
+import { LeaderboardEntry } from '../../types';
 
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  image?: string;
-  points: number;
-  completedTime?: string;
-  position: number;
-  badges?: string[];
-}
+type MeasureType = 'points' | 'weight';
 
-const UserCard: React.FC<{ user: User }> = React.memo(({ user }) => {
-  const getPositionBadgeStyle = (position: number) => {
-    switch (position) {
-      case 1:
-        return styles.firstPlaceBadge;
-      case 2:
-        return styles.secondPlaceBadge;
-      case 3:
-        return styles.thirdPlaceBadge;
-      default:
-        return styles.defaultBadge;
+const getUserInitials = (user: LeaderboardEntry['user']): string => {
+  const firstName = user.firstName?.[0] || '';
+  const lastName = user.lastName?.[0] || '';
+  return (firstName + lastName).toUpperCase() || 'U';
+};
+
+const getUserName = (user: LeaderboardEntry['user']): string => {
+  if (user.firstName && user.lastName) {
+    return `${user.firstName} ${user.lastName}`;
+  }
+  return user.displayName || 'User';
+};
+
+const WeekSection = ({
+  measureType,
+  leaderboardData,
+  currentWeek,
+  selectedWeek,
+  setSelectedWeek,
+}: {
+  measureType: MeasureType;
+  leaderboardData: LeaderboardEntry[];
+  currentWeek: number;
+  selectedWeek: number;
+  setSelectedWeek: (week: number) => void;
+}) => {
+  const goToPreviousWeek = () => {
+    if (selectedWeek > 1) {
+      setSelectedWeek(selectedWeek - 1);
+    }
+  };
+  const goToNextWeek = () => {
+    if (selectedWeek < currentWeek - 1) {
+      setSelectedWeek(selectedWeek + 1);
     }
   };
 
-  return (
-    <TouchableOpacity style={styles.userCard}>
-      {user.position <= 3 && (
-        <View
-          style={[styles.positionBadge, getPositionBadgeStyle(user.position)]}
-        >
-          <Text style={styles.positionText}>{user.position}</Text>
-        </View>
-      )}
+  const disablePreviousWeek = useMemo(() => selectedWeek <= 1, [selectedWeek]);
+  const disableNextWeek = useMemo(
+    () => selectedWeek >= currentWeek - 1,
+    [selectedWeek, currentWeek]
+  );
 
-      <View style={styles.avatarContainer}>
-        <ProfileIcon
-          image={user.image}
-          initialsText={(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')}
-          size={50}
+  return (
+    <View style={styles.section}>
+      <View style={styles.weekContainer}>
+        <CustomButton
+          icon={
+            <Icon
+              name="chevron-left"
+              size={24}
+              color={disablePreviousWeek ? COLORS.white : COLORS.gray.veryDark}
+            />
+          }
+          buttonStyle={styles.weekButton}
+          textStyle={styles.weekButtonText}
+          onPress={goToPreviousWeek}
+          disabled={disablePreviousWeek}
+        />
+        <Text style={styles.weekText}>
+          {measureType === 'points' ? 'Winner' : 'Biggest Loser'} - Week{' '}
+          {selectedWeek}
+        </Text>
+        <CustomButton
+          icon={
+            <Icon
+              name="chevron-right"
+              size={24}
+              color={disableNextWeek ? COLORS.white : COLORS.gray.veryDark}
+            />
+          }
+          buttonStyle={styles.weekButton}
+          textStyle={styles.weekButtonText}
+          onPress={goToNextWeek}
+          disabled={disableNextWeek}
         />
       </View>
 
-      <Text style={styles.userName}>{user.firstName}</Text>
-
-      <View style={styles.pointsContainer}>
-        <Text style={styles.points}>{user.points} pts</Text>
-      </View>
-
-      {user.completedTime && (
-        <Text style={styles.completedTime}>{user.completedTime}</Text>
+      {measureType === 'points' ? (
+        <View style={styles.winnersContainer}>
+          {leaderboardData.map((winner, _index) => {
+            return <PointWeekCard key={winner.id} data={winner} />;
+          })}
+        </View>
+      ) : (
+        <WeightWeekCard data={leaderboardData[0]} />
       )}
-    </TouchableOpacity>
+
+      {measureType === 'points' && (
+        <View style={styles.awardsContainer}>
+          {AWARDS.map(award => (
+            <View key={award.name} style={styles.awardItem}>
+              <Icon name={award.icon} size={20} color={award.color} />
+              <Text style={styles.awardText}>{award.name}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
   );
-});
+};
 
-const UserListItem: React.FC<{ user: User; index: number }> = React.memo(
-  ({ user, index }) => {
-    return (
-      <TouchableOpacity style={styles.listItem}>
-        <View style={styles.listItemLeft}>
-          <Text style={styles.listPosition}>{index + 1}</Text>
-          <View style={styles.listAvatarContainer}>
-            <ProfileIcon
-              image={user.image}
-              initialsText={(user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')}
-              size={44}
-            />
-          </View>
-          <Text style={styles.listUserName}>{user.firstName}</Text>
+const ChallengeSection = ({
+  measureType,
+  currentWeek,
+  challengeDuration,
+  leaderboardData,
+}: {
+  measureType: MeasureType;
+  currentWeek: number;
+  challengeDuration: number;
+  leaderboardData: LeaderboardEntry[];
+}) => {
+  const weeksRemaining = useMemo(() => {
+    return Math.max(0, challengeDuration - currentWeek);
+  }, [challengeDuration, currentWeek]);
+
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>
+        {measureType === 'points' ? 'Challenge Leaderboard' : 'Overall % Loss'}
+      </Text>
+
+      {measureType === 'points' ? (
+        leaderboardData.length > 0 ? (
+          <FlatList
+            data={leaderboardData}
+            scrollEnabled={false}
+            keyExtractor={item => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.leaderboardItem}>
+                <ProfileIcon
+                  image={item.user.image}
+                  initialsText={getUserInitials(item.user)}
+                  size={40}
+                />
+                <Text style={styles.leaderboardName}>
+                  {getUserName(item.user)}
+                </Text>
+                <Icon
+                  name="chevron-right"
+                  size={20}
+                  color={COLORS.gray.mediumDark}
+                />
+                <Text style={styles.leaderboardPoints}>{item.points} pts</Text>
+              </TouchableOpacity>
+            )}
+          />
+        ) : (
+          <Text style={styles.emptyText}>No leaderboard data available</Text>
+        )
+      ) : leaderboardData.length > 0 ? (
+        <FlatList
+          data={leaderboardData}
+          scrollEnabled={false}
+          keyExtractor={item => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.weightLossItem}>
+              <ProfileIcon
+                image={item.user.image}
+                initialsText={getUserInitials(item.user)}
+                size={40}
+              />
+              <Text style={styles.weightLossName}>
+                {getUserName(item.user)}
+              </Text>
+              <Icon name="bar-chart" size={16} color={COLORS.green.forest} />
+              <Text style={styles.weightLossPercent}>-2.1%</Text>
+            </View>
+          )}
+        />
+      ) : (
+        <Text style={styles.emptyText}>No weight loss data available</Text>
+      )}
+
+      {weeksRemaining > 0 && (
+        <View style={styles.weeksRemainingContainer}>
+          <Text style={styles.weeksRemainingText}>
+            We have {weeksRemaining} {weeksRemaining === 1 ? 'week' : 'weeks'}{' '}
+            left!
+          </Text>
         </View>
-
-        <View style={styles.listItemRight}>
-          <Text style={styles.listPoints}>{user.points} pts</Text>
-          <Text style={styles.listStatus}>{user.completedTime}</Text>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-);
-
-const pageSize = 5;
+      )}
+    </View>
+  );
+};
 
 export const LeaderboardScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const isFocused = useIsFocused();
+  const {
+    weekLeaderboardData,
+    challengeLeaderboardData,
+    loading,
+    fetchLeaderboard,
+  } = useLeaderboard(selectedChallenge?.id as string);
 
-  const transformLeaderboardData = (data: any) => {
-    if (!data || !data.rank) return [];
-
-    const calculatePoints = (currentProgress: string[]) => {
-      if (!currentProgress) return 0;
-      return currentProgress.filter((item: string) => {
-        return item === 'mark' || (typeof item === 'string' && item.includes('T'));
-      }).length;
-    };
-
-    const isCompleted = (currentProgress: string[]) => {
-      if (!currentProgress) return false;
-      return currentProgress.every((item: string) => {
-        return item === 'mark' || (typeof item === 'string' && item.includes('T'));
-      });
-    };
-
-    // Reverse to show highest points first (backend sorts ascending)
-    const reversedRank = [...data.rank].reverse();
-
-    const transformed = reversedRank.map((item: any, index: number) => {
-      if (!item.user) {
-        console.warn('User missing in item:', item);
-        return null;
-      }
-
-      const user = item.user;
-      const points = calculatePoints(item.current_progress);
-      const completed = isCompleted(item.current_progress);
-
-      return {
-        id: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        image: user.image,
-        points: item.points_earned || points,
-        completedTime: item.completion_date || (completed ? 'Completed' : undefined),
-        position: index + 1,
-        badges: item.awards || [],
-      };
-    }).filter(Boolean);
-
-    console.log('Transformed data:', transformed);
-    return transformed;
-  };
+  const [measureType, setMeasureType] = useState<MeasureType>('points');
+  const [selectedWeek, setSelectedWeek] = useState<number>(1);
 
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
-        setIsLoading(true);
-        console.log('Fetching leaderboard for:', selectedChallenge?.id, selectedChallenge?.current_week);
-        const leaderboard = await getLeaderboard(selectedChallenge?.id as string, selectedChallenge?.current_week as number);
-        console.log('Raw leaderboard response:', leaderboard);
-        // apiFetch already returns the data object directly
-        const transformedData = transformLeaderboardData(leaderboard);
-        console.log('Setting transformed data:', transformedData);
-        setLeaderboardData(transformedData);
-      } catch (error) {
-        console.error('Failed to fetch leaderboard:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchLeaderboard();
-  }, [selectedChallenge?.id]);
-
-  const paginationData = useMemo(() => {
-    const totalPages = Math.ceil(leaderboardData.length / pageSize);
-    const startIndex = (currentPage - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    const paginatedUsers = leaderboardData.slice(startIndex, endIndex);
-
-    return {
-      totalPages,
-      startIndex,
-      endIndex,
-      paginatedUsers,
-    };
-  }, [currentPage, leaderboardData]);
-
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
-
-  const topPerformers = useMemo(() => {
-    return leaderboardData.slice(0, 5);
-  }, [leaderboardData]);
+    if (!isFocused) return;
+    fetchLeaderboard(selectedWeek, measureType);
+  }, [selectedWeek, measureType, fetchLeaderboard, isFocused]);
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <Text>Loading...</Text>
-          </View>
-        ) : leaderboardData.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No participants yet</Text>
-          </View>
-        ) : (
-          <>
-            {/* Top Performers Section */}
-            <View style={styles.topPerformersSection}>
-              <Text style={styles.sectionTitle}>Bingo Completors</Text>
-            </View>
+      <View style={styles.toggleContainer}>
+        <CustomButton
+          text="Points"
+          onPress={() => setMeasureType('points')}
+          buttonStyle={[
+            styles.toggleButton,
+            measureType === 'points' && styles.toggleButtonActive,
+          ]}
+          textStyle={[
+            styles.toggleText,
+            measureType === 'points' && styles.toggleTextActive,
+          ]}
+        />
+        <CustomButton
+          text="Weight Loss"
+          onPress={() => setMeasureType('weight')}
+          buttonStyle={[
+            styles.toggleButton,
+            measureType === 'weight' && styles.toggleButtonActive,
+          ]}
+          textStyle={[
+            styles.toggleText,
+            measureType === 'weight' && styles.toggleTextActive,
+          ]}
+        />
+      </View>
 
-            {/* Horizontal User List */}
-            {topPerformers.length > 0 && (
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.scrollHorizontalContainer}
-                style={styles.usersList}
-              >
-                {topPerformers.map((user: any) => (
-                  <UserCard key={user.id} user={user} />
-                ))}
-              </ScrollView>
-            )}
-
-            {/* Vertical User List */}
-            <View style={styles.listContainer}>
-              <Text style={styles.listTitle}>Participants</Text>
-              {paginationData.paginatedUsers.map((user, index) => (
-                <UserListItem
-                  key={user.id}
-                  user={user}
-                  index={paginationData.startIndex + index}
-                />
-              ))}
-            </View>
-
-            {/* Pagination */}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={paginationData.totalPages}
-              onPageChange={handlePageChange}
+      {loading ? (
+        <LoadingCard
+          message="Loading leaderboard data..."
+          subMessage="Please wait while we fetch the latest leaderboard data."
+          visible={loading}
+        />
+      ) : (
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {weekLeaderboardData && (
+            <WeekSection
+              measureType={measureType}
+              leaderboardData={weekLeaderboardData || []}
+              currentWeek={selectedChallenge?.current_week || 1}
+              selectedWeek={selectedWeek}
+              setSelectedWeek={setSelectedWeek}
             />
-          </>
-        )}
-
-        <View style={{ height: 20 }} />
-      </ScrollView>
+          )}
+          {challengeLeaderboardData && (
+            <ChallengeSection
+              measureType={measureType}
+              currentWeek={selectedChallenge?.current_week || 1}
+              challengeDuration={selectedChallenge?.duration || 2}
+              leaderboardData={challengeLeaderboardData || []}
+            />
+          )}
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -256,222 +293,138 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.white,
   },
-  scrollContainer: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingTop: 20,
-    backgroundColor: COLORS.white,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+  toggleContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  headerTitle: {
-    fontSize: FONTS.size['2xl'],
-    fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.black,
-  },
-  inviteButton: {
-    backgroundColor: COLORS.primary.main,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingVertical: 12,
+    gap: 12,
   },
-  inviteButtonText: {
+  toggleButton: {
+    flex: 1,
+    height: 40,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: COLORS.green.forest,
+    backgroundColor: 'transparent',
+  },
+  toggleButtonActive: {
+    backgroundColor: COLORS.green.forest,
+  },
+  toggleText: {
     fontSize: FONTS.size.sm,
     fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.green.forest,
+  },
+  toggleTextActive: {
     color: COLORS.white,
   },
-  topPerformersSection: {
-    paddingHorizontal: 20,
-    marginBottom: 12,
+  content: {
+    flex: 1,
+  },
+  section: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
   },
   sectionTitle: {
     fontSize: FONTS.size.lg,
     fontFamily: FONTS.family.poppinsBold,
     color: COLORS.black,
+    marginBottom: 12,
   },
-  usersList: {
-    paddingVertical: 16,
-    marginBottom: 20,
+  winnersContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 8,
   },
-  scrollHorizontalContainer: {
-    paddingHorizontal: 20,
+  awardsContainer: {
     gap: 12,
   },
-  userCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: 16,
-    padding: 16,
-    width: 120,
+  awardItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: COLORS.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    position: 'relative',
-    borderWidth: 1,
-    borderColor: COLORS.gray.lightMedium,
-    flex: 1,
+    gap: 8,
   },
-  positionBadge: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    borderRadius: 12,
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  firstPlaceBadge: {
-    backgroundColor: COLORS.secondary.yellow.mustard,
-  },
-  secondPlaceBadge: {
-    backgroundColor: COLORS.gray.medium,
-  },
-  thirdPlaceBadge: {
-    backgroundColor: COLORS.secondary.orange.web,
-  },
-  defaultBadge: {
-    backgroundColor: COLORS.text.primary,
-  },
-  positionText: {
-    color: COLORS.white,
-    fontSize: FONTS.size.xs,
-    fontFamily: FONTS.family.poppinsBold,
-  },
-  avatarContainer: {
-    marginBottom: 8,
-  },
-  userName: {
+  awardText: {
     fontSize: FONTS.size.sm,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.black,
+  },
+  leaderboardItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.gray.veryLight,
+    borderRadius: 8,
+    marginBottom: 8,
+    gap: 12,
+  },
+  leaderboardName: {
+    flex: 1,
+    fontSize: FONTS.size.base,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.black,
+  },
+  leaderboardPoints: {
+    fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsSemiBold,
     color: COLORS.black,
-    marginBottom: 4,
-    textAlign: 'center',
   },
-  pointsContainer: {
+  weightLossItem: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 4,
-  },
-  points: {
-    fontSize: FONTS.size.xs,
-    color: COLORS.primary.main,
-    fontFamily: FONTS.family.poppinsBold,
-  },
-  completedTime: {
-    fontSize: 10,
-    color: COLORS.text.secondary,
-    fontFamily: FONTS.family.poppinsRegular,
-    textAlign: 'center',
-  },
-  footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    marginTop: 10,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: FONTS.size.sm,
-    color: COLORS.text.secondary,
-    fontFamily: FONTS.family.poppinsRegular,
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
-  listContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     backgroundColor: COLORS.white,
-    marginHorizontal: 20,
-    borderRadius: 16,
-    paddingVertical: 20,
-    marginBottom: 20,
-    shadowColor: COLORS.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.gray.lightMedium,
+    borderRadius: 8,
+    marginBottom: 8,
+    gap: 12,
   },
-  listTitle: {
-    fontSize: FONTS.size.lg,
-    fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.text.primary,
-    paddingHorizontal: 20,
-    marginBottom: 16,
+  weightLossName: {
+    flex: 1,
+    fontSize: FONTS.size.base,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.black,
   },
-  listItem: {
+  weightLossPercent: {
+    fontSize: FONTS.size.base,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.black,
+  },
+  weeksRemainingContainer: {
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  weeksRemainingText: {
+    fontSize: FONTS.size.base,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.red.bright,
+  },
+  emptyText: {
+    fontSize: FONTS.size.sm,
+    fontFamily: FONTS.family.poppinsRegular,
+    color: COLORS.gray.mediumDark,
+    textAlign: 'center',
+    paddingVertical: 24,
+  },
+  weekContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray.lightMedium,
+    gap: 12,
   },
-  listItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  listPosition: {
-    fontSize: FONTS.size.sm,
-    fontFamily: FONTS.family.poppinsBold,
+  weekText: {
+    fontSize: FONTS.size.base,
+    fontFamily: FONTS.family.poppinsMedium,
     color: COLORS.black,
-    width: 24,
-    marginRight: 12,
   },
-  listAvatarContainer: {
-    marginRight: 12,
+  weekButton: {
+    backgroundColor: 'transparent',
   },
-  listUserName: {
-    fontSize: FONTS.size.base,
-    fontFamily: FONTS.family.poppinsSemiBold,
-    color: COLORS.text.primary,
-    flex: 1,
-  },
-  listItemRight: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-  },
-  listPoints: {
+  weekButtonText: {
     fontSize: FONTS.size.sm,
-    fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.green.forest,
-    marginBottom: 2,
-  },
-  listStatus: {
-    fontSize: FONTS.size.xs,
-    color: COLORS.text.tertiary,
-    fontFamily: FONTS.family.poppinsRegular,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: FONTS.size.base,
-    color: COLORS.text.secondary,
-    fontFamily: FONTS.family.poppinsRegular,
+    fontFamily: FONTS.family.poppinsMedium,
   },
 });
