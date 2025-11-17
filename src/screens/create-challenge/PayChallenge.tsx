@@ -1,15 +1,9 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { usePaymentSheet } from '@stripe/stripe-react-native';
 import React, { useState } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { CustomButton, Input } from '../../components/common';
+import { CustomButton } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants/screens';
 import { usePlans, useToast } from '../../hooks';
@@ -219,30 +213,28 @@ export const PayChallenge: React.FC = () => {
           <View style={styles.promoContainer}>
             <Text style={styles.promoTitle}>Have a promo code?</Text>
             <View style={styles.promoInputContainer}>
-              <Input
+              <TextInput
                 placeholder="Enter promo code"
                 value={promoCode}
                 onChangeText={setPromoCode}
-                inputStyle={styles.promoInput}
+                style={styles.promoInput}
               />
-              <TouchableOpacity
-                style={[
-                  styles.validateButton,
-                  isValidatePromoCode && styles.validateButtonSuccess,
-                ]}
+              <CustomButton
                 onPress={handleValidatePromo}
                 disabled={isValidatingPromo || !promoCode.trim()}
-              >
-                {isValidatingPromo ? (
-                  <Icon name="hourglass-empty" size={20} color="#22C55E" />
-                ) : (
-                  <Icon
-                    name={isValidatePromoCode ? 'check-circle' : 'check'}
-                    size={20}
-                    color={isValidatePromoCode ? '#FFFFFF' : '#22C55E'}
-                  />
-                )}
-              </TouchableOpacity>
+                loading={isValidatingPromo}
+                variant={isValidatePromoCode ? 'primary' : 'outline'}
+                buttonStyle={styles.validateButton}
+                icon={
+                  !isValidatingPromo ? (
+                    <Icon
+                      name={isValidatePromoCode ? 'check-circle' : 'check'}
+                      size={20}
+                      color={isValidatePromoCode ? '#FFFFFF' : '#22C55E'}
+                    />
+                  ) : undefined
+                }
+              />
             </View>
           </View>
         )}
@@ -276,7 +268,10 @@ export const PayChallenge: React.FC = () => {
                 }
                 variant="primary"
                 buttonStyle={styles.button}
-                textStyle={{ ...styles.buttonText, color: COLORS.white }}
+                textStyle={{
+                  ...styles.buttonText,
+                  color: COLORS.primary.white,
+                }}
               />
             )}
           </View>
@@ -389,10 +384,11 @@ const styles = StyleSheet.create({
   promoInputContainer: {
     flexDirection: 'row',
     gap: 12,
-    alignItems: 'flex-end',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   promoInput: {
-    width: '75%',
+    flex: 1,
     borderWidth: 1,
     borderColor: COLORS.gray.lightMedium,
     borderRadius: 8,
@@ -402,19 +398,15 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsRegular,
   },
   validateButton: {
-    width: '22%',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    width: 56,
+    height: 48,
+    minWidth: 56,
+    maxWidth: 56,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#22C55E',
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  validateButtonSuccess: {
-    backgroundColor: '#22C55E',
-    borderColor: '#22C55E',
+    flexShrink: 0,
+    flexGrow: 0,
   },
   buttonContainer: {
     width: '100%',

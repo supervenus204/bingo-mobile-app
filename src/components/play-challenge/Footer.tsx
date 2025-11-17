@@ -20,13 +20,29 @@ export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
   const isOrganizer = Boolean(selectedChallenge?.is_organizer);
 
   const tabs = [
-    { name: SCREEN_NAMES._PLAY_CHALLENGE.BINGO, icon: 'grid-view', label: 'Bingo' },
+    {
+      name: SCREEN_NAMES._PLAY_CHALLENGE.BINGO,
+      icon: 'grid-view',
+      label: 'Bingo',
+    },
     { name: SCREEN_NAMES._PLAY_CHALLENGE.CHAT, icon: 'chat', label: 'Chat' },
-    { name: SCREEN_NAMES._PLAY_CHALLENGE.LEADERBOARD, icon: 'leaderboard', label: 'Leaderboard' },
+    {
+      name: SCREEN_NAMES._PLAY_CHALLENGE.LEADERBOARD,
+      icon: 'leaderboard',
+      label: 'Leaderboard',
+    },
     isOrganizer
-      ? { name: SCREEN_NAMES._PLAY_CHALLENGE.PARTICIPANT_MANAGEMENT, icon: 'group', label: 'Users' }
+      ? {
+          name: SCREEN_NAMES._PLAY_CHALLENGE.PARTICIPANT_MANAGEMENT,
+          icon: 'group',
+          label: 'Users',
+        }
       : null,
-    { name: SCREEN_NAMES._PLAY_CHALLENGE.SETTINGS, icon: 'settings', label: 'Settings' },
+    {
+      name: SCREEN_NAMES._PLAY_CHALLENGE.SETTINGS,
+      icon: 'settings',
+      label: 'Settings',
+    },
   ]
     .filter(Boolean)
     .map(tab => tab as { name: string; icon: string; label: string });
@@ -46,7 +62,9 @@ export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
               <Icon
                 name={tab.icon}
                 size={24}
-                color={currentRoute === tab.name ? COLORS.green.forest : '#6b7280'}
+                color={
+                  currentRoute === tab.name ? COLORS.primary.green : '#6b7280'
+                }
               />
               {isChatTab && totalUnread > 0 && (
                 <Badge count={totalUnread} style={styles.chatBadge} />

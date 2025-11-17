@@ -1,6 +1,6 @@
 import { getInitialNotification, getMessaging, onMessage, onNotificationOpenedApp } from '@react-native-firebase/messaging';
 import { useEffect } from 'react';
-import { SCREEN_NAMES } from '../constants';
+import { SCREEN_NAMES } from '../constants/screens';
 import { navigationRef } from '../navigation/AppNavigator';
 import {
   displaySystemNotification,

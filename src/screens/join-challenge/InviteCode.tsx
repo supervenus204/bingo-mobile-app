@@ -17,7 +17,7 @@ import { COLORS, FONTS } from '../../theme';
 
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
-export const EnterCode: React.FC = () => {
+export const InviteCode: React.FC = () => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
@@ -28,37 +28,44 @@ export const EnterCode: React.FC = () => {
       setLoading(true);
       const challenge = await getChallengeByCode(code);
 
-      (navigation as any).navigate(SCREEN_NAMES._DASHBOARD.JOIN_CHALLENGE, {
+      (navigation as any).navigate(SCREEN_NAMES._JOIN_CHALLENGE.JOIN, {
         challenge,
       });
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Something went wrong', 'error');
+      showToast(
+        error instanceof Error ? error.message : 'Something went wrong',
+        'error'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleScanQR = () => {
-    navigation.navigate(SCREEN_NAMES._DASHBOARD.SCAN_QR_CODE as never);
+    navigation.navigate(SCREEN_NAMES._JOIN_CHALLENGE.SCAN_QR_CODE as never);
   };
 
   const handleCancel = () => {
-    navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE as never);
+    navigation.navigate(SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST as never);
   };
 
   return (
     <>
       <DashboardHeader
         title="Join a Challenge"
-        action={<CustomButton text="Cancel" variant='default' onPress={handleCancel} />}
+        action={
+          <CustomButton
+            text="Cancel"
+            variant="default"
+            onPress={handleCancel}
+          />
+        }
       />
       <View style={styles.container}>
-        <View style={styles.markContainer}>
-          <Image
-            source={require('../../assets/images/dashboard/mark-simple.png')}
-            style={styles.mark}
-          />
-        </View>
+        <Image
+          source={require('../../assets/images/dashboard/mark-simple.png')}
+          style={styles.mark}
+        />
 
         <Text style={styles.title}>Join a Challenge</Text>
 
@@ -102,35 +109,32 @@ export const EnterCode: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.blue.oxford,
+    backgroundColor: COLORS.primary.blue,
     alignItems: 'center',
     paddingTop: DEVICE_HEIGHT * 0.08,
     paddingHorizontal: 20,
   },
-  markContainer: {
-    marginBottom: 60,
-  },
   mark: {
-    width: 72,
-    height: 72,
+    width: 300,
+    height: 180,
     resizeMode: 'contain',
   },
   title: {
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 28,
-    color: COLORS.white,
+    color: COLORS.primary.white,
     marginBottom: 16,
   },
   subtitle: {
     fontFamily: FONTS.family.poppinsRegular,
     fontSize: 14,
-    color: COLORS.white,
+    color: COLORS.primary.white,
     opacity: 0.9,
     marginBottom: 16,
   },
   inputWrapper: {
     width: '100%',
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 0,
@@ -150,13 +154,13 @@ const styles = StyleSheet.create({
     height: 48,
   },
   joinButtonText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 16,
     textTransform: 'uppercase',
   },
   hint: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     backgroundColor: 'transparent',
     fontFamily: FONTS.family.poppinsRegular,
     fontSize: 12,
@@ -164,7 +168,7 @@ const styles = StyleSheet.create({
   },
   hintLink: {
     marginTop: 16,
-    color: COLORS.primary.pink.bright_2,
+    color: COLORS.primary.pink,
     fontFamily: FONTS.family.poppinsMedium,
     fontSize: 12,
     textDecorationLine: 'underline',

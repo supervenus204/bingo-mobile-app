@@ -1,5 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { FONTS } from '../../theme';
 import { COLORS } from '../../theme/colors';
@@ -31,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Icon name="arrow-back" size={24} color={COLORS.blue.indigo} />
+            <Icon name="arrow-back" size={24} color={COLORS.primary.blue} />
           </TouchableOpacity>
           <View style={styles.titleContent}>
             <Text style={styles.title}>{title}</Text>
@@ -40,7 +46,9 @@ export const Header: React.FC<HeaderProps> = ({
                 Step {step} of {totalSteps}
               </Text>
             )}
-            {description && <Text style={styles.description}>{description}</Text>}
+            {description && (
+              <Text style={styles.description}>{description}</Text>
+            )}
           </View>
         </View>
       </View>
@@ -80,7 +88,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.indigo,
+    color: COLORS.primary.blue,
     fontSize: FONTS.size['2xl'],
     fontWeight: FONTS.weight.bold,
     textAlign: 'center',
@@ -106,7 +114,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
     borderRadius: 3,
   },
   backButton: {

@@ -1,12 +1,6 @@
 import { create } from 'zustand';
 import { getAllBingoCards } from '../services/challenge.service';
-
-export interface BingoCard {
-  id: string;
-  name: string;
-  color: string;
-  type?: string;
-}
+import { BingoCard } from '../types/bingo.type';
 
 type CardsState = {
   cards: Record<string, BingoCard[]>;
@@ -33,7 +27,11 @@ const initialState: CardsState = {
 export const useCardsStore = create<CardsStore>()((set, get) => ({
   ...initialState,
 
-  setCards: (categoryId: string, cards: BingoCard[]) => set(state => ({ ...state, cards: { ...state.cards, [categoryId]: cards } })),
+  setCards: (categoryId: string, cards: BingoCard[]) =>
+    set(state => ({
+      ...state,
+      cards: { ...state.cards, [categoryId]: cards },
+    })),
 
   fetchCards: async (categoryId: string) => {
     try {
@@ -41,13 +39,16 @@ export const useCardsStore = create<CardsStore>()((set, get) => ({
       const bingoCards = await getAllBingoCards(categoryId as string);
 
       if (bingoCards) {
-        set(state => ({ ...state, cards: { ...state.cards, [categoryId]: bingoCards } }));
+        set(state => ({
+          ...state,
+          cards: { ...state.cards, [categoryId]: bingoCards },
+        }));
       } else {
         set({ error: 'Failed to fetch cards' });
       }
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to fetch cards'
+        error: error instanceof Error ? error.message : 'Failed to fetch cards',
       });
     } finally {
       set({ loading: false });

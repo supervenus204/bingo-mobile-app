@@ -1,6 +1,12 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { PriceCard } from '../../components/create-challenge';
 import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
@@ -19,7 +25,7 @@ export const ChoosePlan: React.FC = () => {
 
   const handleCancel = () => {
     navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
-  }
+  };
 
   return (
     <>
@@ -27,7 +33,9 @@ export const ChoosePlan: React.FC = () => {
         title="Create Challenge"
         action={
           <TouchableOpacity onPress={handleCancel}>
-            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>Cancel</Text>
+            <Text style={{ color: COLORS.primary.green, marginRight: 4 }}>
+              Cancel
+            </Text>
           </TouchableOpacity>
         }
         showProfileIcon={false}
@@ -75,7 +83,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.indigo,
+    color: COLORS.primary.blue,
     fontSize: FONTS.size['2xl'],
     fontWeight: FONTS.weight.bold,
     marginBottom: 8,

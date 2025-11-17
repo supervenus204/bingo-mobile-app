@@ -57,7 +57,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
                   }}
                   activeOpacity={0.7}
                 >
-                  {item.icon && <View style={styles.iconContainer}>{item.icon}</View>}
+                  {item.icon && (
+                    <View style={styles.iconContainer}>{item.icon}</View>
+                  )}
                   <Text
                     style={[
                       styles.itemText,
@@ -86,10 +88,10 @@ const styles = StyleSheet.create({
     paddingRight: 16,
   },
   dropdown: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderRadius: 12,
     minWidth: 160,
-    shadowColor: COLORS.black,
+    shadowColor: COLORS.primary.black,
     shadowOffset: {
       width: 0,
       height: 4,
@@ -117,9 +119,9 @@ const styles = StyleSheet.create({
   itemText: {
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
   },
   destructiveText: {
-    color: COLORS.red.bright,
+    color: COLORS.primary.red,
   },
 });

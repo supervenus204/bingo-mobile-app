@@ -1,3 +1,4 @@
+import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
@@ -35,10 +36,12 @@ export interface Participant {
 
 export const ParticipantManagementScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
+  const isFocused = useIsFocused();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
+  const [selectedParticipant, setSelectedParticipant] =
+    useState<Participant | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
   useEffect(() => {
@@ -64,21 +67,25 @@ export const ParticipantManagementScreen: React.FC = () => {
     setShowDetailModal(true);
   };
 
-  const joinedParticipants = useMemo(() =>
-    participants
-      .filter(p => p.status === 'joined')
-      .sort((a, b) => {
-        if (a.is_organizer && !b.is_organizer) return -1;
-        if (!a.is_organizer && b.is_organizer) return 1;
-        return 0;
-      }),
+  const joinedParticipants = useMemo(
+    () =>
+      participants
+        .filter(p => p.status === 'joined')
+        .sort((a, b) => {
+          if (a.is_organizer && !b.is_organizer) return -1;
+          if (!a.is_organizer && b.is_organizer) return 1;
+          return 0;
+        }),
     [participants]
   );
-  const pendingParticipants = useMemo(() => participants.filter(p => p.status === 'pending'), [participants]);
+  const pendingParticipants = useMemo(
+    () => participants.filter(p => p.status === 'pending'),
+    [participants]
+  );
 
   return (
     <View style={styles.container}>
-      {loading && (
+      {loading && isFocused && (
         <LoadingCard visible={loading} message="Loading participants..." />
       )}
 

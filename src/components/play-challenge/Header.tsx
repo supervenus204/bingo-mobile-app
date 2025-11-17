@@ -74,7 +74,7 @@ export const Header: React.FC<Props> = ({ title }) => {
         onPress={handleHomePress}
         variant="default"
         buttonStyle={styles.iconButton}
-        icon={<Icon name="menu" size={24} color={COLORS.blue.oxford} />}
+        icon={<Icon name="menu" size={24} color={COLORS.primary.blue} />}
       />
 
       <View style={styles.titleContainer}>
@@ -110,7 +110,7 @@ export const Header: React.FC<Props> = ({ title }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     paddingHorizontal: 12,
     paddingVertical: 8,
     flexDirection: 'row',
@@ -132,12 +132,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     textAlign: 'center',
   },
   weightIcon: {
     width: 24,
     height: 24,
-    tintColor: COLORS.blue.oxford,
+    tintColor: COLORS.primary.blue,
   },
 });

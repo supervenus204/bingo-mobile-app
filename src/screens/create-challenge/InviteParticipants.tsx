@@ -165,7 +165,7 @@ export const InviteParticipants: React.FC = () => {
         title="Create Challenge"
         action={
           <TouchableOpacity onPress={handleCancel}>
-            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>
+            <Text style={{ color: COLORS.primary.green, marginRight: 4 }}>
               Cancel
             </Text>
           </TouchableOpacity>
@@ -174,7 +174,7 @@ export const InviteParticipants: React.FC = () => {
       />
       <View style={styles.container}>
         <Header
-          title="Invite Participants"
+          title="Invite Players"
           step={3}
           totalSteps={3}
           onBack={handleBack}
@@ -265,7 +265,7 @@ export const InviteParticipants: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   content: {
     paddingHorizontal: 16,
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   },
   rowText: {
     flex: 1,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
   },
   deleteBtn: {
     width: 24,
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   deleteBtnText: {
-    color: COLORS.secondary.purple.mauve_1,
+    color: COLORS.text.secondary,
     fontSize: 16,
     lineHeight: 16,
   },
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.green.mantis,
+    borderColor: COLORS.primary.green,
     borderRadius: 28,
     paddingLeft: 16,
     paddingRight: 8,
@@ -333,9 +333,9 @@ const styles = StyleSheet.create({
     color: COLORS.text.primary,
   },
   addButton: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderWidth: 1,
-    borderColor: COLORS.green.mantis,
+    borderColor: COLORS.primary.green,
     borderRadius: 22,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -344,18 +344,18 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   addButtonText: {
-    color: COLORS.green.mantis,
+    color: COLORS.primary.green,
     fontSize: 14,
   },
   publishButton: {
     flex: 1,
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
     borderRadius: 999,
     paddingVertical: 14,
     alignItems: 'center',
   },
   publishButtonText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontSize: 14,
   },
 });

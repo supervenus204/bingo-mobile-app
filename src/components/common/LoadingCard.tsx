@@ -1,5 +1,12 @@
 import React from 'react';
-import { ActivityIndicator, Dimensions, Modal, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Modal,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { COLORS, FONTS } from '../../theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -19,7 +26,7 @@ export const LoadingCard: React.FC<Props> = ({
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.card}>
-          <ActivityIndicator size="large" color={COLORS.primary.main} />
+          <ActivityIndicator size="large" color={COLORS.primary.green} />
           {!!message && <Text style={styles.message}>{message}</Text>}
           {!!subMessage && <Text style={styles.subMessage}>{subMessage}</Text>}
         </View>
@@ -41,7 +48,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 20,
     paddingHorizontal: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -53,7 +60,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     textAlign: 'center',
     fontSize: 16,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsMedium,
   },
   subMessage: {

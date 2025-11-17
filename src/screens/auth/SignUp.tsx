@@ -182,7 +182,7 @@ export const SignUpScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   scrollView: {
     flex: 1,
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.indigo,
+    color: COLORS.primary.blue,
     fontSize: 28,
   },
   form: {
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontFamily: FONTS.family.poppinsMedium,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     fontSize: 14,
   },
   termsContainer: {
@@ -233,11 +233,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxChecked: {
-    backgroundColor: COLORS.green.forest,
-    borderColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
+    borderColor: COLORS.primary.green,
   },
   checkmark: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontSize: 12,
     fontWeight: 'bold',
   },
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   termsLink: {
-    color: COLORS.blue.indigo,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsMedium,
   },
   buttonStyle: {

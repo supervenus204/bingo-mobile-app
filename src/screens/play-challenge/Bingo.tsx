@@ -91,6 +91,8 @@ export const BingoScreen: React.FC = () => {
               id: card.id,
               name: card.name,
               color: card.color,
+              font_color: card.font_color || COLORS.primary.black,
+              font_name: card.font_name || 'Poppins-Regular',
               type: card.type || 'default',
               count,
             };
@@ -114,6 +116,8 @@ export const BingoScreen: React.FC = () => {
               id: card?.id,
               name: card?.name,
               color: card?.color,
+              font_color: card?.font_color || COLORS.primary.black,
+              font_name: card?.font_name || 'Poppins-Regular',
               type: card?.type,
               status:
                 _progress === 'mark' || _progress === 'unmark'
@@ -155,6 +159,8 @@ export const BingoScreen: React.FC = () => {
     const customCardData: Array<{
       title: string;
       color: string;
+      font_color: string;
+      font_name: string;
       count: number;
     }> = [];
 
@@ -165,6 +171,8 @@ export const BingoScreen: React.FC = () => {
           customCardData.push({
             title: card.name,
             color: card.color,
+            font_color: card.font_color,
+            font_name: card.font_name,
             count: card.count,
           });
         }
@@ -202,7 +210,13 @@ export const BingoScreen: React.FC = () => {
     );
   };
 
-  const handleAddCustomCard = (title: string, color: string, count: number) => {
+  const handleAddCustomCard = (
+    title: string,
+    color: string,
+    font_color: string,
+    font_name: string,
+    count: number
+  ) => {
     const maxCount = selectedChallenge?.card_size ?? 24;
     const currentTotal = bingoCardsData.reduce(
       (sum, card) => sum + card.count,
@@ -215,6 +229,8 @@ export const BingoScreen: React.FC = () => {
       id: 'custom-' + Date.now(),
       name: title,
       color: color,
+      font_color: font_color,
+      font_name: font_name,
       type: 'custom',
       count: cardCount,
     };
@@ -291,7 +307,11 @@ export const BingoScreen: React.FC = () => {
                 style={styles.addCustomButton}
                 onPress={() => setShowAddCustomModal(true)}
               >
-                <MaterialIcons name="add" size={24} color={COLORS.white} />
+                <MaterialIcons
+                  name="add"
+                  size={24}
+                  color={COLORS.primary.white}
+                />
                 <Text style={styles.addCustomButtonText}>Add Custom Task</Text>
               </TouchableOpacity>
               <View style={styles.buttonGroup}>
@@ -343,7 +363,7 @@ export const BingoScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.blue.dark,
+    backgroundColor: COLORS.primary.blue,
   },
   scrollWrapper: {
     flex: 1,
@@ -366,7 +386,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
     marginBottom: 20,
@@ -389,13 +409,13 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 48,
     paddingVertical: 4,
-    backgroundColor: COLORS.primary.pink.bright_1,
+    backgroundColor: COLORS.primary.pink,
   },
   addCustomButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.blue.oxford,
+    backgroundColor: COLORS.primary.blue,
     borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 20,
@@ -406,6 +426,6 @@ const styles = StyleSheet.create({
   addCustomButtonText: {
     fontSize: 16,
     fontFamily: 'Poppins-SemiBold',
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
 });

@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
+import { TitleInput } from '../../components/challenge';
+import { BoardLayout } from '../../components/challenge/BoardLayout';
 import { CustomButton, Input, LoadingCard } from '../../components/common';
-import { LayoutCard } from '../../components/create-challenge/LayoutCard';
+import { PlanButton } from '../../components/play-challenge/PlanButton';
 import { boardLayoutOptions } from '../../constants';
-import { useCategories } from '../../hooks/useCategories';
-import { usePlans } from '../../hooks/usePlans';
-import { updateChallenge } from '../../services/challenge.service';
+import { useCategories, usePlans } from '../../hooks';
+import { updateChallenge } from '../../services';
 import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
@@ -106,11 +108,7 @@ export const SettingsScreen: React.FC = () => {
     }));
   };
 
-  const renderField = (
-    label: string,
-    value: string | number,
-    isEditable: boolean = false
-  ) => (
+  const renderField = (label: string, value: string | number) => (
     <View style={styles.fieldContainer}>
       <Text style={styles.fieldLabel}>{label}</Text>
       <Text style={styles.fieldValue}>{value}</Text>
@@ -141,30 +139,13 @@ export const SettingsScreen: React.FC = () => {
         <Text style={styles.fieldLabel}>Plan</Text>
         <View style={styles.planContainer}>
           {plans?.map(plan => (
-            <TouchableOpacity
+            <PlanButton
               key={plan.id}
-              style={[
-                styles.planButton,
-                formData.plan === plan.id && styles.planButtonSelected,
-                !isCurrentPlanFree && styles.planButtonDisabled,
-              ]}
-              onPress={() => {
-                if (isCurrentPlanFree) {
-                  setFormData(prev => ({ ...prev, plan: plan.id }));
-                }
-              }}
-              disabled={!isCurrentPlanFree}
-            >
-              <Text
-                style={[
-                  styles.planButtonText,
-                  formData.plan === plan.id && styles.planButtonTextSelected,
-                  !isCurrentPlanFree && styles.planButtonTextDisabled,
-                ]}
-              >
-                {plan.name}
-              </Text>
-            </TouchableOpacity>
+              label={plan.name}
+              isSelected={formData.plan === plan.id}
+              isCurrentPlanFree={isCurrentPlanFree}
+              onPress={() => setFormData(prev => ({ ...prev, plan: plan.id }))}
+            />
           ))}
         </View>
       </View>
@@ -223,92 +204,81 @@ export const SettingsScreen: React.FC = () => {
   );
 
   const renderCardSizeSelector = () => (
-    <View style={styles.fieldContainer}>
-      <Text style={styles.fieldLabel}>Bingo Board Layout</Text>
-      <View style={styles.layoutContainer}>
-        {boardLayoutOptions.map(layout => (
-          <LayoutCard
-            key={layout.id}
-            size={layout.size}
-            taskCount={layout.taskCount}
-            isSelected={formData.cardSize === layout.id}
-            onPress={() => handleLayoutSelect(layout.id)}
-          />
-        ))}
-      </View>
-    </View>
+    <BoardLayout cardSize={formData.cardSize} onPress={handleLayoutSelect} />
   );
 
   return (
-    <>
+    <View style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
-          {!isEditing ? (
-            <>
-              {/* View Mode */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Challenge Details</Text>
-                {renderField('Title', selectedChallenge?.title || '')}
-                {renderField('Category', category?.name || '')}
-                {renderField(
-                  'Plan',
-                  getPlanById(selectedChallenge?.plan || '')?.name || ''
-                )}
-                {renderField(
-                  'Duration',
-                  `${selectedChallenge?.duration || 0} weeks`
-                )}
-                {renderField(
-                  'Card Size',
-                  boardLayoutOptions.find(
-                    l => l.id === selectedChallenge?.card_size
-                  )?.size || ''
-                )}
-              </View>
-
-              {isOrganizer && (
-                <View style={styles.buttonGroup}>
-                  <CustomButton
-                    text="Edit Settings"
-                    onPress={() => setIsEditing(true)}
-                    variant="primary"
-                    buttonStyle={styles.editButton}
-                  />
-                </View>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Edit Mode */}
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Edit Challenge Settings</Text>
-                {renderEditableField('Title', formData.title, value =>
+        {isEditing ? (
+          <>
+            {/* Edit Mode */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Edit Challenge Settings</Text>
+              <TitleInput
+                title={formData.title}
+                isEditable={true}
+                setTitle={value =>
                   setFormData(prev => ({ ...prev, title: value }))
-                )}
-                {renderField('Category', category?.name || '')}
-                {renderPlanSelector()}
-                {renderDurationSelector()}
-                {renderCardSizeSelector()}
-              </View>
+                }
+              />
+              {renderField('Category', category?.name || '')}
+              {renderPlanSelector()}
+              {renderDurationSelector()}
+              {renderCardSizeSelector()}
+            </View>
 
+            <View style={styles.buttonGroup}>
+              <CustomButton
+                text="Cancel"
+                onPress={handleCancel}
+                variant="outline"
+                buttonStyle={styles.cancelButton}
+              />
+              <CustomButton
+                text="Save Changes"
+                onPress={handleSave}
+                variant="primary"
+                buttonStyle={styles.saveButton}
+                loading={loading}
+              />
+            </View>
+          </>
+        ) : (
+          <>
+            {/* View Mode */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Challenge Details</Text>
+              {renderField('Title', selectedChallenge?.title || '')}
+              {renderField('Category', category?.name || '')}
+              {renderField(
+                'Plan',
+                getPlanById(selectedChallenge?.plan || '')?.name || ''
+              )}
+              {renderField(
+                'Duration',
+                `${selectedChallenge?.duration || 0} weeks`
+              )}
+              {renderField(
+                'Card Size',
+                boardLayoutOptions.find(
+                  l => l.id === selectedChallenge?.card_size
+                )?.size || ''
+              )}
+            </View>
+
+            {isOrganizer && (
               <View style={styles.buttonGroup}>
                 <CustomButton
-                  text="Cancel"
-                  onPress={handleCancel}
-                  variant="outline"
-                  buttonStyle={styles.cancelButton}
-                />
-                <CustomButton
-                  text="Save Changes"
-                  onPress={handleSave}
+                  text="Edit Settings"
+                  onPress={() => setIsEditing(true)}
                   variant="primary"
-                  buttonStyle={styles.saveButton}
-                  loading={loading}
+                  buttonStyle={styles.editButton}
                 />
               </View>
-            </>
-          )}
-        </View>
+            )}
+          </>
+        )}
       </ScrollView>
 
       <LoadingCard
@@ -316,7 +286,7 @@ export const SettingsScreen: React.FC = () => {
         message="Updating challenge settings..."
         subMessage="Please wait a moment"
       />
-    </>
+    </View>
   );
 };
 
@@ -328,20 +298,15 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   section: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderRadius: 12,
     padding: 20,
-    marginBottom: 16,
-    shadowColor: COLORS.black,
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    gap: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontFamily: FONTS.family.poppinsBold,
     color: COLORS.text.primary,
-    marginBottom: 20,
   },
   fieldContainer: {
     marginBottom: 16,
@@ -362,7 +327,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   input: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderWidth: 1,
     borderColor: COLORS.gray.lightMedium,
     borderRadius: 8,
@@ -374,36 +339,6 @@ const styles = StyleSheet.create({
   planContainer: {
     flexDirection: 'row',
     gap: 8,
-  },
-  planButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.gray.lightMedium,
-    backgroundColor: COLORS.white,
-    alignItems: 'center',
-  },
-  planButtonSelected: {
-    backgroundColor: COLORS.green.forest,
-    borderColor: COLORS.green.forest,
-  },
-  planButtonText: {
-    fontSize: 14,
-    fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.text.primary,
-  },
-  planButtonTextSelected: {
-    color: COLORS.white,
-  },
-  planButtonDisabled: {
-    backgroundColor: COLORS.gray.light,
-    borderColor: COLORS.gray.lightMedium,
-    opacity: 0.6,
-  },
-  planButtonTextDisabled: {
-    color: COLORS.gray.medium,
   },
   durationContainer: {
     flexDirection: 'row',
@@ -447,12 +382,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.gray.lightMedium,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     alignItems: 'center',
   },
   layoutCardSelected: {
-    backgroundColor: COLORS.green.forest,
-    borderColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
+    borderColor: COLORS.primary.green,
   },
   layoutText: {
     fontSize: 16,
@@ -461,7 +396,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   layoutTextSelected: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   layoutSubtext: {
     fontSize: 12,
@@ -469,7 +404,7 @@ const styles = StyleSheet.create({
     color: COLORS.text.secondary,
   },
   layoutSubtextSelected: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   buttonGroup: {
     flexDirection: 'row',

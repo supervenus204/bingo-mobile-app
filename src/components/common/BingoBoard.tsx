@@ -1,9 +1,9 @@
-import { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { COLORS } from "../../theme/colors";
-import { FONTS } from "../../theme/fonts";
-import { BingoCard as BingoCardType } from "../../types/bingo.type";
-import { BingoCard } from "./BingoCard";
+import { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { COLORS } from '../../theme/colors';
+import { FONTS } from '../../theme/fonts';
+import { BingoCard as BingoCardType } from '../../types/bingo.type';
+import { BingoCard } from './BingoCard';
 
 interface BingoRowProps {
   mode: string;
@@ -24,16 +24,20 @@ const BingoRow = ({ mode, cards, rowIndex, handleClick }: BingoRowProps) => {
 
   return (
     <View key={`row-${rowIndex}`} style={styles.row}>
-      {cards.map((card, index) =>
+      {cards.map((card, index) => (
         <BingoCard
           key={`${card.id}-${index}`}
           color={card.color}
+          font_color={card.font_color}
+          font_name={card.font_name}
           name={card.name}
           count={card.count}
           mode={mode === 'setup' ? 'setup' : card.status}
-          handleClick={(status?: string) => handleClick(rowIndex * 4 + index, status)}
+          handleClick={(status?: string) =>
+            handleClick(rowIndex * 4 + index, status)
+          }
         />
-      )}
+      ))}
       {emptySpaceElements}
     </View>
   );
@@ -46,23 +50,41 @@ interface BingoBoardProps {
   handleClick: (cardId: number, status?: string) => void;
 }
 
-export const BingoBoard: React.FC<BingoBoardProps> = ({ bingoCardsData, mode, totalCount, handleClick }) => {
-  const selectedCount = useMemo(() => mode === 'setup' ? bingoCardsData.reduce((acc, card) => acc + card.count, 0) : bingoCardsData.filter(card => card.status === 'check').length, [bingoCardsData, mode]);
-  const progressPercentage = useMemo(() => totalCount > 0 ? (selectedCount / totalCount) * 100 : 0, [selectedCount, totalCount]);
+export const BingoBoard: React.FC<BingoBoardProps> = ({
+  bingoCardsData,
+  mode,
+  totalCount,
+  handleClick,
+}) => {
+  const selectedCount = useMemo(
+    () =>
+      mode === 'setup'
+        ? bingoCardsData.reduce((acc, card) => acc + card.count, 0)
+        : bingoCardsData.filter(card => card.status === 'check').length,
+    [bingoCardsData, mode]
+  );
+  const progressPercentage = useMemo(
+    () => (totalCount > 0 ? (selectedCount / totalCount) * 100 : 0),
+    [selectedCount, totalCount]
+  );
 
-  const totalRows = useMemo(() => Math.ceil(bingoCardsData.length / 4), [bingoCardsData]);
+  const totalRows = useMemo(
+    () => Math.ceil(bingoCardsData.length / 4),
+    [bingoCardsData]
+  );
 
   return (
     <View style={styles.gridContainer}>
       <View style={styles.progressSection}>
         <Text style={styles.progressText}>
-          {selectedCount} of {totalCount} tasks {mode === 'setup' ? 'selected' : 'done'}
+          {selectedCount} of {totalCount} tasks{' '}
+          {mode === 'setup' ? 'selected' : 'done'}
         </Text>
         <View style={styles.progressBarBackground}>
           <View
             style={[
               styles.progressBarFill,
-              { width: `${progressPercentage}%` }
+              { width: `${progressPercentage}%` },
             ]}
           />
         </View>
@@ -72,7 +94,15 @@ export const BingoBoard: React.FC<BingoBoardProps> = ({ bingoCardsData, mode, to
           const startIndex = rowIndex * 4;
           const endIndex = startIndex + 4;
           const rowCards = bingoCardsData.slice(startIndex, endIndex);
-          return <BingoRow key={rowIndex} mode={mode} cards={rowCards} rowIndex={rowIndex} handleClick={handleClick} />;
+          return (
+            <BingoRow
+              key={rowIndex}
+              mode={mode}
+              cards={rowCards}
+              rowIndex={rowIndex}
+              handleClick={handleClick}
+            />
+          );
         })}
       </View>
     </View>
@@ -93,7 +123,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 13,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsMedium,
     marginBottom: 8,
   },
@@ -106,7 +136,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
     borderRadius: 3,
   },
   emptySpace: {

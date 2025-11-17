@@ -21,7 +21,7 @@ export type Candidate = {
   email: string;
   displayName?: string;
   image?: string;
-}
+};
 
 interface InviteModalProps {
   participants: Participant[];
@@ -30,7 +30,12 @@ interface InviteModalProps {
   onSuccess: () => void;
 }
 
-export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible, onClose, onSuccess }) => {
+export const InviteModal: React.FC<InviteModalProps> = ({
+  participants,
+  visible,
+  onClose,
+  onSuccess,
+}) => {
   const { selectedChallenge } = useChallengesStore();
   const { getPlanById } = usePlans();
 
@@ -39,23 +44,40 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
   const [inviting, setInviting] = useState(false);
   const [addingEmail, setAddingEmail] = useState(false);
 
-  const isValidEmail = (email: string) => /[^@\s]+@[^@\s]+\.[^@\s]+/.test(email.trim());
+  const isValidEmail = (email: string) =>
+    /[^@\s]+@[^@\s]+\.[^@\s]+/.test(email.trim());
   const isUsernameSearch = (input: string) => input.startsWith('@');
-  const checkEmailExists = useCallback((email: string) => candidates.some(c => c.email.toLowerCase() === email.toLowerCase() || participants.some(p => p.email.toLowerCase() === email.toLowerCase())), [candidates, participants]);
+  const checkEmailExists = useCallback(
+    (email: string) =>
+      candidates.some(
+        c =>
+          c.email.toLowerCase() === email.toLowerCase() ||
+          participants.some(p => p.email.toLowerCase() === email.toLowerCase())
+      ),
+    [candidates, participants]
+  );
 
-  const isAtLimit = useMemo(() =>
-    participants.length + candidates.length >= (getPlanById(selectedChallenge?.plan as string)?.maxParticipants || 0),
+  const isAtLimit = useMemo(
+    () =>
+      participants.length + candidates.length >=
+      (getPlanById(selectedChallenge?.plan as string)?.maxParticipants || 0),
     [participants, candidates, selectedChallenge?.plan]
   );
 
   const addEmail = async () => {
     if (value.trim() !== value) {
-      Alert.alert('Invalid Input', 'Input should not contain spaces. Please remove any spaces and try again.');
+      Alert.alert(
+        'Invalid Input',
+        'Input should not contain spaces. Please remove any spaces and try again.'
+      );
       return;
     }
 
     if (isAtLimit) {
-      Alert.alert('At Limit', `You have reached the maximum number of participants for your plan. Please upgrade your plan to invite more participants.`);
+      Alert.alert(
+        'At Limit',
+        `You have reached the maximum number of participants for your plan. Please upgrade your plan to invite more participants.`
+      );
       return;
     }
 
@@ -71,10 +93,20 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
           const user = await searchUsers(username);
           if (user) {
             if (checkEmailExists(user.email)) {
-              Alert.alert('User Already Added', 'This user has already been added to the list');
+              Alert.alert(
+                'User Already Added',
+                'This user has already been added to the list'
+              );
               return;
             }
-            setCandidates([...candidates, { email: user.email, displayName: user.display_name, image: user.image }]);
+            setCandidates([
+              ...candidates,
+              {
+                email: user.email,
+                displayName: user.display_name,
+                image: user.image,
+              },
+            ]);
           } else {
             Alert.alert('User Not Found', 'No user found with that username');
           }
@@ -87,7 +119,10 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
           return;
         }
         if (checkEmailExists(value)) {
-          Alert.alert('Email Already Added', 'This email has already been added to the list');
+          Alert.alert(
+            'Email Already Added',
+            'This email has already been added to the list'
+          );
           return;
         }
 
@@ -111,7 +146,10 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
 
     try {
       setInviting(true);
-      await inviteParticipants(selectedChallenge!.id, candidates.map(c => c.email));
+      await inviteParticipants(
+        selectedChallenge!.id,
+        candidates.map(c => c.email)
+      );
       setCandidates([]);
       onClose();
       onSuccess();
@@ -124,7 +162,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
 
   return (
     <Modal visible={visible} onClose={onClose} widthPercentage={95}>
-      <Text style={styles.modalTitle}>Invite Participants</Text>
+      <Text style={styles.modalTitle}>Invite Players</Text>
 
       <View style={styles.inputSection}>
         <View style={styles.inputRow}>
@@ -152,15 +190,26 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
 
       {candidates.length > 0 && (
         <View style={styles.emailListSection}>
-          <Text style={styles.emailListTitle}>Invitations ({candidates.length})</Text>
-          <ScrollView style={styles.emailListContainer} showsVerticalScrollIndicator={false}>
+          <Text style={styles.emailListTitle}>
+            Invitations ({candidates.length})
+          </Text>
+          <ScrollView
+            style={styles.emailListContainer}
+            showsVerticalScrollIndicator={false}
+          >
             {candidates.map((candidate, index) => (
               <View key={index} style={styles.row}>
                 <Image
-                  source={candidate.image ? { uri: candidate.image } : require('../../assets/images/create-challenge/default-avatar.png')}
+                  source={
+                    candidate.image
+                      ? { uri: candidate.image }
+                      : require('../../assets/images/create-challenge/default-avatar.png')
+                  }
                   style={styles.avatar}
                 />
-                <Text style={styles.rowText}>{candidate.displayName || candidate.email}</Text>
+                <Text style={styles.rowText}>
+                  {candidate.displayName || candidate.email}
+                </Text>
                 <CustomButton
                   text="×"
                   onPress={() => removeEmail(candidate.email)}
@@ -183,7 +232,7 @@ export const InviteModal: React.FC<InviteModalProps> = ({ participants, visible,
           textStyle={styles.cancelButtonText}
         />
         <CustomButton
-          text={inviting ? "Sending..." : 'Send'}
+          text={inviting ? 'Sending...' : 'Send'}
           onPress={sendInvitations}
           disabled={candidates.length === 0 || inviting}
           loading={inviting}
@@ -224,7 +273,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.green.mantis,
+    borderColor: COLORS.primary.green,
     borderRadius: 28,
     paddingLeft: 16,
     paddingRight: 8,
@@ -269,9 +318,9 @@ const styles = StyleSheet.create({
     color: COLORS.text.primary,
   },
   addButton: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderWidth: 1,
-    borderColor: COLORS.green.mantis,
+    borderColor: COLORS.primary.green,
     borderRadius: 22,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -280,7 +329,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   addButtonText: {
-    color: COLORS.green.mantis,
+    color: COLORS.primary.green,
     fontSize: 14,
   },
   row: {
@@ -295,7 +344,7 @@ const styles = StyleSheet.create({
   },
   rowText: {
     flex: 1,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
   },
   deleteBtn: {
     width: 24,
@@ -307,7 +356,7 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   deleteBtnText: {
-    color: COLORS.secondary.purple.mauve_1,
+    color: COLORS.text.secondary,
     fontSize: 16,
     lineHeight: 16,
   },

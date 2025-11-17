@@ -16,7 +16,13 @@ const TAB_WIDTH = 104;
 const TAB_GAP = 8;
 const PADDING_HORIZONTAL = 16;
 
-export const WeekTabBar: React.FC<Props> = ({ weeks, currentWeek, selectedWeek, selectWeek, isOrganizer }) => {
+export const WeekTabBar: React.FC<Props> = ({
+  weeks,
+  currentWeek,
+  selectedWeek,
+  selectWeek,
+  isOrganizer,
+}) => {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const isWeekDisabled = (week: number) => !isOrganizer && week > currentWeek;
@@ -30,7 +36,8 @@ export const WeekTabBar: React.FC<Props> = ({ weeks, currentWeek, selectedWeek, 
   useEffect(() => {
     const selectedIndex = weeks.indexOf(selectedWeek);
     if (selectedIndex !== -1 && scrollViewRef.current) {
-      const scrollPosition = selectedIndex * (TAB_WIDTH + TAB_GAP) - PADDING_HORIZONTAL;
+      const scrollPosition =
+        selectedIndex * (TAB_WIDTH + TAB_GAP) - PADDING_HORIZONTAL;
       setTimeout(() => {
         scrollViewRef.current?.scrollTo({
           x: Math.max(0, scrollPosition),
@@ -45,7 +52,13 @@ export const WeekTabBar: React.FC<Props> = ({ weeks, currentWeek, selectedWeek, 
       return <Icon name="lock" size={12} style={styles.lockIcon} />;
     }
     if (currentWeek === week && selectedWeek !== week) {
-      return <Icon name="radio-button-checked" size={10} style={styles.currentIcon} />;
+      return (
+        <Icon
+          name="radio-button-checked"
+          size={10}
+          style={styles.currentIcon}
+        />
+      );
     }
     return null;
   };
@@ -59,7 +72,7 @@ export const WeekTabBar: React.FC<Props> = ({ weeks, currentWeek, selectedWeek, 
         contentContainerStyle={styles.scrollContent}
         style={styles.scrollView}
       >
-        {weeks.map((week) => {
+        {weeks.map(week => {
           const isDisabled = isWeekDisabled(week);
           const isActive = selectedWeek === week;
           const isCurrent = currentWeek === week;
@@ -92,7 +105,7 @@ export const WeekTabBar: React.FC<Props> = ({ weeks, currentWeek, selectedWeek, 
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray.light,
@@ -117,11 +130,11 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   activeTab: {
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
   },
   currentTab: {
     borderWidth: 2,
-    borderColor: COLORS.green.forest,
+    borderColor: COLORS.primary.green,
   },
   disabledTab: {
     backgroundColor: COLORS.gray.veryLight,
@@ -130,17 +143,17 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 12,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
   },
   activeTabText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   disabledTabText: {
     color: COLORS.gray.mediumDark,
   },
   currentIcon: {
     marginLeft: 2,
-    color: COLORS.green.forest,
+    color: COLORS.primary.green,
   },
   lockIcon: {
     marginLeft: 2,

@@ -23,15 +23,15 @@ type Props = {
 };
 
 const TYPE_BG: Record<NonNullable<ToastOptions['type']>, string> = {
-  success: COLORS.primary.green.mantis,
-  error: COLORS.primary.pink.bright_1,
-  info: COLORS.white,
+  success: COLORS.primary.green,
+  error: COLORS.primary.pink,
+  info: COLORS.primary.white,
 };
 
 const TYPE_TEXT: Record<NonNullable<ToastOptions['type']>, string> = {
-  success: COLORS.white,
-  error: COLORS.white,
-  info: COLORS.gray.dark,
+  success: COLORS.text.white,
+  error: COLORS.text.white,
+  info: COLORS.text.secondary,
 };
 
 export function Toast({
@@ -132,7 +132,10 @@ export function Toast({
             ]}
           >
             <View style={styles.contentRow}>
-              <Text style={[styles.text, { color: textColor }]} numberOfLines={2}>
+              <Text
+                style={[styles.text, { color: textColor }]}
+                numberOfLines={2}
+              >
                 {options.message}
               </Text>
 
@@ -147,7 +150,7 @@ export function Toast({
                     {
                       backgroundColor:
                         options.type === 'info'
-                          ? COLORS.primary.green.sgbus
+                          ? COLORS.primary.green
                           : TYPE_BG[options.type || 'info'],
                     },
                     pressed && { opacity: 0.8 },
@@ -173,7 +176,7 @@ export function Toast({
           </Animated.View>
         )}
       </View>
-    </View >
+    </View>
   );
 }
 
@@ -190,7 +193,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 8,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: COLORS.gray.lightMedium,
+    borderColor: COLORS.primary.white,
   },
   contentRow: {
     flexDirection: 'row',
@@ -212,7 +215,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   actionLabel: {
-    color: COLORS.white,
+    color: COLORS.text.white,
     fontSize: 14,
     fontWeight: '600',
   },

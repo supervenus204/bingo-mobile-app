@@ -195,7 +195,7 @@ export const ChallengesListScreen: React.FC = () => {
               setActiveTab(activeTab === 'ongoing' ? 'archived' : 'ongoing')
             }
           >
-            <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>
+            <Text style={{ color: COLORS.primary.green, marginRight: 4 }}>
               {activeTab === 'ongoing' ? 'View Archived' : 'View Ongoing'}
             </Text>
           </TouchableOpacity>
@@ -210,7 +210,7 @@ export const ChallengesListScreen: React.FC = () => {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray.light,
   },
   activeTab: {
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
   },
   tabText: {
     fontSize: FONTS.size.base,
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     color: COLORS.text.secondary,
   },
   activeTabText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   content: {
     flex: 1,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 10,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   progressContainer: {
     flexDirection: 'row',

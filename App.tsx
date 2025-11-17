@@ -13,10 +13,6 @@ import { STRIPE_PUBLISHABLE_KEY } from './src/constants/config';
 import { useFCM, useNotificationHandler } from './src/hooks';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ToastProvider } from './src/provider';
-import { ThemeProvider } from './src/provider/theme.provider';
-
-import 'react-native-get-random-values';
-import 'react-native-url-polyfill/auto';
 
 if (__DEV__) {
   require('./ReactotronConfig');
@@ -33,13 +29,11 @@ function AppContent(): React.JSX.Element {
 function App(): React.JSX.Element {
   return (
     <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
-      <ThemeProvider>
-        <SafeAreaProvider>
-          <ToastProvider>
-            <AppContent />
-          </ToastProvider>
-        </SafeAreaProvider>
-      </ThemeProvider>
+      <SafeAreaProvider>
+        <ToastProvider>
+          <AppContent />
+        </ToastProvider>
+      </SafeAreaProvider>
     </StripeProvider>
   );
 }

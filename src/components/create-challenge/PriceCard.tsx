@@ -92,14 +92,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   button: {
-    backgroundColor: COLORS.primary.green.forest,
+    backgroundColor: COLORS.primary.green,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
     alignItems: 'center',
   },
   buttonText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   price: {
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontSize: 16,
     fontWeight: 'bold',
   },

@@ -14,39 +14,39 @@ const WelcomeScreens = [
     image: require('../../assets/images/welcome/logo.png'),
     mark: require('../../assets/images/welcome/mark-1.png'),
     title: 'Join fun health challenges with friends and family.',
-    titleColor: COLORS.primary.welcome.tertiary,
-    bgColor: COLORS.green.light_2,
-    buttonColor: COLORS.primary.pink.bright_1,
+    titleColor: COLORS.primary.blue,
+    bgColor: COLORS.primary.green,
+    buttonColor: COLORS.primary.pink,
   },
   {
     image: require('../../assets/images/welcome/image-1.png'),
     mark: require('../../assets/images/welcome/mark-1.png'),
     title: 'Turn Habits Into Fun!',
-    titleColor: COLORS.white,
+    titleColor: COLORS.primary.white,
     description:
       'Join challenges with friends & family, check off tasks, earn points, and celebrate every healthy win together',
-    bgColor: COLORS.primary.welcome.tertiary,
-    buttonColor: COLORS.primary.welcome.secondary,
+    bgColor: COLORS.primary.blue,
+    buttonColor: COLORS.primary.pink,
   },
   {
     image: require('../../assets/images/welcome/image-2.png'),
     mark: require('../../assets/images/welcome/mark-2.png'),
     title: 'Track Your Weekly Wins!',
-    titleColor: COLORS.white,
+    titleColor: COLORS.primary.white,
     description:
       'Mark off tasks, log your weight-ins, and watch your progress climb up the leaderboard each week!',
-    bgColor: COLORS.primary.welcome.quaternary,
-    buttonColor: COLORS.primary.welcome.tertiary,
+    bgColor: COLORS.primary.green,
+    buttonColor: COLORS.primary.blue,
   },
   {
     image: require('../../assets/images/welcome/image-3.png'),
     mark: require('../../assets/images/welcome/mark-3.png'),
     title: 'Stay Motivated Together',
-    titleColor: COLORS.white,
+    titleColor: COLORS.primary.white,
     description:
       'Get supportive nudges, win weekly wild cards and join the Group Chat to boost accountability!',
-    bgColor: COLORS.primary.welcome.secondary,
-    buttonColor: COLORS.primary.welcome.tertiary,
+    bgColor: COLORS.primary.pink,
+    buttonColor: COLORS.primary.blue,
   },
 ];
 
@@ -120,7 +120,11 @@ export const WelcomeScreen: React.FC = () => {
             <CustomButton
               text="GET STARTED"
               textStyle={styles.buttonText}
-              buttonStyle={styles.buttonStyle}
+              buttonStyle={{
+                ...styles.buttonStyle,
+                backgroundColor: currentScreen.buttonColor,
+                width: '100%',
+              }}
               onPress={handleNext}
             />
           ) : (
@@ -158,7 +162,7 @@ export const WelcomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   imageContainer: {
     width: DEVICE_WIDTH,
@@ -192,24 +196,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 28,
     fontFamily: FONTS.family.poppinsRegular,
-    color: COLORS.white,
+    color: COLORS.primary.white,
     maxWidth: '100%',
   },
   buttonStyle: {
-    width: DEVICE_WIDTH * 0.8,
     height: 48,
-    backgroundColor: COLORS.primary.pink.bright_1,
-    borderRadius: 28,
-    shadowColor: COLORS.primary.pink.bright_1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
   },
   buttonText: {
     fontSize: 18,
-    fontFamily: FONTS.family.poppinsSemiBold,
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   buttonContainer: {
     flexDirection: 'row',

@@ -1,17 +1,24 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { CustomButton } from '../../components/common';
 import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
 import { useToast } from '../../hooks/useToast';
-import { joinChallenge, rejectChallenge } from '../../services/challenge.service';
+import {
+  joinChallenge,
+  rejectChallenge,
+} from '../../services/challenge.service';
 import { COLORS, FONTS } from '../../theme';
+import { RootStackParamList } from '../../types';
 
-export const JoinChallenge: React.FC = () => {
+export const Join: React.FC = () => {
   const route = useRoute();
   const { challenge } = route.params as { challenge: any };
   const navigation = useNavigation();
+  const rootNavigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { showToast } = useToast();
 
   const invitationCode = useMemo(() => {
@@ -21,37 +28,49 @@ export const JoinChallenge: React.FC = () => {
   const handleJoin = async () => {
     try {
       await joinChallenge(invitationCode);
-      navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE as never);
+      rootNavigation.navigate(SCREEN_NAMES.DASHBOARD as never);
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Something went wrong', 'error',);
+      showToast(
+        error instanceof Error ? error.message : 'Something went wrong',
+        'error'
+      );
     }
   };
 
   const handleBack = () => {
-    navigation.navigate(SCREEN_NAMES._DASHBOARD.ENTER_CODE as never);
+    navigation.navigate(SCREEN_NAMES._JOIN_CHALLENGE.INVITE_CODE as never);
   };
 
   const handleCancel = () => {
-    navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE as never);
+    rootNavigation.navigate(SCREEN_NAMES.DASHBOARD as never);
   };
 
   const handleReject = async () => {
     try {
       await rejectChallenge(invitationCode);
-      navigation.navigate(SCREEN_NAMES._DASHBOARD.ONGOING_CHALLENGE as never);
+      rootNavigation.navigate(SCREEN_NAMES.DASHBOARD as never);
     } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Something went wrong', 'error',);
+      showToast(
+        error instanceof Error ? error.message : 'Something went wrong',
+        'error'
+      );
     }
   };
-
+  console.log('challenge', challenge);
   return (
     <>
       <DashboardHeader
         title="Join a Challenge"
-        action={<CustomButton text="Cancel" variant='default' onPress={handleCancel} />}
+        action={
+          <CustomButton
+            text="Cancel"
+            variant="default"
+            onPress={handleCancel}
+          />
+        }
       />
       <View style={styles.container}>
-        <Text style={styles.title}>Join Challenge?</Text>
+        <Text style={styles.title}>Let's Play Health Bingo</Text>
 
         <View style={styles.card}>
           <View style={styles.cardHeader}>
@@ -64,7 +83,10 @@ export const JoinChallenge: React.FC = () => {
               </Text>
             </View>
           </View>
-          <Text style={styles.hosted}>Hosted by {challenge?.organizer?.first_name} {challenge?.organizer?.last_name}</Text>
+          <Text style={styles.hosted}>
+            Hosted by {challenge?.organizer?.first_name}{' '}
+            {challenge?.organizer?.last_name}
+          </Text>
 
           <View style={styles.row}>
             <Text style={styles.categoryText}>
@@ -79,13 +101,16 @@ export const JoinChallenge: React.FC = () => {
             Card Size: {challenge?.card_size || 0} tasks
           </Text>
           <Text style={styles.participants}>
-            Participants: {challenge?.participants?.length || 0}
+            Players: {challenge?.participants?.length || 0}
           </Text>
         </View>
 
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>
-            You’ll join this challenge as a Player.
+            You'll join this challenge as a Player.
+          </Text>
+          <Text style={styles.infoText}>
+            Get ready to play, stay accountable, and smash your weekly goals!
           </Text>
           <Text style={styles.infoText}>No payment required.</Text>
           {challenge?.custom_cards && challenge.custom_cards.length > 0 && (
@@ -102,14 +127,14 @@ export const JoinChallenge: React.FC = () => {
 
         <View style={styles.buttonContainer}>
           <CustomButton
-            text="JOIN"
+            text="Let's Go!"
             onPress={handleJoin}
             buttonStyle={styles.joinButton}
             textStyle={styles.joinButtonText}
           />
 
           <CustomButton
-            text="REJECT"
+            text="No Thanks"
             onPress={handleReject}
             buttonStyle={styles.rejectButton}
             textStyle={styles.rejectButtonText}
@@ -132,13 +157,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 24,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   title: {
     fontFamily: FONTS.family.poppinsBold,
-    fontSize: 28,
-    color: COLORS.blue.oxford,
+    fontSize: 26,
+    color: COLORS.primary.blue,
     marginBottom: 16,
+    textAlign: 'center',
   },
   card: {
     backgroundColor: COLORS.gray.lightMedium,
@@ -162,13 +188,13 @@ const styles = StyleSheet.create({
     color: COLORS.text.primary,
   },
   freeBadge: {
-    backgroundColor: COLORS.green.mantis,
+    backgroundColor: COLORS.primary.green,
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 999,
   },
   freeBadgeText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 12,
   },
@@ -186,7 +212,7 @@ const styles = StyleSheet.create({
   },
   heart: {
     fontSize: 16,
-    color: COLORS.primary.pink.bright_2,
+    color: COLORS.primary.pink,
   },
   categoryText: {
     fontFamily: FONTS.family.poppinsRegular,
@@ -229,30 +255,30 @@ const styles = StyleSheet.create({
     height: 54,
   },
   joinButtonText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 16,
   },
   rejectButton: {
-    backgroundColor: COLORS.red.bright,
+    backgroundColor: COLORS.primary.red,
     borderRadius: 10,
     height: 54,
   },
   rejectButtonText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 16,
   },
   backButton: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderRadius: 10,
     height: 54,
     borderWidth: 1,
-    borderColor: COLORS.primary.pink.bright_2,
+    borderColor: COLORS.primary.pink,
   },
   backButtonText: {
     textAlign: 'center',
-    color: COLORS.blue.indigo,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsRegular,
     fontSize: 16,
     marginTop: 6,

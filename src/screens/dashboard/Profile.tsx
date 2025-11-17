@@ -70,7 +70,7 @@ export const ProfileScreen: React.FC = () => {
           title="Profile"
           action={
             <TouchableOpacity onPress={goToDashboard}>
-              <Text style={{ color: COLORS.green.forest, marginRight: 4 }}>
+              <Text style={{ color: COLORS.primary.green, marginRight: 4 }}>
                 Dashboard
               </Text>
             </TouchableOpacity>
@@ -185,11 +185,11 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   contentContainer: {
     flexGrow: 1,
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: FONTS.size['2xl'],
-    color: COLORS.primary.blue.oxford,
+    color: COLORS.primary.blue,
     textAlign: 'center',
     marginBottom: 8,
   },

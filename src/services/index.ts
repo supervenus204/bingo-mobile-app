@@ -7,4 +7,5 @@ export * from './measure.service';
 export * from './payment.service';
 export * from './progress.service';
 export * from './promo.service';
+export * from './sound.service';
 export * from './user.service';

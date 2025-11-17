@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.gray.veryLight,
   },
   primary: {
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
   },
   outline: {
     backgroundColor: '#F0F8F0',
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsRegular,
   },
   textOnPrimary: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   textOnOutline: {
     color: '#2D5A2D',

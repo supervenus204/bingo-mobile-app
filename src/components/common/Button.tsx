@@ -48,7 +48,9 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'primary' ? COLORS.white : COLORS.green.forest}
+          color={
+            variant === 'primary' ? COLORS.primary.white : COLORS.primary.green
+          }
         />
       ) : (
         <>
@@ -88,24 +90,24 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   primary: {
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
   },
   outline: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderWidth: 1,
-    borderColor: COLORS.green.forest,
+    borderColor: COLORS.primary.green,
   },
   default: {
     backgroundColor: 'transparent',
     borderWidth: 0,
   },
   textOnPrimary: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   textOnOutline: {
-    color: COLORS.green.forest,
+    color: COLORS.primary.green,
   },
   textOnDefault: {
-    color: COLORS.green.forest,
+    color: COLORS.primary.green,
   },
 });

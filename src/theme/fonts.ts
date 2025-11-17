@@ -5,6 +5,7 @@ export const FONTS = {
     poppinsMedium: 'Poppins-Medium',
     poppinsSemiBold: 'Poppins-SemiBold',
     poppinsBold: 'Poppins-Bold',
+    bingo: 'Nunito',
   },
 
   // Font weights

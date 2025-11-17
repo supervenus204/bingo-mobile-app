@@ -76,13 +76,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     paddingTop: 16,
     paddingBottom: 8,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray.light,
-    shadowColor: COLORS.black,
+    shadowColor: COLORS.primary.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONTS.size.xl,
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
   },
   rightSection: {
     flexDirection: 'row',

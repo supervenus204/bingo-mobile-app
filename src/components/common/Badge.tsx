@@ -32,19 +32,18 @@ const styles = StyleSheet.create({
     minWidth: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: COLORS.red.bright || '#FF4444',
+    backgroundColor: COLORS.primary.red,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 6,
     borderWidth: 2,
-    borderColor: COLORS.white,
+    borderColor: COLORS.primary.white,
   },
   text: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontSize: 11,
     fontFamily: FONTS.family.poppinsSemiBold,
     fontWeight: '600',
     textAlign: 'center',
   },
 });
-

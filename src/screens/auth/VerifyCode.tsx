@@ -144,7 +144,7 @@ export const VerifyCodeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   scrollView: {
     flex: 1,
@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.indigo,
+    color: COLORS.primary.blue,
     fontSize: 28,
   },
   form: {
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontFamily: FONTS.family.poppinsMedium,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     fontSize: 14,
     textAlign: 'center',
     letterSpacing: 4,

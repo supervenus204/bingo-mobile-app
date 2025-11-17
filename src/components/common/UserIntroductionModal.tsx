@@ -20,9 +20,10 @@ export const UserIntroductionModal: React.FC<UserIntroductionModalProps> = ({
   if (!user) return null;
 
   const initials = (user?.first_name?.[0] || '') + (user?.last_name?.[0] || '');
-  const fullName = user.first_name && user.last_name
-    ? `${user.first_name} ${user.last_name}`
-    : user.display_name || 'User';
+  const fullName =
+    user.first_name && user.last_name
+      ? `${user.first_name} ${user.last_name}`
+      : user.display_name || 'User';
 
   return (
     <Modal visible={visible} onClose={onClose} widthPercentage={80}>
@@ -39,7 +40,11 @@ export const UserIntroductionModal: React.FC<UserIntroductionModalProps> = ({
         {user.display_name && (
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Display Name:</Text>
-            <Text style={styles.detailValue} numberOfLines={1} ellipsizeMode="tail">
+            <Text
+              style={styles.detailValue}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {user.display_name}
             </Text>
           </View>
@@ -48,7 +53,11 @@ export const UserIntroductionModal: React.FC<UserIntroductionModalProps> = ({
         {user.country && (
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Country:</Text>
-            <Text style={styles.detailValue} numberOfLines={1} ellipsizeMode="tail">
+            <Text
+              style={styles.detailValue}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {user.country}
             </Text>
           </View>
@@ -76,7 +85,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsBold,
     marginTop: 12,
     textAlign: 'center',
@@ -95,7 +104,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsSemiBold,
     flexShrink: 0,
   },
@@ -121,4 +130,3 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsSemiBold,
   },
 });
-

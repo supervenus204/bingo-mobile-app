@@ -4,12 +4,12 @@ export const AWARDS = [
   {
     name: 'Bingo Winner',
     icon: 'emoji-events',
-    color: COLORS.secondary.orange.web,
+    color: COLORS.primary.gold,
   },
   {
     name: 'Bingo Complete',
     icon: 'check-circle',
-    color: COLORS.green.forest,
+    color: COLORS.primary.green,
   },
   {
     name: 'Weightloss Any',
@@ -19,6 +19,6 @@ export const AWARDS = [
   {
     name: 'Highest Weightloss',
     icon: 'star',
-    color: COLORS.secondary.orange.web,
+    color: COLORS.primary.gold,
   },
 ];

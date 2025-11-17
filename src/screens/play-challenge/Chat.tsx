@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -45,18 +40,19 @@ export const ChatScreen: React.FC = () => {
       const isMe = item.sent_by === myId;
       const sender = item.sender;
 
-      const initials = (sender?.first_name?.[0] || '') + (sender?.last_name?.[0] || '');
+      const initials =
+        (sender?.first_name?.[0] || '') + (sender?.last_name?.[0] || '');
       const image = sender?.image ?? null;
 
       const time = item.sent_time || item.createdAt;
       const dateTimeText = time
         ? new Date(time).toLocaleString([], {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
         : '';
 
       const handleUserIconPress = () => {
@@ -164,7 +160,7 @@ export const ChatScreen: React.FC = () => {
           ListFooterComponent={
             loading ? (
               <ActivityIndicator
-                color={COLORS.green.forest}
+                color={COLORS.primary.green}
                 style={{ paddingVertical: 12 }}
               />
             ) : null
@@ -205,7 +201,7 @@ export const ChatScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   listContainer: {
     flex: 1,
@@ -244,30 +240,30 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   bubbleMe: {
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
     borderBottomRightRadius: 6,
   },
   bubbleOther: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderBottomLeftRadius: 6,
     borderWidth: 1,
     borderColor: COLORS.gray.lightMedium,
   },
   senderName: {
     fontSize: 13,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsSemiBold,
     marginBottom: 4,
     fontWeight: '600',
   },
   messageText: {
     fontSize: 15,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsRegular,
     lineHeight: 20,
   },
   messageTextMe: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   timeContainer: {
     paddingHorizontal: 16,
@@ -296,7 +292,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderTopWidth: 1,
     borderTopColor: COLORS.gray.lightMedium,
     gap: 12,
@@ -309,7 +305,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 22,
     backgroundColor: COLORS.gray.veryLight,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontSize: 16,
     fontFamily: FONTS.family.poppinsRegular,
     borderWidth: 1,
@@ -319,10 +315,10 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: COLORS.green.forest,
+    shadowColor: COLORS.primary.green,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -332,7 +328,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
   },
   sendText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontFamily: FONTS.family.poppinsSemiBold,
     fontSize: 14,
     fontWeight: '600',

@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   inviteText: {
     fontSize: 14,
-    color: COLORS.black,
+    color: COLORS.primary.black,
     marginVertical: 12,
   },
   weekSlider: {
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   },
   textSelected: {
     fontSize: 12,
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   subtitle: {
     fontSize: 16,

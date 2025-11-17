@@ -59,11 +59,7 @@ export const PointWeekCard: React.FC<PointWeekCardProps> = ({ data }) => {
 
       <View style={styles.medalContainer}>
         <View style={styles.medalTop}>
-          <Icon
-            name="star"
-            size={14}
-            color={COLORS.secondary.blue.argentinian}
-          />
+          <Icon name="star" size={14} color={COLORS.primary.blue} />
         </View>
         <View style={styles.positionContainer}>
           <Text style={styles.positionText}>1st</Text>
@@ -116,7 +112,7 @@ export const WeightChallengeCard = () => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 10,
@@ -146,7 +142,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 14,
     fontWeight: FONTS.weight.bold,
-    color: COLORS.black,
+    color: COLORS.primary.black,
   },
   awards: {
     flexDirection: 'row',
@@ -160,9 +156,9 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: COLORS.secondary.blue.alice,
+    backgroundColor: COLORS.primary.blue,
     borderWidth: 2,
-    borderColor: COLORS.secondary.blue.maya,
+    borderColor: COLORS.primary.blue,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2,
@@ -175,7 +171,7 @@ const styles = StyleSheet.create({
   positionText: {
     fontSize: 11,
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.secondary.blue.argentinian,
+    color: COLORS.primary.blue,
     letterSpacing: 0.3,
     lineHeight: 13,
   },
@@ -189,11 +185,11 @@ const styles = StyleSheet.create({
   biggestLoserName: {
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsSemiBold,
-    color: COLORS.white,
+    color: COLORS.primary.white,
     marginTop: 12,
   },
   weightLossBadge: {
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
     borderRadius: 20,
     paddingVertical: 6,
     paddingHorizontal: 12,
@@ -202,6 +198,6 @@ const styles = StyleSheet.create({
   weightLossText: {
     fontSize: FONTS.size.sm,
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
 });

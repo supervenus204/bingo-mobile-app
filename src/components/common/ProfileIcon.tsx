@@ -37,13 +37,7 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
     for (let i = 0; i < name.length; i++) {
       value += name.charCodeAt(i);
     }
-    const colors = [
-      COLORS.primary.green.sgbus,
-      COLORS.primary.blue.oxford,
-      COLORS.primary.pink.bright_1,
-      COLORS.secondary.purple.lavender,
-      COLORS.secondary.blue.argentinian,
-    ];
+    const colors = Object.values(COLORS.bingo);
     const index = value % colors.length;
     return colors[index];
   };
@@ -162,8 +156,8 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     overflow: 'hidden',
     borderWidth: 2,
-    borderColor: COLORS.white,
-    shadowColor: COLORS.black,
+    borderColor: COLORS.primary.white,
+    shadowColor: COLORS.primary.black,
     shadowOffset: {
       width: 0,
       height: 2,
@@ -181,7 +175,7 @@ const styles = StyleSheet.create({
   },
   initials: {
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontWeight: 'bold',
   },
 });

@@ -47,7 +47,7 @@ export const Input: React.FC<InputProps> = ({
         <Text
           style={[
             styles.iconText,
-            { color: isValid ? COLORS.green.pigment : COLORS.red.bright },
+            { color: isValid ? COLORS.primary.green : COLORS.primary.red },
           ]}
         >
           {isValid ? '✓' : '✗'}
@@ -66,7 +66,9 @@ export const Input: React.FC<InputProps> = ({
             inputStyle,
             showValidation &&
               isValid !== undefined && {
-                borderColor: isValid ? COLORS.green.pigment : COLORS.red.bright,
+                borderColor: isValid
+                  ? COLORS.primary.green
+                  : COLORS.primary.red,
               },
           ]}
           placeholder={placeholder}

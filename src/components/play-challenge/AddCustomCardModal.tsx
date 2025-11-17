@@ -1,42 +1,29 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '../../theme';
-import { FONTS } from '../../theme/fonts';
-import { CustomButton } from '../common/Button';
-import { Modal } from '../common/Modal';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+import { COLORS, FONTS } from '../../theme';
+import { BingoCard, CustomButton, Modal } from '../common';
+
+const AVAILABLE_COLORS = Object.values(COLORS.bingo);
+const AVAILABLE_FONT_COLORS = [COLORS.primary.white, COLORS.primary.black];
 
 interface AddCustomCardModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (title: string, color: string, count: number) => void;
+  onSave: (
+    title: string,
+    color: string,
+    font_color: string,
+    font_name: string,
+    count: number
+  ) => void;
 }
-
-const AVAILABLE_COLORS = [
-  COLORS.secondary.blue.maya,
-  COLORS.secondary.blue.argentinian,
-  COLORS.secondary.yellow.jasmine,
-  COLORS.secondary.blue.alice,
-  COLORS.green.light,
-  COLORS.secondary.orange.web,
-  COLORS.secondary.purple.mauve_2,
-  COLORS.green.sgbus,
-  COLORS.secondary.orange.xanthous_1,
-  COLORS.primary.pink.bright_2,
-  COLORS.primary.green.mantis,
-  COLORS.green.light_3,
-  COLORS.secondary.orange.xanthous_2,
-  COLORS.primary.pink.cherry,
-  COLORS.secondary.blue.columbia,
-  COLORS.secondary.purple.periwinkle,
-  COLORS.green.nyanza,
-  COLORS.secondary.purple.mauve_1,
-  COLORS.green.nyanza_2,
-  COLORS.secondary.blue.uranian,
-  COLORS.secondary.yellow.mustard,
-  COLORS.green.light_2,
-  COLORS.primary.pink.lavender,
-  COLORS.primary.pink.bright_1,
-];
 
 export const AddCustomCardModal: React.FC<AddCustomCardModalProps> = ({
   visible,
@@ -45,13 +32,23 @@ export const AddCustomCardModal: React.FC<AddCustomCardModalProps> = ({
 }) => {
   const [title, setTitle] = useState('');
   const [selectedColor, setSelectedColor] = useState(AVAILABLE_COLORS[0]);
+  const [selectedFontColor, setSelectedFontColor] = useState(
+    AVAILABLE_FONT_COLORS[0]
+  );
   const [count, setCount] = useState(1);
 
   const handleSave = () => {
     if (title.trim()) {
-      onSave(title.trim(), selectedColor, count);
+      onSave(
+        title.trim(),
+        selectedColor,
+        selectedFontColor,
+        FONTS.family.bingo, // Default font
+        count
+      );
       setTitle('');
       setSelectedColor(AVAILABLE_COLORS[0]);
+      setSelectedFontColor(AVAILABLE_FONT_COLORS[0]);
       setCount(1);
       onClose();
     }
@@ -60,6 +57,7 @@ export const AddCustomCardModal: React.FC<AddCustomCardModalProps> = ({
   const handleCancel = () => {
     setTitle('');
     setSelectedColor(AVAILABLE_COLORS[0]);
+    setSelectedFontColor(AVAILABLE_FONT_COLORS[0]);
     setCount(1);
     onClose();
   };
@@ -69,11 +67,22 @@ export const AddCustomCardModal: React.FC<AddCustomCardModalProps> = ({
       <View style={styles.container}>
         <Text style={styles.title}>Add Custom Card</Text>
 
+        <View style={styles.previewContainer}>
+          <BingoCard
+            color={selectedColor}
+            font_color={selectedFontColor}
+            font_name={FONTS.family.bingo}
+            name={title.trim()}
+            count={count}
+            mode="setup"
+          />
+        </View>
+
         <View style={styles.section}>
-          <Text style={styles.label}>Task Name</Text>
+          <Text style={styles.label}>Card Name</Text>
           <TextInput
-            style={styles.input}
-            placeholder="Enter task name"
+            style={styles.titleInput}
+            placeholder="Enter card name"
             placeholderTextColor={COLORS.gray.mediumDark}
             value={title}
             onChangeText={setTitle}
@@ -81,19 +90,45 @@ export const AddCustomCardModal: React.FC<AddCustomCardModalProps> = ({
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.label}>Color</Text>
+          <Text style={styles.label}>BackgroundColor</Text>
           <View style={styles.colorGrid}>
-            {AVAILABLE_COLORS.map((color) => (
+            {AVAILABLE_COLORS.map(color => (
               <TouchableOpacity
                 key={color}
                 style={[
                   styles.colorOption,
                   { backgroundColor: color },
+                  selectedColor === COLORS.bingo.white && styles.blackBorder,
                   selectedColor === color && styles.colorOptionSelected,
                 ]}
                 onPress={() => setSelectedColor(color)}
               >
                 {selectedColor === color && (
+                  <View style={styles.checkmark}>
+                    <Text style={styles.checkmarkText}>✓</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.label}>Font Color</Text>
+          <View style={styles.colorGrid}>
+            {AVAILABLE_FONT_COLORS.map(color => (
+              <TouchableOpacity
+                key={color}
+                style={[
+                  styles.colorOption,
+                  { backgroundColor: color },
+                  selectedFontColor === COLORS.primary.white &&
+                    styles.blackBorder,
+                  selectedFontColor === color && styles.colorOptionSelected,
+                ]}
+                onPress={() => setSelectedFontColor(color)}
+              >
+                {selectedFontColor === color && (
                   <View style={styles.checkmark}>
                     <Text style={styles.checkmarkText}>✓</Text>
                   </View>
@@ -115,7 +150,7 @@ export const AddCustomCardModal: React.FC<AddCustomCardModalProps> = ({
             <TextInput
               style={styles.countInput}
               value={count.toString()}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 const num = parseInt(text) || 1;
                 setCount(Math.max(1, num));
               }}
@@ -157,8 +192,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.oxford,
-    marginBottom: 24,
+    color: COLORS.primary.blue,
+    marginBottom: 16,
     textAlign: 'center',
   },
   section: {
@@ -167,18 +202,23 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     marginBottom: 8,
   },
-  input: {
+  titleInput: {
     borderWidth: 1,
     borderColor: COLORS.gray.lightMedium,
     borderRadius: 8,
     padding: 12,
-    fontSize: 14,
-    fontFamily: FONTS.family.poppinsRegular,
-    color: COLORS.blue.oxford,
-    backgroundColor: COLORS.white,
+    fontSize: 16,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.primary.blue,
+    backgroundColor: COLORS.primary.white,
+  },
+  previewContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 8,
   },
   colorGrid: {
     flexDirection: 'row',
@@ -189,14 +229,17 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   colorOptionSelected: {
-    borderColor: COLORS.blue.oxford,
+    borderColor: COLORS.primary.blue,
     borderWidth: 3,
+  },
+  blackBorder: {
+    borderColor: COLORS.gray.mediumDark,
+    borderWidth: 1,
   },
   checkmark: {
     width: '100%',
@@ -205,10 +248,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkmarkText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontSize: 20,
     fontWeight: 'bold',
-    textShadowColor: COLORS.black,
+    textShadowColor: COLORS.primary.black,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
@@ -228,7 +271,7 @@ const styles = StyleSheet.create({
   countButtonText: {
     fontSize: 20,
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
   },
   countInput: {
     flex: 1,
@@ -238,9 +281,9 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     textAlign: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -256,4 +299,3 @@ const styles = StyleSheet.create({
     height: 40,
   },
 });
-

@@ -120,14 +120,14 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gray.lightMedium,
     padding: 14,
     marginVertical: 8,
-    shadowColor: COLORS.black,
+    shadowColor: COLORS.primary.black,
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     position: 'relative',
   },
   organizerCard: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   participantCard: {
     backgroundColor: COLORS.gray.light,
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   activeBadge: {
-    backgroundColor: COLORS.green.forest, // Deep blue
+    backgroundColor: COLORS.primary.green, // Deep blue
   },
   pendingBadge: {
     backgroundColor: '#FF8C00', // Vibrant orange
@@ -190,6 +190,6 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
   },
 });

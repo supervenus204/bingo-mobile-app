@@ -5,6 +5,8 @@ export interface ChallengeCategory {
   id: string;
   name: string;
   description: string;
+  color: string;
+  image: string;
   is_premium: boolean;
 }
 
@@ -47,7 +49,7 @@ export const useCategoriesStore = create<CategoriesStore>()((set, get) => ({
       }
     } catch (error) {
       set({
-        error: error instanceof Error ? error.message : 'Failed to fetch plans'
+        error: error instanceof Error ? error.message : 'Failed to fetch plans',
       });
     } finally {
       set({ loading: false });

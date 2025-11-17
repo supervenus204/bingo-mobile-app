@@ -91,7 +91,9 @@ export const Sidebar: React.FC<Props> = ({
               onPress={closeWithAnimation}
               buttonStyle={styles.closeButton}
               variant="default"
-              icon={<Icon name="close" size={22} color={COLORS.gray.veryDark} />}
+              icon={
+                <Icon name="close" size={22} color={COLORS.gray.veryDark} />
+              }
             />
           </View>
 
@@ -108,7 +110,13 @@ export const Sidebar: React.FC<Props> = ({
                     buttonStyle={styles.sectionButton}
                     textStyle={styles.sectionButtonText}
                     variant="default"
-                    icon={<Icon name="swap-horiz" size={22} color={COLORS.blue.oxford} />}
+                    icon={
+                      <Icon
+                        name="swap-horiz"
+                        size={22}
+                        color={COLORS.primary.blue}
+                      />
+                    }
                     text="Switch Challenges"
                   />
                   <Icon
@@ -120,14 +128,16 @@ export const Sidebar: React.FC<Props> = ({
 
                 {activeChallenges.length > 0 && (
                   <View style={styles.challengesList}>
-                    <Text style={styles.sectionSubtitle}>Active Challenges</Text>
+                    <Text style={styles.sectionSubtitle}>
+                      Active Challenges
+                    </Text>
                     {activeChallenges.map((challenge: Challenge) => (
                       <TouchableOpacity
                         key={challenge.id}
                         style={[
                           styles.challengeItem,
                           challenge.id === selectedChallenge?.id &&
-                          styles.currentChallenge,
+                            styles.currentChallenge,
                         ]}
                         onPress={() => onSwitchChallenge(challenge)}
                         activeOpacity={0.6}
@@ -144,7 +154,7 @@ export const Sidebar: React.FC<Props> = ({
                               style={[
                                 styles.challengeTitle,
                                 challenge.id === selectedChallenge?.id &&
-                                styles.currentChallengeTitle,
+                                  styles.currentChallengeTitle,
                               ]}
                             >
                               {challenge.title}
@@ -158,7 +168,7 @@ export const Sidebar: React.FC<Props> = ({
                           <Icon
                             name="check-circle"
                             size={24}
-                            color={COLORS.green.sgbus}
+                            color={COLORS.primary.green}
                           />
                         )}
                       </TouchableOpacity>
@@ -167,7 +177,6 @@ export const Sidebar: React.FC<Props> = ({
                 )}
               </View>
             </ScrollView>
-
           </View>
           {/* Profile and Logout at Bottom */}
           <View style={styles.bottomSection}>
@@ -176,9 +185,14 @@ export const Sidebar: React.FC<Props> = ({
                 <CustomButton
                   onPress={onProfile}
                   buttonStyle={styles.sectionButton}
-                  textStyle={[styles.sectionButtonText, styles.bottomButtonText]}
+                  textStyle={[
+                    styles.sectionButtonText,
+                    styles.bottomButtonText,
+                  ]}
                   variant="default"
-                  icon={<Icon name="person" size={20} color={COLORS.blue.oxford} />}
+                  icon={
+                    <Icon name="person" size={20} color={COLORS.primary.blue} />
+                  }
                   text="Profile"
                 />
                 <Icon
@@ -192,9 +206,15 @@ export const Sidebar: React.FC<Props> = ({
                 <CustomButton
                   onPress={onLogout}
                   buttonStyle={styles.sectionButton}
-                  textStyle={[styles.sectionButtonText, styles.logoutText, styles.bottomButtonText]}
+                  textStyle={[
+                    styles.sectionButtonText,
+                    styles.logoutText,
+                    styles.bottomButtonText,
+                  ]}
                   variant="default"
-                  icon={<Icon name="logout" size={20} color={COLORS.red.bright} />}
+                  icon={
+                    <Icon name="logout" size={20} color={COLORS.primary.red} />
+                  }
                   text="Logout"
                 />
                 <Icon
@@ -242,7 +262,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     shadowColor: '#000',
     shadowOffset: { width: -2, height: 0 },
     shadowOpacity: 0.15,
@@ -262,7 +282,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     letterSpacing: 0.3,
   },
   closeButton: {
@@ -326,11 +346,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.black,
+    color: COLORS.primary.black,
     letterSpacing: 0.2,
   },
   logoutText: {
-    color: COLORS.red.bright,
+    color: COLORS.primary.red,
   },
   challengesList: {
     marginTop: 16,
@@ -350,7 +370,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderRadius: 8,
     marginBottom: 6,
     borderWidth: 1,
@@ -358,7 +378,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   currentChallenge: {
-    backgroundColor: COLORS.secondary.blue.alice,
+    backgroundColor: COLORS.primary.blue,
     shadowOpacity: 0.12,
     shadowRadius: 5,
     elevation: 3,
@@ -375,13 +395,13 @@ const styles = StyleSheet.create({
   challengeTitle: {
     fontSize: 15,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.black,
+    color: COLORS.primary.black,
     marginBottom: 4,
     letterSpacing: 0.1,
     flex: 1,
   },
   currentChallengeTitle: {
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 16,
   },

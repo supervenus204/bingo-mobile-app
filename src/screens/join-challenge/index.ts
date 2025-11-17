@@ -1,3 +1,4 @@
-export * from './EnterCode';
-export * from './JoinChallenge';
+export * from './InviteCode';
+export * from './Join';
 export * from './ScanQRCode';
+

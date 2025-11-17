@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 24,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     textAlign: 'center',
     marginBottom: 12,
     lineHeight: 32,
@@ -133,14 +133,14 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   button: {
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
     borderRadius: 999,
     paddingVertical: 16,
     paddingHorizontal: 32,
     minWidth: 200,
   },
   buttonText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 16,
     textAlign: 'center',

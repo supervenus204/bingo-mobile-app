@@ -74,7 +74,11 @@ const WeekSection = ({
             <Icon
               name="chevron-left"
               size={24}
-              color={disablePreviousWeek ? COLORS.white : COLORS.gray.veryDark}
+              color={
+                disablePreviousWeek
+                  ? COLORS.primary.white
+                  : COLORS.gray.veryDark
+              }
             />
           }
           buttonStyle={styles.weekButton}
@@ -91,7 +95,9 @@ const WeekSection = ({
             <Icon
               name="chevron-right"
               size={24}
-              color={disableNextWeek ? COLORS.white : COLORS.gray.veryDark}
+              color={
+                disableNextWeek ? COLORS.primary.white : COLORS.gray.veryDark
+              }
             />
           }
           buttonStyle={styles.weekButton}
@@ -189,7 +195,7 @@ const ChallengeSection = ({
               <Text style={styles.weightLossName}>
                 {getUserName(item.user)}
               </Text>
-              <Icon name="bar-chart" size={16} color={COLORS.green.forest} />
+              <Icon name="bar-chart" size={16} color={COLORS.primary.green} />
               <Text style={styles.weightLossPercent}>-2.1%</Text>
             </View>
           )}
@@ -291,7 +297,7 @@ export const LeaderboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   toggleContainer: {
     flexDirection: 'row',
@@ -304,19 +310,19 @@ const styles = StyleSheet.create({
     height: 40,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: COLORS.green.forest,
+    borderColor: COLORS.primary.green,
     backgroundColor: 'transparent',
   },
   toggleButtonActive: {
-    backgroundColor: COLORS.green.forest,
+    backgroundColor: COLORS.primary.green,
   },
   toggleText: {
     fontSize: FONTS.size.sm,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.green.forest,
+    color: COLORS.primary.green,
   },
   toggleTextActive: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   content: {
     flex: 1,
@@ -328,7 +334,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FONTS.size.lg,
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.black,
+    color: COLORS.primary.black,
     marginBottom: 12,
   },
   winnersContainer: {
@@ -347,7 +353,7 @@ const styles = StyleSheet.create({
   awardText: {
     fontSize: FONTS.size.sm,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.black,
+    color: COLORS.primary.black,
   },
   leaderboardItem: {
     flexDirection: 'row',
@@ -363,19 +369,19 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.black,
+    color: COLORS.primary.black,
   },
   leaderboardPoints: {
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsSemiBold,
-    color: COLORS.black,
+    color: COLORS.primary.black,
   },
   weightLossItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 12,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderRadius: 8,
     marginBottom: 8,
     gap: 12,
@@ -384,12 +390,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.black,
+    color: COLORS.primary.black,
   },
   weightLossPercent: {
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.black,
+    color: COLORS.primary.black,
   },
   weeksRemainingContainer: {
     alignItems: 'center',
@@ -398,7 +404,7 @@ const styles = StyleSheet.create({
   weeksRemainingText: {
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.red.bright,
+    color: COLORS.primary.red,
   },
   emptyText: {
     fontSize: FONTS.size.sm,
@@ -418,7 +424,7 @@ const styles = StyleSheet.create({
   weekText: {
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsMedium,
-    color: COLORS.black,
+    color: COLORS.primary.black,
   },
   weekButton: {
     backgroundColor: 'transparent',

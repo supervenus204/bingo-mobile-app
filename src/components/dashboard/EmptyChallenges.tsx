@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     fontFamily: FONTS.family.poppinsRegular,
     paddingHorizontal: 30,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
   },
   buttonRow: {
     width: DEVICE_WIDTH * 0.88,
@@ -123,18 +123,18 @@ const styles = StyleSheet.create({
     height: 50,
   },
   buttonText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
     fontSize: 16,
     fontFamily: FONTS.family.poppinsMedium,
     textTransform: 'uppercase',
   },
   outlineButton: {
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     borderWidth: 1,
-    borderColor: COLORS.green.forest,
+    borderColor: COLORS.primary.green,
   },
   outlineButtonText: {
-    color: COLORS.green.forest,
+    color: COLORS.primary.green,
   },
   archivedContainer: {
     flex: 1,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   archivedTitle: {
     fontSize: FONTS.size['2xl'],
     fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.blue.oxford,
+    color: COLORS.primary.blue,
     marginBottom: 8,
     textAlign: 'center',
   },

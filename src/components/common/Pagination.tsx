@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     color: COLORS.text.secondary,
   },
   paginationActiveText: {
-    color: COLORS.white,
+    color: COLORS.primary.white,
   },
   paginationDisabledText: {
     color: COLORS.gray.medium,

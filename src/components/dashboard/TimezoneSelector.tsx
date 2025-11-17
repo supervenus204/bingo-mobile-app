@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
     paddingTop: 24,
   },
   modalHeader: {
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsMedium,
     fontSize: 14,
     color: COLORS.text.primary,
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.primary.white,
   },
   listContent: {
     paddingHorizontal: 16,
