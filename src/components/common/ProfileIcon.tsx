@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import {
   Alert,
   Image,
+  ImageErrorEventData,
+  NativeSyntheticEvent,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,6 +14,7 @@ import {
   launchCamera,
   launchImageLibrary,
 } from 'react-native-image-picker';
+import { getImageUrl } from '../../services/user.service';
 import { COLORS, FONTS } from '../../theme';
 
 interface ProfileIconProps {
@@ -30,6 +33,13 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
   onUpload,
 }) => {
   const [uploading, setUploading] = useState(false);
+  const [currentImage, setCurrentImage] = useState<string | null | undefined>(image);
+  const [hasTriedRefresh, setHasTriedRefresh] = useState(false);
+
+  React.useEffect(() => {
+    setCurrentImage(image);
+    setHasTriedRefresh(false);
+  }, [image]);
 
   const getBackgroundColor = () => {
     const name = initialsText || '';
@@ -123,6 +133,26 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
     );
   };
 
+  const handleImageError = async (error: NativeSyntheticEvent<ImageErrorEventData>) => {
+    if (hasTriedRefresh || !currentImage) {
+      setCurrentImage(null);
+      return;
+    }
+
+    try {
+      setHasTriedRefresh(true);
+      const { imageUrl } = await getImageUrl();
+      if (imageUrl) {
+        setCurrentImage(imageUrl);
+        setHasTriedRefresh(false);
+      } else {
+        setCurrentImage(null);
+      }
+    } catch (err) {
+      setCurrentImage(null);
+    }
+  };
+
   return (
     <View
       style={[
@@ -135,11 +165,12 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
         onPress={handleImagePicker}
         disabled={!editable || uploading}
       >
-        {image ? (
+        {currentImage ? (
           <Image
-            source={{ uri: image }}
+            source={{ uri: currentImage }}
             style={[styles.image, { width: size, height: size }]}
             resizeMode="cover"
+            onError={handleImageError}
           />
         ) : (
           <Text style={[styles.initials, { fontSize: size * 0.4 }]}>

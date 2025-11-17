@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { updateProfile, uploadImage } from '../services/user.service';
+import { getImageUrl, updateProfile, uploadImage } from '../services/user.service';
 import { useAuthStore } from '../store/auth.store';
 
 export const useUser = () => {
@@ -83,6 +83,22 @@ export const useUser = () => {
     }
   };
 
+  const refreshImageUrl = async (): Promise<string | null> => {
+    try {
+      const { imageUrl } = await getImageUrl();
+
+      if (user && imageUrl) {
+        const updatedUser = { ...user, image: imageUrl };
+        setUser(updatedUser);
+        setImage(imageUrl);
+      }
+
+      return imageUrl;
+    } catch (err) {
+      return null;
+    }
+  };
+
   const clearError = () => setError(null);
 
   return useMemo(
@@ -107,6 +123,7 @@ export const useUser = () => {
       setCountry,
       setImage,
       uploadAvatar,
+      refreshImageUrl,
       clearError,
     }),
     [
@@ -125,6 +142,7 @@ export const useUser = () => {
       setCountry,
       setImage,
       uploadAvatar,
+      refreshImageUrl,
       saveProfile,
       clearError,
     ]

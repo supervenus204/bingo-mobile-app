@@ -65,6 +65,11 @@ export const uploadImage = async (
   return response;
 };
 
+export const getImageUrl = async (): Promise<{ imageUrl: string | null }> => {
+  const response = await apiFetch('/api/user/image-url', 'GET', {});
+  return { imageUrl: response.image_url };
+};
+
 export const deleteAccount = async (): Promise<void> => {
   await apiFetch('/api/user/account', 'DELETE', {});
 };
