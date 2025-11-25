@@ -15,10 +15,12 @@ export const DashboardNavigator = () => {
   }, []);
 
   const initialRouteName = useMemo(() => {
-    if (user?.displayName && user?.country && user?.timezone) {
-      return SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST;
+    if (user) {
+      if (user?.displayName && user?.country && user?.timezone) {
+        return SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST;
+      }
+      return SCREEN_NAMES._DASHBOARD.PROFILE;
     }
-    return SCREEN_NAMES._DASHBOARD.PROFILE;
   }, [user]);
 
   return (

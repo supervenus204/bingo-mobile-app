@@ -11,6 +11,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {
   BingoBoard,
+  CelebrationModal,
   CustomButton,
   LoadingCard,
   WelcomeModal,
@@ -39,6 +40,7 @@ export const BingoScreen: React.FC = () => {
     selectedChallenge?.current_week || 1
   );
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [bingoCardsData, setBingoCardsData] = useState<BingoCard[]>([]);
@@ -123,8 +125,8 @@ export const BingoScreen: React.FC = () => {
                 _progress === 'mark' || _progress === 'unmark'
                   ? _progress
                   : Date.parse(_progress)
-                  ? 'check'
-                  : 'unmark',
+                    ? 'check'
+                    : 'unmark',
             };
           });
           setBingoCardsData(_cardData);
@@ -143,6 +145,11 @@ export const BingoScreen: React.FC = () => {
     }
     getData();
   }, [getData, showWelcomeModal, saving]);
+
+  useEffect(() => {
+    setShowCelebrationModal(false);
+  }, [selectedWeek, selectedChallenge?.id]);
+
 
   const handleLetsGo = async () => {
     try {
@@ -261,16 +268,30 @@ export const BingoScreen: React.FC = () => {
           ...card,
           status:
             current_progress[index] === 'unmark' ||
-            current_progress[index] === 'mark'
+              current_progress[index] === 'mark'
               ? current_progress[index]
               : Date.parse(current_progress[index])
-              ? 'check'
-              : 'unmark',
+                ? 'check'
+                : 'unmark',
         };
       });
       setBingoCardsData(_cardData);
     }
   };
+
+  useEffect(() => {
+    if (isSetupMode) return;
+    if (loading) return;
+    if (bingoCardsData.length === 0) return;
+
+    const allCardsChecked = bingoCardsData.every(
+      card => card.status === 'check'
+    );
+
+    if (allCardsChecked) {
+      setShowCelebrationModal(true);
+    }
+  }, [bingoCardsData]);
 
   return (
     <View style={styles.container}>
@@ -335,13 +356,18 @@ export const BingoScreen: React.FC = () => {
 
         <WelcomeModal
           visible={showWelcomeModal}
-          onClose={() => {}}
+          onClose={() => { }}
           onLetsGo={handleLetsGo}
           title="Welcome aboard!"
           subtitle="Week 1 starts now—let's get moving."
           buttonText="LET'S GO"
         />
       </View>
+
+      <CelebrationModal
+        visible={showCelebrationModal}
+        onClose={() => setShowCelebrationModal(false)}
+      />
 
       <AddCustomCardModal
         visible={showAddCustomModal}

@@ -1,7 +1,9 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
+  Image,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -10,6 +12,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {
+  ImagePickerResponse,
+  launchCamera,
+  launchImageLibrary,
+} from 'react-native-image-picker';
 import { ProfileIcon, UserIntroductionModal } from '../../components/common';
 import { useMessages, useToast } from '../../hooks';
 import { useAuthStore, useChallengesStore } from '../../store';
@@ -27,6 +34,7 @@ export const ChatScreen: React.FC = () => {
     auto: true,
   });
   const [text, setText] = useState('');
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<ChatSender | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const listRef = useRef<FlatList>(null);
@@ -47,12 +55,12 @@ export const ChatScreen: React.FC = () => {
       const time = item.sent_time || item.createdAt;
       const dateTimeText = time
         ? new Date(time).toLocaleString([], {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-          })
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
         : '';
 
       const handleUserIconPress = () => {
@@ -86,9 +94,18 @@ export const ChatScreen: React.FC = () => {
                 isMe ? styles.bubbleMe : styles.bubbleOther,
               ]}
             >
-              <Text style={[styles.messageText, isMe && styles.messageTextMe]}>
-                {item.content}
-              </Text>
+              {item.image_url && (
+                <Image
+                  source={{ uri: item.image_url }}
+                  style={styles.messageImage}
+                  resizeMode="cover"
+                />
+              )}
+              {item.content ? (
+                <Text style={[styles.messageText, isMe && styles.messageTextMe]}>
+                  {item.content}
+                </Text>
+              ) : null}
             </View>
             {isMe && (
               <View style={styles.avatarContainer}>
@@ -121,27 +138,93 @@ export const ChatScreen: React.FC = () => {
   }, [hasMore, loading, fetchMore]);
 
   const canSend = useMemo(
-    () => text.trim().length > 0 && !sending,
-    [text, sending]
+    () => (text.trim().length > 0 || selectedImage) && !sending,
+    [text, selectedImage, sending]
   );
+
+  const handleImageResponse = useCallback((response: ImagePickerResponse) => {
+    if (response.didCancel) {
+      return;
+    }
+
+    if (response.errorCode) {
+      let errorMessage = 'Failed to open image picker';
+      if (response.errorCode === 'permission') {
+        errorMessage =
+          'Permission denied. Please enable camera and photo library access in settings.';
+      } else if (response.errorMessage) {
+        errorMessage = response.errorMessage;
+      }
+      showToast(errorMessage, 'error');
+      return;
+    }
+
+    const imageUri = response.assets?.[0]?.uri;
+    if (!imageUri) {
+      showToast('Failed to select image', 'error');
+      return;
+    }
+
+    setSelectedImage(imageUri);
+  }, [showToast]);
+
+  const handleImagePicker = useCallback(() => {
+    Alert.alert(
+      'Select Photo',
+      'Choose an option',
+      [
+        {
+          text: 'Camera',
+          onPress: () => {
+            launchCamera(
+              {
+                mediaType: 'photo',
+                quality: 0.8,
+              },
+              handleImageResponse
+            );
+          },
+        },
+        {
+          text: 'Photo Library',
+          onPress: () => {
+            launchImageLibrary(
+              {
+                mediaType: 'photo',
+                quality: 0.8,
+              },
+              handleImageResponse
+            );
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ]
+    );
+  }, [handleImageResponse]);
 
   const handleSend = useCallback(async () => {
     if (!canSend || !challengeId) return;
     const toSend = text.trim();
+    const imageToSend = selectedImage;
     setText('');
+    setSelectedImage(null);
 
     try {
-      await send(toSend);
+      await send(toSend, imageToSend || undefined);
       listRef.current?.scrollToOffset({ offset: 0, animated: true });
     } catch (error) {
       setText(toSend);
+      setSelectedImage(imageToSend);
       const errorMessage =
         error instanceof Error
           ? error.message
           : 'Failed to send message. Please try again.';
       showToast(errorMessage, 'error');
     }
-  }, [canSend, challengeId, text, send, showToast]);
+  }, [canSend, challengeId, text, selectedImage, send, showToast]);
 
   return (
     <KeyboardAvoidingView
@@ -169,6 +252,28 @@ export const ChatScreen: React.FC = () => {
         />
       </View>
       <View style={styles.inputBar}>
+        {selectedImage && (
+          <View style={styles.selectedImageContainer}>
+            <Image
+              source={{ uri: selectedImage }}
+              style={styles.selectedImage}
+              resizeMode="cover"
+            />
+            <TouchableOpacity
+              style={styles.removeImageButton}
+              onPress={() => setSelectedImage(null)}
+            >
+              <Text style={styles.removeImageText}>×</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        <TouchableOpacity
+          onPress={handleImagePicker}
+          style={styles.imagePickerButton}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.imagePickerText}>📷</Text>
+        </TouchableOpacity>
         <TextInput
           style={styles.textInput}
           placeholder="Type a message"
@@ -238,6 +343,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    overflow: 'hidden',
   },
   bubbleMe: {
     backgroundColor: COLORS.primary.green,
@@ -332,5 +438,51 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsSemiBold,
     fontSize: 14,
     fontWeight: '600',
+  },
+  messageImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  selectedImageContainer: {
+    position: 'relative',
+    marginRight: 8,
+  },
+  selectedImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: COLORS.primary.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  removeImageText: {
+    color: COLORS.primary.white,
+    fontSize: 18,
+    fontWeight: 'bold',
+    lineHeight: 20,
+  },
+  imagePickerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.gray.veryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: COLORS.gray.lightMedium,
+  },
+  imagePickerText: {
+    fontSize: 20,
   },
 });

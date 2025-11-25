@@ -15,6 +15,7 @@ export interface ChatSender {
 export interface ChatMessage {
   id: string;
   content: string;
+  image_url?: string | null;
   sent_by: string;
   challenge_id: string;
   sent_time?: string;

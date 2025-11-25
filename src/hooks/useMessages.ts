@@ -120,13 +120,14 @@ export const useMessages = ({
   }, [hasMore, loadPage, page]);
 
   const send = useCallback(
-    async (content: string) => {
-      if (!challengeId || !content?.trim()) return;
+    async (content: string, imageUri?: string) => {
+      if (!challengeId || (!content?.trim() && !imageUri)) return;
       const tempId = `temp-${Date.now()}`;
       const now = new Date().toISOString();
       const optimistic: ChatMessage = {
         id: tempId,
-        content,
+        content: content || '',
+        image_url: imageUri || null,
         sent_by: user?.id || 'me',
         challenge_id: challengeId,
         createdAt: now,
@@ -143,15 +144,12 @@ export const useMessages = ({
           }
           : undefined,
       };
-      // Prepend to beginning (newest first for inverted list)
       setMessages(prev => [optimistic, ...prev]);
       try {
         setSending(true);
-        const saved = await addMessage(challengeId, content);
-        // Replace temp message with saved message, ensuring it's at the beginning
+        const saved = await addMessage(challengeId, content || '', imageUri);
         setMessages(prev => {
           const filtered = prev.filter(m => m.id !== tempId);
-          // Ensure saved message is at the beginning (newest)
           return [saved, ...filtered];
         });
       } catch (e) {

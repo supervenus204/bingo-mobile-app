@@ -2,6 +2,7 @@ export * from './Badge';
 export * from './BingoBoard';
 export * from './BingoCard';
 export * from './Button';
+export * from './CelebrationModal';
 export * from './Dropdown';
 export * from './Input';
 export * from './Label';

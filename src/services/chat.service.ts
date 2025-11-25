@@ -16,9 +16,26 @@ export const getMessages = async (
 
 export const addMessage = async (
   challengeId: string,
-  content: string
+  content: string,
+  imageUri?: string
 ): Promise<ChatMessage> => {
   const url = `/api/challenge/${challengeId}/message`;
+
+  if (imageUri) {
+    const formData = new FormData();
+    if (content) {
+      formData.append('content', content);
+    }
+    formData.append('image', {
+      uri: imageUri,
+      type: 'image/jpeg',
+      name: 'image.jpg',
+    } as any);
+
+    const data = await apiFetch(url, 'POST', formData, true);
+    return data as ChatMessage;
+  }
+
   const data = await apiFetch(url, 'POST', { content });
   return data as ChatMessage;
 };
