@@ -22,9 +22,12 @@ const getUserName = (user: User): string => {
 
 interface PointWeekCardProps {
   data: LeaderboardEntry;
+  rank?: number;
 }
 
-export const PointWeekCard: React.FC<PointWeekCardProps> = ({ data }) => {
+export const PointWeekCard: React.FC<PointWeekCardProps> = ({ data, rank }) => {
+  const isFirstPlace = rank === 1;
+
   return (
     <View style={styles.card}>
       <ProfileIcon
@@ -57,14 +60,13 @@ export const PointWeekCard: React.FC<PointWeekCardProps> = ({ data }) => {
         </View>
       )}
 
-      <View style={styles.medalContainer}>
-        <View style={styles.medalTop}>
-          <Icon name="star" size={14} color={COLORS.primary.blue} />
+      {isFirstPlace && (
+        <View style={styles.medalContainer}>
+          <View style={styles.medalTop}>
+            <Icon name="emoji-events" size={16} color="#FFF" />
+          </View>
         </View>
-        <View style={styles.positionContainer}>
-          <Text style={styles.positionText}>1st</Text>
-        </View>
-      </View>
+      )}
     </View>
   );
 };
@@ -82,6 +84,10 @@ interface WeightWeekCardProps {
 }
 
 export const WeightWeekCard: React.FC<WeightWeekCardProps> = ({ data }) => {
+  if (!data || !data.user) {
+    return null;
+  }
+
   const lossPercentage =
     data.loss !== undefined && data.loss !== null
       ? Math.abs(data.loss).toFixed(1)
@@ -118,8 +124,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: 'center',
     width: '30%',
-    elevation: 2,
     margin: 4,
+    borderWidth: 1,
+    borderColor: COLORS.gray.medium,
   },
   avatarContainer: {
     position: 'relative',
@@ -130,10 +137,10 @@ const styles = StyleSheet.create({
   },
   medalContainer: {
     position: 'absolute',
-    top: -2,
-    right: -2,
+    top: -4,
+    right: -4,
     alignItems: 'center',
-    width: 36,
+    width: 40,
   },
   content: {
     alignItems: 'center',
@@ -153,27 +160,13 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   medalTop: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: COLORS.primary.blue,
-    borderWidth: 2,
-    borderColor: COLORS.primary.blue,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.primary.gold,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 2,
-  },
-  positionContainer: {
-    marginTop: 3,
-    alignItems: 'center',
-    minHeight: 14,
-  },
-  positionText: {
-    fontSize: 11,
-    fontFamily: FONTS.family.poppinsBold,
-    color: COLORS.primary.blue,
-    letterSpacing: 0.3,
-    lineHeight: 13,
   },
   biggestLoserCard: {
     alignItems: 'center',

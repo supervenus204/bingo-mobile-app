@@ -22,9 +22,9 @@ interface CelebrationModalProps {
 export const CelebrationModal: React.FC<CelebrationModalProps> = ({
   visible,
   onClose,
-  title = '🎉 Congratulations! 🎉',
-  subtitle = "You've completed all bingo cards! Amazing work!",
-  buttonText = 'AWESOME',
+  title = '🎉 BINGO! 🎉',
+  subtitle = 'You smashed your card - congratulations! \n Healthy habits are stacking up.',
+  buttonText = 'Done',
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
@@ -71,7 +71,7 @@ export const CelebrationModal: React.FC<CelebrationModalProps> = ({
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
-          <TouchableWithoutFeedback onPress={() => { }}>
+          <TouchableWithoutFeedback onPress={() => {}}>
             <Animated.View
               style={[
                 styles.modalContainer,
@@ -143,10 +143,7 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   button: {
-    backgroundColor: COLORS.primary.green,
-    borderRadius: 999,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    height: 48,
     minWidth: 200,
   },
   buttonText: {
@@ -156,4 +153,3 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-

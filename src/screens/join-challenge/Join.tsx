@@ -56,7 +56,6 @@ export const Join: React.FC = () => {
       );
     }
   };
-  console.log('challenge', challenge);
   return (
     <>
       <DashboardHeader

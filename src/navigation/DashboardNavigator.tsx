@@ -8,11 +8,13 @@ import { DashboardStackParamList } from '../types';
 const Stack = createNativeStackNavigator<DashboardStackParamList>();
 
 export const DashboardNavigator = () => {
-  const { user, refreshUser } = useAuthStore();
+  const { user, hasHydrated, refreshUser } = useAuthStore();
 
   useEffect(() => {
-    refreshUser();
-  }, []);
+    if (hasHydrated) {
+      refreshUser();
+    }
+  }, [hasHydrated]);
 
   const initialRouteName = useMemo(() => {
     if (user) {

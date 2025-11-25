@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Image,
   ImageErrorEventData,
+  ImageSourcePropType,
   NativeSyntheticEvent,
   StyleSheet,
   Text,
@@ -18,7 +19,7 @@ import { getImageUrl } from '../../services/user.service';
 import { COLORS, FONTS } from '../../theme';
 
 interface ProfileIconProps {
-  image?: string | null;
+  image?: string | ImageSourcePropType | null;
   initialsText?: string;
   size?: number;
   editable?: boolean;
@@ -33,10 +34,12 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
   onUpload,
 }) => {
   const [uploading, setUploading] = useState(false);
-  const [currentImage, setCurrentImage] = useState<string | null | undefined>(image);
+  const [currentImage, setCurrentImage] = useState<
+    string | ImageSourcePropType | null | undefined
+  >(image);
   const [hasTriedRefresh, setHasTriedRefresh] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentImage(image);
     setHasTriedRefresh(false);
   }, [image]);
@@ -53,7 +56,6 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
   };
 
   const handleImageResponse = async (response: ImagePickerResponse) => {
-    console.log('response', response);
     if (!onUpload) return;
 
     if (response.didCancel) {
@@ -153,6 +155,18 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
     }
   };
 
+  const getImageSource = useCallback(() => {
+    if (!currentImage) {
+      return null;
+    }
+    if (typeof currentImage === 'string') {
+      return { uri: currentImage };
+    }
+    return currentImage;
+  }, [currentImage]);
+
+  const imageSource = useMemo(() => getImageSource(), [currentImage]);
+
   return (
     <View
       style={[
@@ -165,9 +179,9 @@ export const ProfileIcon: React.FC<ProfileIconProps> = ({
         onPress={handleImagePicker}
         disabled={!editable || uploading}
       >
-        {currentImage ? (
+        {imageSource ? (
           <Image
-            source={{ uri: currentImage }}
+            source={imageSource}
             style={[styles.image, { width: size, height: size }]}
             resizeMode="cover"
             onError={handleImageError}

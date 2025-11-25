@@ -1,5 +1,5 @@
 import { useIsFocused } from '@react-navigation/native';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   ScrollView,
@@ -44,23 +44,26 @@ export const ParticipantManagementScreen: React.FC = () => {
     useState<Participant | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
-  useEffect(() => {
-    if (selectedChallenge?.id) {
-      loadParticipants();
-    }
-  }, [selectedChallenge?.id]);
-
-  const loadParticipants = async () => {
+  const loadParticipants = useCallback(async () => {
+    if (!selectedChallenge?.id) return;
     try {
       setLoading(true);
-      const data = await fetchParticipants(selectedChallenge!.id);
+      const data = await fetchParticipants(selectedChallenge.id);
       setParticipants(data);
     } catch (error) {
-      Alert.alert('Error', 'Failed to load participants');
+      Alert.alert('Error', 'Failed to load players');
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedChallenge?.id]);
+
+  useEffect(() => {
+    if (isFocused) {
+      loadParticipants();
+    } else {
+      setLoading(false);
+    }
+  }, [isFocused, loadParticipants]);
 
   const handleParticipantPress = (participant: Participant) => {
     setSelectedParticipant(participant);
@@ -85,14 +88,14 @@ export const ParticipantManagementScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {loading && isFocused && (
-        <LoadingCard visible={loading} message="Loading participants..." />
+      {isFocused && loading && (
+        <LoadingCard visible={loading} message="Loading players..." />
       )}
 
       <ScrollView style={styles.scrollView}>
         {joinedParticipants.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>Joined Participants</Text>
+            <Text style={styles.sectionTitle}>Joined Players</Text>
             {joinedParticipants.map(participant => (
               <ParticipantCard
                 key={participant.id}
@@ -105,7 +108,7 @@ export const ParticipantManagementScreen: React.FC = () => {
 
         {pendingParticipants.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>Pending Participants</Text>
+            <Text style={styles.sectionTitle}>Pending Players</Text>
             {pendingParticipants.map(participant => (
               <ParticipantCard
                 key={participant.id}

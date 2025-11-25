@@ -45,10 +45,8 @@ export const PayChallenge: React.FC = () => {
 
       if (result.success) {
         setIsValidatePromoCode(true);
-        console.log('Promo code validated successfully:', result.data);
       } else {
         setIsValidatePromoCode(false);
-        console.log('Promo code validation failed:', result.error);
       }
     } catch (error) {
       setIsValidatePromoCode(false);
@@ -127,8 +125,7 @@ export const PayChallenge: React.FC = () => {
           console.log('Stripe Payment Error:', error);
           if (error.code !== 'Canceled') {
             showToast(
-              `Payment failed: ${
-                error.message || error.code
+              `Payment failed: ${error.message || error.code
               }. Please try again.`,
               'error'
             );

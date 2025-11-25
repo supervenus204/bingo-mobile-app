@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,7 +19,7 @@ import {
 } from 'react-native-image-picker';
 import { ProfileIcon, UserIntroductionModal } from '../../components/common';
 import { useMessages, useToast } from '../../hooks';
-import { useAuthStore, useChallengesStore } from '../../store';
+import { useAuthStore, useChallengesStore, useLastSeenStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 import { ChatSender } from '../../types/chat.type';
 
@@ -37,21 +37,34 @@ export const ChatScreen: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<ChatSender | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const { updateLastSeen } = useLastSeenStore();
   const listRef = useRef<FlatList>(null);
 
   const myId = user?.id;
+
+  useEffect(() => {
+    updateLastSeen(challengeId || '');
+  }, []);
 
   const keyExtractor = useCallback((item: any) => item.id, []);
 
   const renderItem = useCallback(
     ({ item }: any) => {
       const isMe = item.sent_by === myId;
-      const sender = item.sender;
+
+      let sender;
+      if (item.sender?.id) {
+        sender = item.sender;
+      } else {
+        sender = {
+          id: 'system',
+          image: require('../../assets/images/auth/logo.png'),
+        };
+      }
 
       const initials =
         (sender?.first_name?.[0] || '') + (sender?.last_name?.[0] || '');
       const image = sender?.image ?? null;
-
       const time = item.sent_time || item.createdAt;
       const dateTimeText = time
         ? new Date(time).toLocaleString([], {

@@ -109,12 +109,14 @@ const WeekSection = ({
 
       {measureType === 'points' ? (
         <View style={styles.winnersContainer}>
-          {leaderboardData.map((winner, _index) => {
-            return <PointWeekCard key={winner.id} data={winner} />;
+          {leaderboardData.map((winner, index) => {
+            return <PointWeekCard key={winner.id} data={winner} rank={index + 1} />;
           })}
         </View>
-      ) : (
+      ) : leaderboardData.length > 0 && leaderboardData[0] ? (
         <WeightWeekCard data={leaderboardData[0]} />
+      ) : (
+        <Text style={styles.emptyText}>No weight loss data available</Text>
       )}
 
       {measureType === 'points' && (
@@ -146,6 +148,7 @@ const ChallengeSection = ({
     return Math.max(0, challengeDuration - currentWeek);
   }, [challengeDuration, currentWeek]);
 
+  console.log('leaderboardData', leaderboardData)
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>
@@ -165,15 +168,18 @@ const ChallengeSection = ({
                   initialsText={getUserInitials(item.user)}
                   size={40}
                 />
-                <Text style={styles.leaderboardName}>
-                  {getUserName(item.user)}
-                </Text>
-                <Icon
-                  name="chevron-right"
-                  size={20}
-                  color={COLORS.gray.mediumDark}
-                />
-                <Text style={styles.leaderboardPoints}>{item.points} pts</Text>
+                <View style={styles.leaderboardContent}>
+                  <Text style={styles.leaderboardName}>
+                    {item.user.displayName}
+                  </Text>
+                </View>
+                <View style={styles.leaderboardRight}>
+                  <View style={styles.pointsBadge}>
+                    <Text style={styles.leaderboardPoints}>
+                      {item.points} pts
+                    </Text>
+                  </View>
+                </View>
               </TouchableOpacity>
             )}
           />
@@ -196,7 +202,7 @@ const ChallengeSection = ({
                 {getUserName(item.user)}
               </Text>
               <Icon name="bar-chart" size={16} color={COLORS.primary.green} />
-              <Text style={styles.weightLossPercent}>-2.1%</Text>
+              <Text style={styles.weightLossPercent}>{item.loss ? `-${item.loss}%` : '0.0%'}</Text>
             </View>
           )}
         />
@@ -343,12 +349,20 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   awardsContainer: {
-    gap: 12,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    columnGap: 12,
+    rowGap: 12,
+    marginTop: 12,
   },
   awardItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    width: '48%',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
   },
   awardText: {
     fontSize: FONTS.size.sm,
@@ -358,23 +372,45 @@ const styles = StyleSheet.create({
   leaderboardItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 12,
     backgroundColor: COLORS.gray.veryLight,
     borderRadius: 8,
     marginBottom: 8,
     gap: 12,
+    borderWidth: 1,
+    borderColor: COLORS.gray.light,
+  },
+  leaderboardContent: {
+    flex: 1,
+    gap: 4,
   },
   leaderboardName: {
-    flex: 1,
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsMedium,
     color: COLORS.primary.black,
   },
+  leaderboardSubtitle: {
+    fontSize: FONTS.size.sm,
+    fontFamily: FONTS.family.poppinsRegular,
+    color: COLORS.gray.mediumDark,
+  },
+  leaderboardRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  pointsBadge: {
+    backgroundColor: COLORS.primary.green,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
   leaderboardPoints: {
     fontSize: FONTS.size.base,
     fontFamily: FONTS.family.poppinsSemiBold,
-    color: COLORS.primary.black,
+    color: COLORS.primary.white,
   },
   weightLossItem: {
     flexDirection: 'row',

@@ -34,6 +34,7 @@ export const WeighInScreen: React.FC = () => {
   const [weightHistory, setWeightHistory] = useState<WeightEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [measureExists, setMeasureExists] = useState(false);
 
   const handleIncrement = () => {
     const currentValue = parseFloat(weight) || 0;
@@ -86,6 +87,9 @@ export const WeighInScreen: React.FC = () => {
 
         if (currentResponse && currentResponse.length > 0) {
           setWeight(String(currentResponse[0].value));
+          setMeasureExists(true);
+        } else {
+          setMeasureExists(false);
         }
       } catch (error) {
         console.error('Failed to fetch weight data:', error);
@@ -111,8 +115,16 @@ export const WeighInScreen: React.FC = () => {
       const transformedHistory =
         transformMeasuresToWeightHistory(updatedHistory);
       setWeightHistory(transformedHistory);
+      setMeasureExists(true);
     } catch (error) {
-      console.error('Failed to save weight:', error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('Measure already exists')) {
+        const updatedHistory = await getMeasureHistory(selectedChallenge.id);
+        const transformedHistory =
+          transformMeasuresToWeightHistory(updatedHistory);
+        setWeightHistory(transformedHistory);
+        setMeasureExists(true);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -153,7 +165,7 @@ export const WeighInScreen: React.FC = () => {
     return (
       <View style={styles.container}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary.main} />
+          <ActivityIndicator size="large" color={COLORS.primary.green} />
         </View>
       </View>
     );
@@ -176,7 +188,7 @@ export const WeighInScreen: React.FC = () => {
 
           <View style={styles.weightInputContainer}>
             <TextInput
-              style={styles.weightInput}
+              style={[styles.weightInput, measureExists && styles.weightInputDisabled]}
               value={weight}
               onChangeText={setWeight}
               keyboardType="numeric"
@@ -188,28 +200,31 @@ export const WeighInScreen: React.FC = () => {
               autoCapitalize="none"
               multiline={false}
               numberOfLines={1}
+              editable={!measureExists}
             />
             <View style={styles.controlsContainer}>
               <TouchableOpacity
                 onPress={handleIncrement}
                 style={styles.controlButton}
+                disabled={measureExists}
               >
-                <Text style={styles.controlText}>▲</Text>
+                <Text style={[styles.controlText, measureExists && styles.controlTextDisabled]}>▲</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleDecrement}
                 style={styles.controlButton}
+                disabled={measureExists}
               >
-                <Text style={styles.controlText}>▼</Text>
+                <Text style={[styles.controlText, measureExists && styles.controlTextDisabled]}>▼</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.unitText}>kg</Text>
           </View>
 
           <TouchableOpacity
-            style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
+            style={[styles.saveButton, (isSaving || measureExists) && styles.saveButtonDisabled]}
             onPress={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || measureExists}
           >
             {isSaving ? (
               <ActivityIndicator color="#FFFFFF" />
@@ -436,5 +451,11 @@ const styles = StyleSheet.create({
   },
   saveButtonDisabled: {
     opacity: 0.6,
+  },
+  weightInputDisabled: {
+    opacity: 0.6,
+  },
+  controlTextDisabled: {
+    opacity: 0.4,
   },
 });

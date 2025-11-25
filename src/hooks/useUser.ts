@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getImageUrl, updateProfile, uploadImage } from '../services/user.service';
+import { getImageUrl, removeImage, updateProfile, uploadImage } from '../services/user.service';
 import { useAuthStore } from '../store/auth.store';
 
 export const useUser = () => {
@@ -64,18 +64,37 @@ export const useUser = () => {
       setLoading(true);
       setError(null);
 
-      const { imageUrl } = await uploadImage(imageUri);
-
+      const { image_url } = await uploadImage(imageUri);
       // Update user with new avatar URL
       if (user) {
-        const updatedUser = { ...user, image: imageUrl };
+        const updatedUser = { ...user, image: image_url };
         setUser(updatedUser);
       }
-
-      return imageUrl;
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to upload avatar';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeAvatar = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      await removeImage();
+
+      if (user) {
+        const updatedUser = { ...user, image: null };
+        setUser(updatedUser);
+        setImage(null);
+      }
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to remove avatar';
       setError(errorMessage);
       throw err;
     } finally {
@@ -123,6 +142,7 @@ export const useUser = () => {
       setCountry,
       setImage,
       uploadAvatar,
+      removeAvatar,
       refreshImageUrl,
       clearError,
     }),
@@ -142,6 +162,7 @@ export const useUser = () => {
       setCountry,
       setImage,
       uploadAvatar,
+      removeAvatar,
       refreshImageUrl,
       saveProfile,
       clearError,

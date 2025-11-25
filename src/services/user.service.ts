@@ -8,7 +8,7 @@ export interface UpdateProfileData {
   country?: string;
   timezone?: string;
   push_reminders?: boolean;
-  image?: string;
+  image?: string | null;
 }
 
 export interface ChangePasswordData {
@@ -47,7 +47,7 @@ export const updateProfile = async (data: UpdateProfileData): Promise<any> => {
 
 export const uploadImage = async (
   imageUri: string
-): Promise<{ imageUrl: string }> => {
+): Promise<{ image_url: string }> => {
   const formData = new FormData();
 
   formData.append('image', {
@@ -63,6 +63,10 @@ export const uploadImage = async (
     true
   );
   return response;
+};
+
+export const removeImage = async (): Promise<void> => {
+  await apiFetch('/api/user/remove-image', 'DELETE', {});
 };
 
 export const getImageUrl = async (): Promise<{ imageUrl: string | null }> => {

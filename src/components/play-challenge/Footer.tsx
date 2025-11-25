@@ -15,7 +15,9 @@ type FooterProps = {
 export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
   const navigation = useNavigation();
   const { selectedChallenge } = useChallengesStore();
-  const { totalUnread } = useUnreadMessages();
+  const { getUnreadCount } = useUnreadMessages();
+
+  const unreadCount = getUnreadCount(selectedChallenge?.id || '');
 
   const isOrganizer = Boolean(selectedChallenge?.is_organizer);
 
@@ -33,10 +35,10 @@ export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
     },
     isOrganizer
       ? {
-          name: SCREEN_NAMES._PLAY_CHALLENGE.PARTICIPANT_MANAGEMENT,
-          icon: 'group',
-          label: 'Users',
-        }
+        name: SCREEN_NAMES._PLAY_CHALLENGE.PARTICIPANT_MANAGEMENT,
+        icon: 'group',
+        label: 'Users',
+      }
       : null,
     {
       name: SCREEN_NAMES._PLAY_CHALLENGE.SETTINGS,
@@ -63,11 +65,11 @@ export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
                 name={tab.icon}
                 size={24}
                 color={
-                  currentRoute === tab.name ? COLORS.primary.green : '#6b7280'
+                  currentRoute === tab.name ? COLORS.primary.green : COLORS.gray.veryDark
                 }
               />
-              {isChatTab && totalUnread > 0 && (
-                <Badge count={totalUnread} style={styles.chatBadge} />
+              {isChatTab && unreadCount > 0 && (
+                <Badge count={unreadCount} style={styles.chatBadge} />
               )}
             </View>
           </TouchableOpacity>

@@ -47,6 +47,7 @@ export const useAuth = () => {
         id: data.user.id,
         displayName: data.user.display_name,
         timezone: data.user.timezone,
+        country: data.user.country,
       });
       setAuthenticated(true);
 
@@ -74,6 +75,7 @@ export const useAuth = () => {
         id: data.user.id,
         displayName: data.user.display_name,
         timezone: data.user.timezone,
+        country: data.user.country,
       });
       setAuthenticated(true);
     } catch (err) {
@@ -140,6 +142,7 @@ export const useAuth = () => {
         id: data.user.id,
         displayName: data.user.display_name,
         timezone: data.user.timezone,
+        country: data.user.country,
       });
       setToken(data.token);
       setRefreshToken(data.refreshToken);

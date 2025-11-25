@@ -5,8 +5,9 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { CustomButton } from '../../components/common';
 import { ProfileIcon } from '../../components/common/ProfileIcon';
@@ -32,6 +33,7 @@ export const ProfileScreen: React.FC = () => {
     timezone,
     country,
     uploadAvatar,
+    removeAvatar,
     setFirstName,
     setLastName,
     setDisplayName,
@@ -63,6 +65,19 @@ export const ProfileScreen: React.FC = () => {
     }
   };
 
+  const handleRemoveImage = async () => {
+    if (!user?.image) {
+      return;
+    }
+    try {
+      await removeAvatar();
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'Failed to remove image';
+      console.log(message);
+    }
+  };
+
   return (
     <View style={styles.wrapper}>
       {mode !== 'setup' && (
@@ -82,17 +97,31 @@ export const ProfileScreen: React.FC = () => {
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.profilePictureContainer}>
-          <ProfileIcon
-            image={user?.image}
-            initialsText={
-              (user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')
-            }
-            size={100}
-            editable={mode !== 'view'}
-            onUpload={async (imageUri: string) => {
-              await uploadAvatar(imageUri);
-            }}
-          />
+          <View style={styles.profilePictureWrapper}>
+            <ProfileIcon
+              image={user?.image}
+              initialsText={
+                (user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')
+              }
+              size={100}
+              editable={mode !== 'view'}
+              onUpload={async (imageUri: string) => {
+                await uploadAvatar(imageUri);
+              }}
+            />
+            {mode !== 'view' && user?.image ? (
+              <TouchableOpacity
+                style={styles.removePhotoButton}
+                onPress={handleRemoveImage}
+              >
+                <MaterialIcons
+                  name="delete"
+                  size={20}
+                  color={COLORS.primary.red}
+                />
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </View>
 
         <View style={styles.titleContainer}>
@@ -200,6 +229,17 @@ const styles = StyleSheet.create({
   profilePictureContainer: {
     alignItems: 'center',
     marginBottom: 16,
+  },
+  profilePictureWrapper: {
+    position: 'relative',
+  },
+  removePhotoButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: COLORS.primary.white,
+    borderRadius: 16,
+    padding: 6,
   },
   titleContainer: {
     alignItems: 'center',

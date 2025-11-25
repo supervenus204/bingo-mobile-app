@@ -1,12 +1,6 @@
 import { useIsFocused } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {
@@ -324,17 +318,20 @@ export const BingoScreen: React.FC = () => {
           />
           {isSetupMode && (
             <>
-              <TouchableOpacity
-                style={styles.addCustomButton}
+              <CustomButton
+                variant="default"
+                buttonStyle={styles.addCustomButton}
+                textStyle={styles.addCustomButtonText}
                 onPress={() => setShowAddCustomModal(true)}
-              >
-                <MaterialIcons
-                  name="add"
-                  size={24}
-                  color={COLORS.primary.white}
-                />
-                <Text style={styles.addCustomButtonText}>Add Custom Task</Text>
-              </TouchableOpacity>
+                icon={
+                  <MaterialIcons
+                    name="add"
+                    size={24}
+                    color={COLORS.primary.white}
+                  />
+                }
+                text="Add Custom Task"
+              />
               <View style={styles.buttonGroup}>
                 <CustomButton
                   text="Reset Tasks"

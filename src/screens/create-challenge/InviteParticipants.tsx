@@ -59,7 +59,7 @@ export const InviteParticipants: React.FC = () => {
   const handleAddParticipant = async () => {
     setLoading(true);
     if (isAtLimit) {
-      showToast('You have reached the maximum number of participants');
+      showToast('You have reached the maximum number of players');
       setLoading(false);
       return;
     }
@@ -186,7 +186,7 @@ export const InviteParticipants: React.FC = () => {
         >
           <View style={styles.participantInfo}>
             <Text style={styles.participantCount}>
-              Participants ({participants.length}/{maxParticipants})
+              Players ({participants.length}/{maxParticipants})
             </Text>
             <Text style={styles.planInfo}>{plan} Plan</Text>
           </View>

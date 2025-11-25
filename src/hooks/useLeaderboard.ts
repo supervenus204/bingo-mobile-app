@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { getLeaderboard } from '../services';
 import { LeaderboardEntry } from '../types';
 
-const convertLeaderboardData = (data: any) => {
+const convertWeekLeaderboardData = (data: any) => {
   if (!data) return null;
 
   return data.map((item: any) => ({
@@ -19,6 +19,23 @@ const convertLeaderboardData = (data: any) => {
     },
   }));
 };
+
+const convertChallengeLeaderboardData = (data: any) => {
+  if (!data) return null;
+
+  return data.map((item: any) => ({
+    id: item.id,
+    user: {
+      id: item.user.id,
+      firstName: item.user.first_name,
+      lastName: item.user.last_name,
+      displayName: item.user.display_name,
+      image: item.user.image,
+    },
+    points: item.points,
+    loss: item.loss,
+  }));
+}
 
 export const useLeaderboard = (challengeId: string) => {
   const [loading, setLoading] = useState(false);
@@ -41,10 +58,10 @@ export const useLeaderboard = (challengeId: string) => {
           measureType
         );
         setWeekLeaderboardData(
-          convertLeaderboardData(response?.weekLeaderboard)
+          convertWeekLeaderboardData(response?.weekLeaderboard)
         );
         setChallengeLeaderboardData(
-          convertLeaderboardData(response?.challengeLeaderboard)
+          convertChallengeLeaderboardData(response?.challengeLeaderboard)
         );
       } catch (error) {
         setWeekLeaderboardData(null);

@@ -41,8 +41,8 @@ export const useChallengesStore = create<ChallengesStore>(set => ({
     set({ loading: true });
     try {
       const challenges = await fetchAllChallenges();
-      const ongoingChallenges = challenges.filter((challenge: Challenge) => challenge.status === 'active' || challenge.status === 'pending' || challenge.status === 'unpaid');
-      const archivedChallenges = challenges.filter((challenge: Challenge) => challenge.status === 'finish' || challenge.status === 'inactive');
+      const ongoingChallenges = challenges.filter((challenge: Challenge) => challenge.status === 'active' || challenge.status === 'pending' || challenge.status === 'unpaid' || challenge.status === 'inactive');
+      const archivedChallenges = challenges.filter((challenge: Challenge) => challenge.status === 'finish');
       set({ ongoingChallenges, archivedChallenges });
     } catch (error) {
       set({ error: error instanceof Error ? error.message : 'Failed to fetch challenges' });

@@ -12,6 +12,7 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { playCheckSound, playMarkSound } from '../../services/sound.service';
 import { COLORS } from '../../theme';
+import { CustomButton } from './Button';
 
 interface BingoCardProps {
   color: string;
@@ -68,16 +69,16 @@ export const BingoCard: React.FC<BingoCardProps> = ({
   const cardWrapperProps =
     mode === 'setup'
       ? {
-          onPress: handleClick ? () => handleClick() : undefined,
-          activeOpacity: 0.7,
-        }
+        onPress: handleClick ? () => handleClick() : undefined,
+        activeOpacity: 0.7,
+      }
       : {
-          style: [
-            mode === 'mark' && {
-              transform: [{ scale: pulseAnim }],
-            },
-          ],
-        };
+        style: [
+          mode === 'mark' && {
+            transform: [{ scale: pulseAnim }],
+          },
+        ],
+      };
 
   const [showModal, setShowModal] = useState(false);
 
@@ -165,60 +166,40 @@ export const BingoCard: React.FC<BingoCardProps> = ({
                 <View style={styles.modalContent}>
                   <Text style={styles.modalTitle}>{name}</Text>
                   <View style={styles.modalButtons}>
-                    <TouchableOpacity
-                      style={[styles.modalButton, styles.cancelButton]}
+                    <CustomButton
+                      variant="default"
                       onPress={handleCancel}
-                    >
-                      <MaterialIcons
-                        name="close"
-                        size={20}
-                        color={COLORS.gray.darker}
-                      />
-                      <Text
-                        style={[
-                          styles.modalButtonText,
-                          styles.cancelButtonText,
-                        ]}
-                      >
-                        Cancel
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.modalButton, styles.unmarkButton]}
+                      buttonStyle={[styles.modalButton, styles.cancelButton]}
+                      textStyle={[
+                        styles.modalButtonText,
+                        styles.cancelButtonText,
+                      ]}
+                      icon={
+                        <MaterialIcons
+                          name="close"
+                          size={20}
+                          color={COLORS.gray.darker}
+                        />
+                      }
+                      text="Cancel"
+                    />
+                    <CustomButton
+                      variant="default"
                       onPress={() => handleAction('unmark')}
-                    >
-                      <MaterialIcons
-                        name="undo"
-                        size={20}
-                        color={COLORS.primary.white}
-                      />
-                      <Text
-                        style={[
-                          styles.modalButtonText,
-                          styles.actionButtonText,
-                        ]}
-                      >
-                        Unmark
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.modalButton, styles.markButton]}
-                      onPress={() => handleAction('mark')}
-                    >
-                      <MaterialIcons
-                        name="radio-button-unchecked"
-                        size={20}
-                        color={COLORS.primary.white}
-                      />
-                      <Text
-                        style={[
-                          styles.modalButtonText,
-                          styles.actionButtonText,
-                        ]}
-                      >
-                        Mark
-                      </Text>
-                    </TouchableOpacity>
+                      buttonStyle={[styles.modalButton, styles.unmarkButton]}
+                      textStyle={[
+                        styles.modalButtonText,
+                        styles.actionButtonText,
+                      ]}
+                      icon={
+                        <MaterialIcons
+                          name="undo"
+                          size={20}
+                          color={COLORS.primary.white}
+                        />
+                      }
+                      text="Unmark"
+                    />
                   </View>
                 </View>
               </View>
@@ -241,8 +222,8 @@ export const BingoCard: React.FC<BingoCardProps> = ({
                   mode === 'check' ? COLORS.primary.green : color,
               },
               mode !== 'check' &&
-                color === COLORS.primary.white &&
-                styles.blackBorder,
+              color === COLORS.primary.white &&
+              styles.blackBorder,
               mode === 'mark' && styles.markedContainer,
               mode === 'check' && styles.checkedContainer,
             ]}
@@ -382,20 +363,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   modalButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 14,
-    borderRadius: 10,
-    gap: 8,
   },
   cancelButton: {
     backgroundColor: COLORS.gray.light,
   },
   unmarkButton: {
-    backgroundColor: COLORS.gray.darker,
-  },
-  markButton: {
     backgroundColor: COLORS.primary.blue,
   },
   modalButtonText: {
@@ -403,7 +376,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cancelButtonText: {
-    color: COLORS.gray.darker,
+    color: COLORS.primary.blue,
   },
   actionButtonText: {
     color: COLORS.primary.white,

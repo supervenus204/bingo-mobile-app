@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SCREEN_NAMES } from '../../constants/screens';
-import { useAuthStore, useChallengesStore } from '../../store';
+import { useAuth } from '../../hooks';
+import { useChallengesStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 import { Challenge } from '../../types/challenge.type';
 import { CustomButton } from '../common';
@@ -18,7 +19,7 @@ export const Header: React.FC<Props> = ({ title }) => {
   const { selectChallenge } = useChallengesStore();
   const [showSidebar, setShowSidebar] = useState(false);
 
-  const { logout } = useAuthStore();
+  const { logout } = useAuth();
 
   const handleHomePress = () => {
     setShowSidebar(true);
@@ -60,7 +61,9 @@ export const Header: React.FC<Props> = ({ title }) => {
     setShowSidebar(false);
     const parent = navigation.getParent();
     if (parent) {
-      parent.navigate(SCREEN_NAMES.DASHBOARD);
+      parent.navigate(SCREEN_NAMES.DASHBOARD, {
+        screen: SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST,
+      });
     }
   };
 

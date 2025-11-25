@@ -137,7 +137,7 @@ export const Sidebar: React.FC<Props> = ({
                         style={[
                           styles.challengeItem,
                           challenge.id === selectedChallenge?.id &&
-                            styles.currentChallenge,
+                          styles.currentChallenge,
                         ]}
                         onPress={() => onSwitchChallenge(challenge)}
                         activeOpacity={0.6}
@@ -154,13 +154,19 @@ export const Sidebar: React.FC<Props> = ({
                               style={[
                                 styles.challengeTitle,
                                 challenge.id === selectedChallenge?.id &&
-                                  styles.currentChallengeTitle,
+                                styles.currentChallengeTitle,
                               ]}
                             >
                               {challenge.title}
                             </Text>
                           </View>
-                          <Text style={styles.challengeWeek}>
+                          <Text
+                            style={[
+                              styles.challengeWeek,
+                              challenge.id === selectedChallenge?.id &&
+                              styles.currentChallengeWeek,
+                            ]}
+                          >
                             Week {challenge.current_week}
                           </Text>
                         </View>
@@ -195,11 +201,6 @@ export const Sidebar: React.FC<Props> = ({
                   }
                   text="Profile"
                 />
-                <Icon
-                  name="chevron-right"
-                  size={18}
-                  color={COLORS.gray.medium}
-                />
               </View>
 
               <View style={[styles.sectionButtonWrapper, styles.bottomButton]}>
@@ -216,11 +217,6 @@ export const Sidebar: React.FC<Props> = ({
                     <Icon name="logout" size={20} color={COLORS.primary.red} />
                   }
                   text="Logout"
-                />
-                <Icon
-                  name="chevron-right"
-                  size={18}
-                  color={COLORS.gray.medium}
                 />
               </View>
             </View>
@@ -401,7 +397,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   currentChallengeTitle: {
-    color: COLORS.primary.blue,
+    color: COLORS.primary.white,
     fontFamily: FONTS.family.poppinsBold,
     fontSize: 16,
   },
@@ -410,6 +406,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.family.poppinsRegular,
     color: COLORS.gray.darker,
     opacity: 0.85,
+  },
+  currentChallengeWeek: {
+    color: COLORS.primary.white,
+    opacity: 0.9,
   },
   sidebarBadge: {
     position: 'absolute',
