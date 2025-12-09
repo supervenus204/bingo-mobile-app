@@ -12,34 +12,76 @@ PODS:
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
-  - FBAEMKit (18.0.0):
-    - FBSDKCoreKit_Basics (= 18.0.0)
   - FBLazyVector (0.78.0)
-  - FBSDKCoreKit (18.0.0):
-    - FBAEMKit (= 18.0.0)
-    - FBSDKCoreKit_Basics (= 18.0.0)
-  - FBSDKCoreKit_Basics (18.0.0)
-  - FBSDKGamingServicesKit (18.0.0):
-    - FBSDKCoreKit (= 18.0.0)
-    - FBSDKCoreKit_Basics (= 18.0.0)
-    - FBSDKShareKit (= 18.0.0)
-  - FBSDKLoginKit (18.0.0):
-    - FBSDKCoreKit (= 18.0.0)
-  - FBSDKShareKit (18.0.0):
-    - FBSDKCoreKit (= 18.0.0)
+  - Firebase/CoreOnly (12.4.0):
+    - FirebaseCore (~> 12.4.0)
+  - Firebase/Database (12.4.0):
+    - Firebase/CoreOnly
+    - FirebaseDatabase (~> 12.4.0)
+  - Firebase/Messaging (12.4.0):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 12.4.0)
+  - FirebaseAppCheckInterop (12.4.0)
+  - FirebaseCore (12.4.0):
+    - FirebaseCoreInternal (~> 12.4.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/Logger (~> 8.1)
+  - FirebaseCoreExtension (12.4.0):
+    - FirebaseCore (~> 12.4.0)
+  - FirebaseCoreInternal (12.4.0):
+    - "GoogleUtilities/NSData+zlib (~> 8.1)"
+  - FirebaseDatabase (12.4.0):
+    - FirebaseAppCheckInterop (~> 12.4.0)
+    - FirebaseCore (~> 12.4.0)
+    - FirebaseSharedSwift (~> 12.4.0)
+    - GoogleUtilities/UserDefaults (~> 8.1)
+    - leveldb-library (~> 1.22)
+  - FirebaseInstallations (12.4.0):
+    - FirebaseCore (~> 12.4.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/UserDefaults (~> 8.1)
+    - PromisesObjC (~> 2.4)
+  - FirebaseMessaging (12.4.0):
+    - FirebaseCore (~> 12.4.0)
+    - FirebaseInstallations (~> 12.4.0)
+    - GoogleDataTransport (~> 10.1)
+    - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/Reachability (~> 8.1)
+    - GoogleUtilities/UserDefaults (~> 8.1)
+    - nanopb (~> 3.30910.0)
+  - FirebaseSharedSwift (12.4.0)
   - fmt (11.0.2)
   - glog (0.3.5)
+  - GoogleDataTransport (10.1.0):
+    - nanopb (~> 3.30910.0)
+    - PromisesObjC (~> 2.4)
   - GoogleSignIn (8.0.0):
     - AppAuth (< 2.0, >= 1.7.3)
     - AppCheckCore (~> 11.0)
     - GTMAppAuth (< 5.0, >= 4.1.1)
     - GTMSessionFetcher/Core (~> 3.3)
+  - GoogleUtilities/AppDelegateSwizzler (8.1.0):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
+    - GoogleUtilities/Privacy
   - GoogleUtilities/Environment (8.1.0):
     - GoogleUtilities/Privacy
   - GoogleUtilities/Logger (8.1.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Privacy
+  - GoogleUtilities/Network (8.1.0):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Privacy
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (8.1.0)":
+    - GoogleUtilities/Privacy
   - GoogleUtilities/Privacy (8.1.0)
+  - GoogleUtilities/Reachability (8.1.0):
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Privacy
   - GoogleUtilities/UserDefaults (8.1.0):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
@@ -50,6 +92,12 @@ PODS:
   - hermes-engine (0.78.0):
     - hermes-engine/Pre-built (= 0.78.0)
   - hermes-engine/Pre-built (0.78.0)
+  - leveldb-library (1.22.6)
+  - nanopb (3.30910.0):
+    - nanopb/decode (= 3.30910.0)
+    - nanopb/encode (= 3.30910.0)
+  - nanopb/decode (3.30910.0)
+  - nanopb/encode (3.30910.0)
   - PromisesObjC (2.4.0)
   - RCT-Folly (2024.11.18.00):
     - boost
@@ -1281,21 +1329,27 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
-  - react-native-fbsdk-next (13.4.1):
+  - react-native-image-picker (8.2.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
-    - react-native-fbsdk-next/Core (= 13.4.1)
-    - react-native-fbsdk-next/Login (= 13.4.1)
-    - react-native-fbsdk-next/Share (= 13.4.1)
-  - react-native-fbsdk-next/Core (13.4.1):
-    - FBSDKCoreKit (~> 18.0)
-    - React-Core
-  - react-native-fbsdk-next/Login (13.4.1):
-    - FBSDKLoginKit (~> 18.0)
-    - React-Core
-  - react-native-fbsdk-next/Share (13.4.1):
-    - FBSDKGamingServicesKit (~> 18.0)
-    - FBSDKShareKit (~> 18.0)
-    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-safe-area-context (5.5.2):
     - DoubleConversion
     - glog
@@ -1649,8 +1703,39 @@ PODS:
     - React-logger (= 0.78.0)
     - React-perflogger (= 0.78.0)
     - React-utils (= 0.78.0)
-  - RNAppleAuthentication (2.4.1):
+  - RNCAsyncStorage (2.2.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNFBApp (23.5.0):
+    - Firebase/CoreOnly (= 12.4.0)
+    - React-Core
+  - RNFBDatabase (23.5.0):
+    - Firebase/Database (= 12.4.0)
+    - React-Core
+    - RNFBApp
+  - RNFBMessaging (23.5.0):
+    - Firebase/Messaging (= 12.4.0)
+    - FirebaseCoreExtension
+    - React-Core
+    - RNFBApp
   - RNGoogleSignin (15.0.0):
     - DoubleConversion
     - glog
@@ -1673,7 +1758,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (4.13.0):
+  - RNScreens (4.13.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1694,9 +1779,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.13.0)
+    - RNScreens/common (= 4.13.1)
     - Yoga
-  - RNScreens/common (4.13.0):
+  - RNScreens/common (4.13.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1718,7 +1803,28 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNVectorIcons (10.2.0):
+  - RNSound (0.13.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNVectorIcons (10.3.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1740,6 +1846,42 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.1)
+  - Stripe (23.30.0):
+    - StripeApplePay (= 23.30.0)
+    - StripeCore (= 23.30.0)
+    - StripePayments (= 23.30.0)
+    - StripePaymentsUI (= 23.30.0)
+    - StripeUICore (= 23.30.0)
+  - stripe-react-native (0.39.0):
+    - React-Core
+    - Stripe (~> 23.30.0)
+    - StripeApplePay (~> 23.30.0)
+    - StripeFinancialConnections (~> 23.30.0)
+    - StripePayments (~> 23.30.0)
+    - StripePaymentSheet (~> 23.30.0)
+    - StripePaymentsUI (~> 23.30.0)
+  - StripeApplePay (23.30.0):
+    - StripeCore (= 23.30.0)
+  - StripeCore (23.30.0)
+  - StripeFinancialConnections (23.30.0):
+    - StripeCore (= 23.30.0)
+    - StripeUICore (= 23.30.0)
+  - StripePayments (23.30.0):
+    - StripeCore (= 23.30.0)
+    - StripePayments/Stripe3DS2 (= 23.30.0)
+  - StripePayments/Stripe3DS2 (23.30.0):
+    - StripeCore (= 23.30.0)
+  - StripePaymentSheet (23.30.0):
+    - StripeApplePay (= 23.30.0)
+    - StripeCore (= 23.30.0)
+    - StripePayments (= 23.30.0)
+    - StripePaymentsUI (= 23.30.0)
+  - StripePaymentsUI (23.30.0):
+    - StripeCore (= 23.30.0)
+    - StripePayments (= 23.30.0)
+    - StripeUICore (= 23.30.0)
+  - StripeUICore (23.30.0):
+    - StripeCore (= 23.30.0)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -1782,7 +1924,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
-  - react-native-fbsdk-next (from `../node_modules/react-native-fbsdk-next`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -1812,28 +1954,47 @@ DEPENDENCIES:
   - ReactAppDependencyProvider (from `build/generated/ios`)
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
-  - "RNAppleAuthentication (from `../node_modules/@invertase/react-native-apple-authentication`)"
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
+  - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
+  - "RNFBDatabase (from `../node_modules/@react-native-firebase/database`)"
+  - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSound (from `../node_modules/react-native-sound`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - "stripe-react-native (from `../node_modules/@stripe/stripe-react-native`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
     - AppAuth
     - AppCheckCore
-    - FBAEMKit
-    - FBSDKCoreKit
-    - FBSDKCoreKit_Basics
-    - FBSDKGamingServicesKit
-    - FBSDKLoginKit
-    - FBSDKShareKit
+    - Firebase
+    - FirebaseAppCheckInterop
+    - FirebaseCore
+    - FirebaseCoreExtension
+    - FirebaseCoreInternal
+    - FirebaseDatabase
+    - FirebaseInstallations
+    - FirebaseMessaging
+    - FirebaseSharedSwift
+    - GoogleDataTransport
     - GoogleSignIn
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
+    - leveldb-library
+    - nanopb
     - PromisesObjC
     - SocketRocket
+    - Stripe
+    - StripeApplePay
+    - StripeCore
+    - StripeFinancialConnections
+    - StripePayments
+    - StripePaymentSheet
+    - StripePaymentsUI
+    - StripeUICore
 
 EXTERNAL SOURCES:
   boost:
@@ -1911,8 +2072,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
-  react-native-fbsdk-next:
-    :path: "../node_modules/react-native-fbsdk-next"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
@@ -1971,14 +2132,24 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
-  RNAppleAuthentication:
-    :path: "../node_modules/@invertase/react-native-apple-authentication"
+  RNCAsyncStorage:
+    :path: "../node_modules/@react-native-async-storage/async-storage"
+  RNFBApp:
+    :path: "../node_modules/@react-native-firebase/app"
+  RNFBDatabase:
+    :path: "../node_modules/@react-native-firebase/database"
+  RNFBMessaging:
+    :path: "../node_modules/@react-native-firebase/messaging"
   RNGoogleSignin:
     :path: "../node_modules/@react-native-google-signin/google-signin"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSound:
+    :path: "../node_modules/react-native-sound"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
+  stripe-react-native:
+    :path: "../node_modules/@stripe/stripe-react-native"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -1988,20 +2159,26 @@ SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
-  FBAEMKit: e34530df538b8eb8aeb53c35867715ba6c63ef0c
   FBLazyVector: 6fe148afcef2e3213e484758e3459609d40d57f5
-  FBSDKCoreKit: d3f479a69127acebb1c6aad91c1a33907bcf6c2f
-  FBSDKCoreKit_Basics: 017b6dc2a1862024815a8229e75661e627ac1e29
-  FBSDKGamingServicesKit: cdb625419879a651d07906d8f874fc76291be660
-  FBSDKLoginKit: 5875762d1fe09ddcb05d03365d4f5dc34413843d
-  FBSDKShareKit: 082d1b087d6481af36f8d8433542f25f2fc2c8dd
+  Firebase: f07b15ae5a6ec0f93713e30b923d9970d144af3e
+  FirebaseAppCheckInterop: f734c802f21fe1da0837708f0f9a27218c8a4ed0
+  FirebaseCore: bb595f3114953664e3c1dc032f008a244147cfd3
+  FirebaseCoreExtension: 7e1f7118ee970e001a8013719fb90950ee5e0018
+  FirebaseCoreInternal: d7f5a043c2cd01a08103ab586587c1468047bca6
+  FirebaseDatabase: 0defdda58cfb6fb8816cf3984baa25bceb69fc6a
+  FirebaseInstallations: ae9f4902cb5bf1d0c5eaa31ec1f4e5495a0714e2
+  FirebaseMessaging: d33971b7bb252745ea6cd31ab190d1a1df4b8ed5
+  FirebaseSharedSwift: 93426a1de92f19e1199fac5295a4f8df16458daa
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: eb93e2f488219332457c3c4eafd2738ddc7e80b8
+  GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleSignIn: ce8c89bb9b37fb624b92e7514cc67335d1e277e4
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: b417d2b2aee3b89b58e63e23a51e02be91dc876d
+  leveldb-library: cc8b8f8e013647a295ad3f8cd2ddf49a6f19be19
+  nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: b2eecf2d60216df56bc5e6be5f063826d3c1ee35
@@ -2033,7 +2210,7 @@ SPEC CHECKSUMS:
   React-logger: 018826bfd51b9f18e87f67db1590bc510ad20664
   React-Mapbuffer: 3c11cee7737609275c7b66bd0b1de475f094cedf
   React-microtasksnativemodule: 843f352b32aacbe13a9c750190d34df44c3e6c2c
-  react-native-fbsdk-next: 52f81e60eb3e8e0e06cf9728b4572d3509ca9d01
+  react-native-image-picker: 84b261e109faa7312bca59f1f65c8f2b22865496
   react-native-safe-area-context: 072f0334ce3c7e3ee4ae81871564eacad45c8ac5
   React-NativeModulesApple: 88433b6946778bea9c153e27b671de15411bf225
   React-perflogger: 9e8d3c0dc0194eb932162812a168aa5dc662f418
@@ -2063,13 +2240,26 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: a1fb08dfdc7ebc387b2e54cfc9decd283ed821d8
   ReactCodegen: 008c319179d681a6a00966edfc67fda68f9fbb2e
   ReactCommon: 0c097b53f03d6bf166edbcd0915da32f3015dd90
-  RNAppleAuthentication: c3dddf5918126c9aae85dc2e2ce9fb87835e9e04
+  RNCAsyncStorage: 79cfba789fca205b204f3ce7948b874500129eb4
+  RNFBApp: 255fa19a91d6c1309e021ee75d5d209754e5961b
+  RNFBDatabase: 1a476166a6b556fe12b3994ba63ecc53d151b391
+  RNFBMessaging: c304c1d8949f996d3eed1cf4eeba33148d13b4ea
   RNGoogleSignin: a6fda355562bea2ec97f678fe7879fd1b10902f7
-  RNScreens: edc592a57b36b8f181d4ecac4503d4e7d14e4aa9
-  RNVectorIcons: bd818296a51dc2bb8c3bd97a3ca399df1afe216d
+  RNScreens: ef16970d0f91f1750ca82ba0db5d521fc0055fba
+  RNSound: ff62d28c48fcf44b8022f31be62f90158db17de1
+  RNVectorIcons: 0e915baaf807d5dfed506a14f23a29476c1f07f9
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  Stripe: 9757efc154de1d9615cbea4836d590bc4034d3a4
+  stripe-react-native: e5ccbc2b1aba47ce7c1371723e8f9619dc510576
+  StripeApplePay: ca33933601302742623762157d587b79b942d073
+  StripeCore: 2af250a2366ff2bbf64d4243c5f9bbf2a98b2aaf
+  StripeFinancialConnections: 3ab1ef6182ec44e71c29e9a2100b663f9713ac20
+  StripePayments: 658a16bd34d20c8185aa281866227b9e1743300e
+  StripePaymentSheet: eac031f76d7fbb4f52df9b9c39be5be671ca4c07
+  StripePaymentsUI: 7d7cffb2ecfc0d6b5ac3a4488c02893a5ff6cc77
+  StripeUICore: bb102d453b1e1a10a37f810bc0a9aa0675fb17fd
   Yoga: afd04ff05ebe0121a00c468a8a3c8080221cb14c
 
-PODFILE CHECKSUM: ebb6694b5deeab07bb86e950b6373539a7849b32
+PODFILE CHECKSUM: a8c757882a050ac81b57321624dab04f95f45429
 
 COCOAPODS: 1.16.2
