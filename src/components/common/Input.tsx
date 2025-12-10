@@ -23,6 +23,7 @@ type InputProps = {
   showValidation?: boolean;
   keyboardType?: TextInputProps['keyboardType'];
   maxLength?: number;
+  autoCapitalize?: TextInputProps['autoCapitalize'];
 };
 
 export const Input: React.FC<InputProps> = ({
@@ -38,6 +39,7 @@ export const Input: React.FC<InputProps> = ({
   showValidation,
   keyboardType,
   maxLength,
+  autoCapitalize = 'none',
 }) => {
   const renderValidationIcon = () => {
     if (!showValidation || isValid === undefined) return null;
@@ -79,6 +81,7 @@ export const Input: React.FC<InputProps> = ({
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
           maxLength={maxLength}
+          autoCapitalize={autoCapitalize}
         />
         {renderValidationIcon()}
       </View>

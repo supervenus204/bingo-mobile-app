@@ -1,4 +1,4 @@
-import { getInitialNotification, getMessaging, onMessage, onNotificationOpenedApp } from '@react-native-firebase/messaging';
+import { getInitialNotification, onMessage, onNotificationOpenedApp } from '@react-native-firebase/messaging';
 import { useEffect } from 'react';
 import { SCREEN_NAMES } from '../constants/screens';
 import { navigationRef } from '../navigation/AppNavigator';
@@ -7,14 +7,21 @@ import {
   getInitialNotificationData,
 } from '../services/notification.service';
 import { useChallengesStore } from '../store/challenges.store';
+import { getMessagingSafe } from '../utils/firebase';
 
 export const useNotificationHandler = () => {
   const { ongoingChallenges, selectChallenge, selectedChallenge } = useChallengesStore();
 
   useEffect(() => {
-    const messaging = getMessaging();
+    let unsubscribeForeground: (() => void) | null = null;
+    let unsubscribeNotificationOpened: (() => void) | null = null;
 
-    // Helper function to check if user is currently viewing the chat screen for a specific challenge
+    const setupNotifications = async () => {
+      const messaging = await getMessagingSafe();
+      if (!messaging) {
+        return;
+      }
+
     const isViewingChatForChallenge = (challengeId: string): boolean => {
       if (!navigationRef.isReady() || !selectedChallenge) {
         return false;
@@ -24,13 +31,11 @@ export const useNotificationHandler = () => {
         const state = navigationRef.getState();
         if (!state) return false;
 
-        // Check if we're on the PlayChallenge screen
         const currentRoute = state.routes[state.index];
         if (currentRoute.name !== SCREEN_NAMES.PLAY_CHALLENGE) {
           return false;
         }
 
-        // Check if we're on the Chat tab within PlayChallenge
         const playChallengeState = currentRoute.state as any;
         if (!playChallengeState || !playChallengeState.routes) {
           return false;
@@ -39,12 +44,10 @@ export const useNotificationHandler = () => {
         const currentTabRoute = playChallengeState.routes[playChallengeState.index];
         const isOnChatScreen = currentTabRoute?.name === SCREEN_NAMES._PLAY_CHALLENGE.CHAT;
 
-        // Check if the challenge matches
         const isMatchingChallenge = selectedChallenge.id === challengeId;
 
         return isOnChatScreen && isMatchingChallenge;
       } catch (error) {
-        console.error('Error checking navigation state:', error);
         return false;
       }
     };
@@ -84,7 +87,7 @@ export const useNotificationHandler = () => {
 
     handleInitialNotification();
 
-    const unsubscribeForeground = onMessage(messaging, async remoteMessage => {
+      unsubscribeForeground = onMessage(messaging, async remoteMessage => {
       const notification = remoteMessage.notification;
       const data = remoteMessage?.data;
 
@@ -94,7 +97,6 @@ export const useNotificationHandler = () => {
 
       const challenge_id = data?.challenge_id;
 
-      // Don't show notification if user is currently viewing the chat for this challenge
       if (challenge_id && typeof challenge_id === 'string' && isViewingChatForChallenge(challenge_id)) {
         return;
       }
@@ -121,11 +123,10 @@ export const useNotificationHandler = () => {
           data: notificationData,
         });
       } catch (error) {
-        console.error('Error showing notification:', error);
       }
     });
 
-    const unsubscribeNotificationOpened = onNotificationOpenedApp(messaging, remoteMessage => {
+      unsubscribeNotificationOpened = onNotificationOpenedApp(messaging, remoteMessage => {
       const data = remoteMessage?.data;
       if (data) {
         const notificationData: Record<string, string> = {};
@@ -161,11 +162,18 @@ export const useNotificationHandler = () => {
           }
         });
     }
+    };
+
+    setupNotifications();
 
     return () => {
+      if (unsubscribeForeground) {
       unsubscribeForeground();
+      }
+      if (unsubscribeNotificationOpened) {
       unsubscribeNotificationOpened();
+      }
     };
-  }, [ongoingChallenges, selectedChallenge]);
+  }, [ongoingChallenges, selectChallenge, selectedChallenge]);
 };
 

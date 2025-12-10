@@ -1,6 +1,7 @@
-import { AuthorizationStatus, deleteToken, getMessaging, getToken, requestPermission } from '@react-native-firebase/messaging';
+import { AuthorizationStatus, deleteToken, getToken, requestPermission } from '@react-native-firebase/messaging';
 import { Platform } from 'react-native';
 import { apiFetch } from '../utils';
+import { getMessagingSafe } from '../utils/firebase';
 import { requestNotificationPermission as requestAndroidPermission } from './notification.service';
 
 export const requestNotificationPermission = async (): Promise<boolean> => {
@@ -12,7 +13,11 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
       }
     }
 
-    const messaging = getMessaging();
+    const messaging = await getMessagingSafe();
+    if (!messaging) {
+      return false;
+    }
+
     const authStatus = await requestPermission(messaging);
     const enabled =
       authStatus === AuthorizationStatus.AUTHORIZED ||
@@ -26,7 +31,11 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
 
 export const getFCMToken = async (): Promise<string | null> => {
   try {
-    const messaging = getMessaging();
+    const messaging = await getMessagingSafe();
+    if (!messaging) {
+      return null;
+    }
+
     const token = await getToken(messaging);
     return token;
   } catch (error) {
@@ -48,10 +57,13 @@ export const registerFCMToken = async (token: string): Promise<void> => {
 
 export const deleteFCMToken = async (): Promise<void> => {
   try {
-    const messaging = getMessaging();
+    const messaging = await getMessagingSafe();
+    if (!messaging) {
+      return;
+    }
+
     await deleteToken(messaging);
   } catch (error) {
-    // Silently handle delete errors
   }
 };
 

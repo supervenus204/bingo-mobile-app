@@ -9,7 +9,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthLogo, GoogleSignInButton } from '../../components/auth';
 import { CustomButton, Input } from '../../components/common';
-import { GOOGLE_WEB_CLIENT_ID, SCREEN_NAMES } from '../../constants';
+import { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, SCREEN_NAMES } from '../../constants';
 import { useAuth, useToast } from '../../hooks';
 import { COLORS, FONTS } from '../../theme';
 import { AuthStackParamList } from '../../types';
@@ -31,7 +31,7 @@ export const SignInScreen: React.FC = () => {
       hostedDomain: '',
       forceCodeForRefreshToken: false,
       accountName: '',
-      iosClientId: '',
+      iosClientId: GOOGLE_IOS_CLIENT_ID,
     });
   }, []);
 

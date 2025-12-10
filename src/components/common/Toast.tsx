@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '../../theme';
 import type { ToastOptions, ToastPosition } from '../../types';
 
@@ -43,6 +44,7 @@ export function Toast({
   onRequestClose,
   onHidden,
 }: Props) {
+  const insets = useSafeAreaInsets();
   const opacity = useRef(new Animated.Value(0)).current;
   const translate = useRef(
     new Animated.Value(position === 'top' ? -12 : 12)
@@ -114,8 +116,8 @@ export function Toast({
         pointerEvents="box-none"
         style={{
           alignItems: 'center',
-          paddingTop: position === 'top' ? offset : 0,
-          paddingBottom: position === 'bottom' ? offset : 0,
+          paddingTop: position === 'top' ? offset + insets.top : 0,
+          paddingBottom: position === 'bottom' ? offset + insets.bottom : 0,
         }}
       >
         {options && (
