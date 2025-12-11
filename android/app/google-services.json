@@ -1,26 +1,52 @@
 {
   "project_info": {
-    "project_number": "131287056633",
-    "project_id": "healthbingo-581ea",
-    "storage_bucket": "healthbingo-581ea.firebasestorage.app"
+    "project_number": "178210706294",
+    "firebase_url": "https://health-bingo-a4f88-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "health-bingo-a4f88",
+    "storage_bucket": "health-bingo-a4f88.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:131287056633:android:bb60b5a444a6567dda6228",
+        "mobilesdk_app_id": "1:178210706294:android:1407bdda726dda8841e057",
         "android_client_info": {
           "package_name": "com.healthbingo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "178210706294-3lj9568l9r18t31dbbb1sphg7gvtc55k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.healthbingo",
+            "certificate_hash": "cb40c2949587b2638f2a09065c97c1540ad4030d"
+          }
+        },
+        {
+          "client_id": "178210706294-2otdnft4vm0cbfvkb1l92bef3av6v7un.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBDpHfngJIydEld-o4cyuTFr86im9YS6hM"
+          "current_key": "AIzaSyBqllIRD_iou2lxBxoBKENr8s63-umkr-8"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "178210706294-2otdnft4vm0cbfvkb1l92bef3av6v7un.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "178210706294-nm0nm7bof1ov4ubfhgv845ur8olufdg2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.healthbingo"
+              }
+            }
+          ]
         }
       }
     }
