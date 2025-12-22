@@ -49,7 +49,7 @@ const CategoryButton: React.FC<{
     Animated.spring(scaleAnim, {
       toValue: 1,
       useNativeDriver: true,
-      tension: 300, 
+      tension: 300,
       friction: 10,
     }).start();
   };
@@ -128,7 +128,8 @@ export const CategorySelector: React.FC<Props> = ({
       <View style={styles.typeButtonsContainer}>
         {categories?.map(category => {
           const isSelected = categoryId === category.id;
-          const disabled = plan === 'free' && category.is_premium;
+          const disabled =
+            (plan === 'free' || plan === 'premium') && category.is_premium;
           return (
             <CategoryButton
               key={category.id}
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'stretch',
     width: '100%',
   },
   buttonWrapper: {
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
   },
   typeButton: {
     width: '100%',
-    minHeight: 80,
+    height: 100,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
