@@ -78,9 +78,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.healthbingo.app"
+    namespace "com.healthbingo"
     defaultConfig {
-        applicationId "com.healthbingo.app"
+        applicationId "com.healthbingo"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
