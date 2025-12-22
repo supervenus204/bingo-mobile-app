@@ -1,11 +1,19 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { COLORS, FONTS } from '../../theme';
+
+interface FeatureItem {
+  text: string;
+  isLocked?: boolean;
+}
+
+type Feature = string | FeatureItem;
 
 interface PriceCardProps {
   title: string;
   description: string;
-  features: string[];
+  features: Feature[];
   buttonText: string;
   bgColor: string;
   borderColor: string;
@@ -42,11 +50,32 @@ export const PriceCard: React.FC<PriceCardProps> = ({
       <Text style={styles.description}>{description}</Text>
 
       <View style={styles.featuresContainer}>
-        {features.map((feature, index) => (
-          <Text key={index} style={styles.feature}>
-            • {feature}
-          </Text>
-        ))}
+        {features.map((feature, index) => {
+          const featureText = typeof feature === 'string' ? feature : feature.text;
+          const isLocked = typeof feature === 'object' && feature.isLocked;
+
+          return (
+            <View key={index} style={styles.featureRow}>
+              <Text style={styles.bullet}>• </Text>
+              <Text
+                style={[
+                  styles.feature,
+                  isLocked && styles.featureLocked,
+                ]}
+              >
+                {featureText}
+              </Text>
+              {isLocked && (
+                <MaterialIcons
+                  name="lock"
+                  size={16}
+                  color={COLORS.gray.mediumDark}
+                  style={styles.lockIcon}
+                />
+              )}
+            </View>
+          );
+        })}
       </View>
 
       <TouchableOpacity
@@ -84,12 +113,28 @@ const styles = StyleSheet.create({
   featuresContainer: {
     marginBottom: 10,
   },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  bullet: {
+    fontSize: 16,
+    color: COLORS.gray.dark,
+  },
   feature: {
     fontSize: 16,
     color: COLORS.gray.dark,
-    marginBottom: 8,
     textAlign: 'left',
     lineHeight: 20,
+    flex: 1,
+  },
+  featureLocked: {
+    textDecorationLine: 'line-through',
+    color: COLORS.gray.mediumDark,
+  },
+  lockIcon: {
+    marginLeft: 6,
   },
   button: {
     backgroundColor: COLORS.primary.green,

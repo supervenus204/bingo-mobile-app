@@ -43,7 +43,7 @@ export const ChoosePlan: React.FC = () => {
       <View style={styles.container}>
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.priceCardsContainer}>
-            <Text style={styles.title}>Choose Your Plan</Text>
+            <Text style={styles.title}>Choose how you want to play!</Text>
             {formatPrices?.map(plan => (
               <PriceCard
                 key={plan.id}
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: FONTS.family.poppinsBold,
     color: COLORS.primary.blue,
-    fontSize: FONTS.size['2xl'],
+    fontSize: FONTS.size.xl,
     fontWeight: FONTS.weight.bold,
     marginBottom: 8,
     marginTop: 16,

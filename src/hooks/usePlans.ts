@@ -1,46 +1,82 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { SubscriptionPlan, usePlansStore } from '../store/plans.store';
 
+type FeatureItem = {
+  text: string;
+  isLocked?: boolean;
+};
+
+type Feature = string | FeatureItem;
+
+interface FormattedPlan extends Omit<SubscriptionPlan, 'features'> {
+  features: Feature[];
+  buttonText: string;
+  bgColor: string;
+  borderColor: string;
+  titleColor: string;
+}
+
 export const usePlans = () => {
-  const {
-    plans,
-    loading,
-    error,
-    fetchPlans,
-    clearError,
-  } = usePlansStore();
+  const { plans, loading, error, fetchPlans, clearError } = usePlansStore();
 
   const loadPlans = useCallback(async () => {
     await fetchPlans();
   }, [fetchPlans]);
 
-  const getPlanById = useCallback((planId: string): SubscriptionPlan | undefined => {
-    return plans?.find(plan => plan.id === planId);
-  }, [plans]);
+  const getPlanById = useCallback(
+    (planId: string): SubscriptionPlan | undefined => {
+      return plans?.find(plan => plan.id === planId);
+    },
+    [plans]
+  );
 
-  const formatPrices = useMemo(() => {
-    const formattedPlans = plans?.map(plan => ({
-      ...plan,
-      buttonText: plan.id === 'free' ? 'Start Free' : 'Select Plan',
-      bgColor:
-        plan.id === 'free'
-          ? '#FFFFFF'
-          : plan.id === 'premium'
+  const formatPrices = useMemo((): FormattedPlan[] | undefined => {
+    const formattedPlans = plans?.map((plan): FormattedPlan => {
+      // Add "Weight loss tracker" with locked flag to free and premium plans
+      // Pro plans should have it available (unlocked)
+      const features: Feature[] = [...plan.features];
+
+      if (plan.id === 'free' || plan.id === 'premium') {
+        // Add locked Weight loss tracker to Free and Premium
+        features.push({ text: 'Weight loss tracker', isLocked: true });
+      } else if (plan.id === 'pro' || plan.id === 'pro-lifetime') {
+        // Ensure Pro plans have Weight loss tracker available (unlocked)
+        // Check if it already exists in features (as string or object)
+        const hasWeightLossTracker = features.some(feature => {
+          const featureText =
+            typeof feature === 'string' ? feature : feature.text;
+          return featureText.toLowerCase().includes('weight loss tracker');
+        });
+
+        if (!hasWeightLossTracker) {
+          features.push({ text: 'Weight loss tracker', isLocked: false });
+        }
+      }
+
+      return {
+        ...plan,
+        features,
+        buttonText: plan.id === 'free' ? 'Start Free' : 'Select Plan',
+        bgColor:
+          plan.id === 'free'
+            ? '#FFFFFF'
+            : plan.id === 'premium'
             ? '#E8F5E8'
             : '#F3E8FF',
-      borderColor:
-        plan.id === 'free'
-          ? '#E0F2FE'
-          : plan.id === 'premium'
+        borderColor:
+          plan.id === 'free'
+            ? '#E0F2FE'
+            : plan.id === 'premium'
             ? '#C8E6C9'
             : '#E9D5FF',
-      titleColor:
-        plan.id === 'free'
-          ? '#374151'
-          : plan.id === 'premium'
+        titleColor:
+          plan.id === 'free'
+            ? '#374151'
+            : plan.id === 'premium'
             ? '#166534'
             : '#7C3AED',
-    }));
+      };
+    });
     return formattedPlans;
   }, [plans]);
 
