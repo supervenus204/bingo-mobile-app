@@ -43,6 +43,7 @@
 		C89FD35F2821488487B1EACA /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D38C62DB062347BC981E3060 /* SimpleLineIcons.ttf */; };
 		D032769827554CB18E3F2640 /* Poppins-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B1F6D1B5DDE64D7885397183 /* Poppins-MediumItalic.ttf */; };
 		D212FB552EE6CE3100962B42 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D212FB542EE6CE3100962B42 /* GoogleService-Info.plist */; };
+		D21BF86E2EED709A00151D7B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D21BF86D2EED709A00151D7B /* Assets.xcassets */; };
 		D276C3EE2EE8262B00945C1C /* check.wav in Resources */ = {isa = PBXBuildFile; fileRef = D276C3ED2EE8262B00945C1C /* check.wav */; };
 		D276C3F02EE8263E00945C1C /* mark.wav in Resources */ = {isa = PBXBuildFile; fileRef = D276C3EF2EE8263E00945C1C /* mark.wav */; };
 		D76BC91766124BBD95F2CA69 /* Poppins-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5064461B8E394FC3AD26F41B /* Poppins-Bold.ttf */; };
@@ -95,6 +96,7 @@
 		CC27FA8666D14B1781E02493 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		D212FB542EE6CE3100962B42 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D212FB562EE6CE7000962B42 /* HealthBingo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = HealthBingo.entitlements; path = HealthBingo/HealthBingo.entitlements; sourceTree = "<group>"; };
+		D21BF86D2EED709A00151D7B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D276C3ED2EE8262B00945C1C /* check.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = check.wav; sourceTree = "<group>"; };
 		D276C3EF2EE8263E00945C1C /* mark.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = mark.wav; sourceTree = "<group>"; };
 		D38C62DB062347BC981E3060 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				D21BF86D2EED709A00151D7B /* Assets.xcassets */,
 				D276C3EF2EE8263E00945C1C /* mark.wav */,
 				D276C3ED2EE8262B00945C1C /* check.wav */,
 				D212FB542EE6CE3100962B42 /* GoogleService-Info.plist */,
@@ -330,6 +333,7 @@
 				9FF498C521AC4B499A09F441 /* FontAwesome5_Solid.ttf in Resources */,
 				0D8648F8F025422DA6B25BD2 /* FontAwesome6_Brands.ttf in Resources */,
 				49F1A2A12BFD437A8F1EDE9C /* FontAwesome6_Regular.ttf in Resources */,
+				D21BF86E2EED709A00151D7B /* Assets.xcassets in Resources */,
 				229D2CE0826240308112BC8D /* FontAwesome6_Solid.ttf in Resources */,
 				EF9BA5549BF347258EFA8038 /* Fontisto.ttf in Resources */,
 				906BFF8807F24AFFA8861D50 /* Foundation.ttf in Resources */,
@@ -460,12 +464,15 @@
 			baseConfigurationReference = 04265236622E9F2D8B64F83C /* Pods-HealthBingo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = HealthBingo/HealthBingo.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 79PFQUPNG5;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 79PFQUPNG5;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = HealthBingo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -473,7 +480,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -484,6 +491,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.healthbingo.app;
 				PRODUCT_NAME = HealthBingo;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "health-bingo-app";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -495,19 +503,22 @@
 			baseConfigurationReference = 2439074564C4BC371CDC38D6 /* Pods-HealthBingo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = HealthBingo/HealthBingo.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 79PFQUPNG5;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 79PFQUPNG5;
 				INFOPLIST_FILE = HealthBingo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -518,6 +529,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.healthbingo.app;
 				PRODUCT_NAME = HealthBingo;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "health-bingo-app";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

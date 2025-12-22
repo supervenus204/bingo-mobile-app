@@ -3,9 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>178210706294-nm0nm7bof1ov4ubfhgv845ur8olufdg2.apps.googleusercontent.com</string>
+	<string>178210706294-p1g5q3iohp8nun9ugso4jcmesh8h50la.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.178210706294-nm0nm7bof1ov4ubfhgv845ur8olufdg2</string>
+	<string>com.googleusercontent.apps.178210706294-p1g5q3iohp8nun9ugso4jcmesh8h50la</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>178210706294-3lj9568l9r18t31dbbb1sphg7gvtc55k.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDukqtX4hmioXk8AopkvUfMEm-k7tq1Uto</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.healthbingo</string>
+	<string>com.healthbingo.app</string>
 	<key>PROJECT_ID</key>
 	<string>health-bingo-a4f88</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +31,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:178210706294:ios:c6f1ff3b9a7dfaf241e057</string>
+	<string>1:178210706294:ios:dc65c93ffcae390d41e057</string>
 	<key>DATABASE_URL</key>
 	<string>https://health-bingo-a4f88-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
