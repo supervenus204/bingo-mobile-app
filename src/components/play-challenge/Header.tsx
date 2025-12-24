@@ -16,10 +16,12 @@ type Props = {
 
 export const Header: React.FC<Props> = ({ title }) => {
   const navigation = useNavigation();
-  const { selectChallenge } = useChallengesStore();
+  const { selectChallenge, selectedChallenge } = useChallengesStore();
   const [showSidebar, setShowSidebar] = useState(false);
 
   const { logout } = useAuth();
+
+  const isProPlan = selectedChallenge?.plan === 'pro';
 
   const handleHomePress = () => {
     setShowSidebar(true);
@@ -86,18 +88,20 @@ export const Header: React.FC<Props> = ({ title }) => {
         </Text>
       </View>
 
-      <CustomButton
-        onPress={handleGoToInputWeight}
-        variant="default"
-        buttonStyle={styles.iconButton}
-        icon={
-          <Image
-            source={require('../../assets/images/play-challenge/input-weight.png')}
-            style={styles.weightIcon}
-            resizeMode="contain"
-          />
-        }
-      />
+      {isProPlan && (
+        <CustomButton
+          onPress={handleGoToInputWeight}
+          variant="default"
+          buttonStyle={styles.iconButton}
+          icon={
+            <Image
+              source={require('../../assets/images/play-challenge/input-weight.png')}
+              style={styles.weightIcon}
+              resizeMode="contain"
+            />
+          }
+        />
+      )}
 
       <Sidebar
         visible={showSidebar}

@@ -232,6 +232,7 @@ export const LeaderboardScreen: React.FC = () => {
     fetchLeaderboard,
   } = useLeaderboard(selectedChallenge?.id as string);
 
+  const isProPlan = selectedChallenge?.plan === 'pro';
   const [measureType, setMeasureType] = useState<MeasureType>('points');
   const [selectedWeek, setSelectedWeek] = useState<number>(1);
 
@@ -240,34 +241,42 @@ export const LeaderboardScreen: React.FC = () => {
     fetchLeaderboard(selectedWeek, measureType);
   }, [selectedWeek, measureType, fetchLeaderboard, isFocused]);
 
+  useEffect(() => {
+    if (!isProPlan && measureType === 'weight') {
+      setMeasureType('points');
+    }
+  }, [isProPlan, measureType]);
+
   return (
     <View style={styles.container}>
-      <View style={styles.toggleContainer}>
-        <CustomButton
-          text="Points"
-          onPress={() => setMeasureType('points')}
-          buttonStyle={[
-            styles.toggleButton,
-            measureType === 'points' && styles.toggleButtonActive,
-          ]}
-          textStyle={[
-            styles.toggleText,
-            measureType === 'points' && styles.toggleTextActive,
-          ]}
-        />
-        <CustomButton
-          text="Weight Loss"
-          onPress={() => setMeasureType('weight')}
-          buttonStyle={[
-            styles.toggleButton,
-            measureType === 'weight' && styles.toggleButtonActive,
-          ]}
-          textStyle={[
-            styles.toggleText,
-            measureType === 'weight' && styles.toggleTextActive,
-          ]}
-        />
-      </View>
+      {isProPlan && (
+        <View style={styles.toggleContainer}>
+          <CustomButton
+            text="Points"
+            onPress={() => setMeasureType('points')}
+            buttonStyle={[
+              styles.toggleButton,
+              measureType === 'points' && styles.toggleButtonActive,
+            ]}
+            textStyle={[
+              styles.toggleText,
+              measureType === 'points' && styles.toggleTextActive,
+            ]}
+          />
+          <CustomButton
+            text="Weight Loss"
+            onPress={() => setMeasureType('weight')}
+            buttonStyle={[
+              styles.toggleButton,
+              measureType === 'weight' && styles.toggleButtonActive,
+            ]}
+            textStyle={[
+              styles.toggleText,
+              measureType === 'weight' && styles.toggleTextActive,
+            ]}
+          />
+        </View>
+      )}
 
       {loading ? (
         <LoadingCard
@@ -279,7 +288,7 @@ export const LeaderboardScreen: React.FC = () => {
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           {weekLeaderboardData && (
             <WeekSection
-              measureType={measureType}
+              measureType={isProPlan ? measureType : 'points'}
               leaderboardData={weekLeaderboardData || []}
               currentWeek={selectedChallenge?.current_week || 1}
               selectedWeek={selectedWeek}
@@ -288,7 +297,7 @@ export const LeaderboardScreen: React.FC = () => {
           )}
           {challengeLeaderboardData && (
             <ChallengeSection
-              measureType={measureType}
+              measureType={isProPlan ? measureType : 'points'}
               currentWeek={selectedChallenge?.current_week || 1}
               challengeDuration={selectedChallenge?.duration || 2}
               leaderboardData={challengeLeaderboardData || []}
