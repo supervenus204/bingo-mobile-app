@@ -5,6 +5,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {
   BingoBoard,
+  BingoCompletionConfirmationModal,
   CelebrationModal,
   CustomButton,
   LoadingCard,
@@ -35,10 +36,16 @@ export const BingoScreen: React.FC = () => {
   );
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [bingoCardsData, setBingoCardsData] = useState<BingoCard[]>([]);
   const [showAddCustomModal, setShowAddCustomModal] = useState(false);
+  const [pendingCardUpdate, setPendingCardUpdate] = useState<{
+    cardId: number;
+    status: string;
+    previousStatus: 'mark' | 'unmark' | 'check' | undefined;
+  } | null>(null);
 
   const availableWeeks = useMemo(() => {
     return Array.from(
@@ -142,6 +149,8 @@ export const BingoScreen: React.FC = () => {
 
   useEffect(() => {
     setShowCelebrationModal(false);
+    setShowConfirmationModal(false);
+    setPendingCardUpdate(null);
   }, [selectedWeek, selectedChallenge?.id]);
 
 
@@ -252,10 +261,40 @@ export const BingoScreen: React.FC = () => {
         prev.map(card => (card.id === selectedCard.id ? selectedCard : card))
       );
     } else {
+      const action = status || 'mark';
+      const currentCardStatus = bingoCardsData[cardId]?.status;
+
+      if (action === 'check' && currentCardStatus !== 'check') {
+        const updatedCardData: BingoCard[] = bingoCardsData.map((card, index) => {
+          if (index === cardId) {
+            return {
+              ...card,
+              status: 'check' as const,
+            };
+          }
+          return card;
+        });
+
+        const allCardsWillBeChecked = updatedCardData.every(
+          card => card.status === 'check'
+        );
+
+        if (allCardsWillBeChecked) {
+          setBingoCardsData(updatedCardData);
+          setPendingCardUpdate({
+            cardId,
+            status: action,
+            previousStatus: currentCardStatus
+          });
+          setShowConfirmationModal(true);
+          return;
+        }
+      }
+
       const { current_progress } = await updateProgress(
         selectedChallenge?.id as string,
         cardId,
-        status || 'mark'
+        action
       );
       const _cardData = bingoCardsData.map((card, index) => {
         return {
@@ -273,19 +312,64 @@ export const BingoScreen: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (isSetupMode) return;
-    if (loading) return;
-    if (bingoCardsData.length === 0) return;
+  const handleConfirmCompletion = async () => {
+    if (!pendingCardUpdate) return;
 
-    const allCardsChecked = bingoCardsData.every(
-      card => card.status === 'check'
-    );
-
-    if (allCardsChecked) {
+    try {
+      const { current_progress } = await updateProgress(
+        selectedChallenge?.id as string,
+        pendingCardUpdate.cardId,
+        pendingCardUpdate.status
+      );
+      const _cardData = bingoCardsData.map((card, index) => {
+        return {
+          ...card,
+          status:
+            current_progress[index] === 'unmark' ||
+              current_progress[index] === 'mark'
+              ? current_progress[index]
+              : Date.parse(current_progress[index])
+                ? 'check'
+                : 'unmark',
+        };
+      });
+      setBingoCardsData(_cardData);
+      setPendingCardUpdate(null);
+      setShowConfirmationModal(false);
       setShowCelebrationModal(true);
+    } catch (error) {
+      const _cardData: BingoCard[] = bingoCardsData.map((card, index) => {
+        if (index === pendingCardUpdate.cardId) {
+          return {
+            ...card,
+            status: pendingCardUpdate.previousStatus,
+          };
+        }
+        return card;
+      });
+      setBingoCardsData(_cardData);
+      setPendingCardUpdate(null);
+      setShowConfirmationModal(false);
     }
-  }, [bingoCardsData]);
+  };
+
+  const handleCancelCompletion = () => {
+    if (!pendingCardUpdate) return;
+
+    const _cardData: BingoCard[] = bingoCardsData.map((card, index) => {
+      if (index === pendingCardUpdate.cardId) {
+        return {
+          ...card,
+          status: pendingCardUpdate.previousStatus,
+        };
+      }
+      return card;
+    });
+    setBingoCardsData(_cardData);
+    setPendingCardUpdate(null);
+    setShowConfirmationModal(false);
+  };
+
 
   return (
     <View style={styles.container}>
@@ -315,6 +399,12 @@ export const BingoScreen: React.FC = () => {
             mode={isSetupMode ? 'setup' : 'play'}
             handleClick={handleClick}
             totalCount={selectedChallenge?.card_size || 24}
+            allCardsChecked={
+              !isSetupMode &&
+              bingoCardsData.length > 0 &&
+              bingoCardsData.every(card => card.status === 'check')
+            }
+            onAllCardsCheckedClick={() => setShowCelebrationModal(true)}
           />
           {isSetupMode && (
             <>
@@ -360,6 +450,12 @@ export const BingoScreen: React.FC = () => {
           buttonText="LET'S GO"
         />
       </View>
+
+      <BingoCompletionConfirmationModal
+        visible={showConfirmationModal}
+        onConfirm={handleConfirmCompletion}
+        onCancel={handleCancelCompletion}
+      />
 
       <CelebrationModal
         visible={showCelebrationModal}

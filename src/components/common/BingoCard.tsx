@@ -22,6 +22,8 @@ interface BingoCardProps {
   count: number;
   mode?: 'setup' | 'unmark' | 'mark' | 'check';
   handleClick?: (status?: string) => void;
+  allCardsChecked?: boolean;
+  onAllCardsCheckedClick?: () => void;
 }
 
 export const BingoCard: React.FC<BingoCardProps> = ({
@@ -32,6 +34,8 @@ export const BingoCard: React.FC<BingoCardProps> = ({
   count,
   mode,
   handleClick,
+  allCardsChecked = false,
+  onAllCardsCheckedClick,
 }) => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
@@ -69,16 +73,16 @@ export const BingoCard: React.FC<BingoCardProps> = ({
   const cardWrapperProps =
     mode === 'setup'
       ? {
-          onPress: handleClick ? () => handleClick() : undefined,
-          activeOpacity: 0.7,
-        }
+        onPress: handleClick ? () => handleClick() : undefined,
+        activeOpacity: 0.7,
+      }
       : {
-          style: [
-            mode === 'mark' && {
-              transform: [{ scale: pulseAnim }],
-            },
-          ],
-        };
+        style: [
+          mode === 'mark' && {
+            transform: [{ scale: pulseAnim }],
+          },
+        ],
+      };
 
   const [showModal, setShowModal] = useState(false);
 
@@ -140,8 +144,10 @@ export const BingoCard: React.FC<BingoCardProps> = ({
                 } else if (mode === 'mark') {
                   handleClick?.('check');
                   playCheckSound();
-                } else if (mode === 'check') {
+                } else if (mode === 'check' && !allCardsChecked) {
                   setShowModal(true);
+                } else if (mode === 'check' && allCardsChecked) {
+                  onAllCardsCheckedClick?.();
                 }
               }}
               delayLongPress={500}
@@ -221,8 +227,8 @@ export const BingoCard: React.FC<BingoCardProps> = ({
                 backgroundColor: mode === 'check' ? COLORS.primary.blue : color,
               },
               mode !== 'check' &&
-                color === COLORS.primary.white &&
-                styles.blackBorder,
+              color === COLORS.primary.white &&
+              styles.blackBorder,
               mode === 'mark' && styles.markedContainer,
               mode === 'check' && styles.checkedContainer,
             ]}

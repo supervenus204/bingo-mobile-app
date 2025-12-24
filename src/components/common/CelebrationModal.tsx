@@ -23,7 +23,7 @@ export const CelebrationModal: React.FC<CelebrationModalProps> = ({
   visible,
   onClose,
   title = '🎉 BINGO! 🎉',
-  subtitle = 'You smashed your card - congratulations! \n Healthy habits are stacking up.',
+  subtitle = "BINGO! You did it! You smashed your card — congratulations. Healthy habits are stacking up.",
   buttonText = 'Done',
 }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -71,7 +71,7 @@ export const CelebrationModal: React.FC<CelebrationModalProps> = ({
     >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
-          <TouchableWithoutFeedback onPress={() => {}}>
+          <TouchableWithoutFeedback onPress={() => { }}>
             <Animated.View
               style={[
                 styles.modalContainer,
