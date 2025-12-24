@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -8,15 +8,19 @@ import {
   View,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { CustomButton, LoadingCard } from '../../components/common';
+import {
+  CustomButton,
+  HostTutorialOverlay,
+  LoadingCard,
+} from '../../components/common';
 import { BingoBoard } from '../../components/common/BingoBoard';
 import { Footer, Header } from '../../components/create-challenge';
 import { DashboardHeader } from '../../components/dashboard';
 import { AddCustomCardModal } from '../../components/play-challenge';
 import { SCREEN_NAMES } from '../../constants/screens';
 import { useCards } from '../../hooks';
-import { useCreateStore } from '../../store';
-import { COLORS } from '../../theme';
+import { useCreateStore, useHostTutorialStore } from '../../store';
+import { COLORS, FONTS } from '../../theme';
 import { BingoCard } from '../../types';
 
 export const CardSetup: React.FC = () => {
@@ -24,6 +28,19 @@ export const CardSetup: React.FC = () => {
   const { bingoCards, setBingoCards, cardSize, categoryId } = useCreateStore();
   const { cards, loading } = useCards(categoryId as string);
   const [showAddCustomModal, setShowAddCustomModal] = useState(false);
+
+  const {
+    completedCardSetupTutorial,
+    setCardSetupTutorialCompleted,
+    hasHydrated,
+  } = useHostTutorialStore();
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  const boardContainerRef = useRef<View>(null);
+  const firstCardRef = useRef<View>(null);
+  const progressSectionRef = useRef<View>(null);
+  const resetButtonRef = useRef<View>(null);
 
   useEffect(() => {
     if (cards && cards.length > 0) {
@@ -37,6 +54,20 @@ export const CardSetup: React.FC = () => {
       );
     }
   }, [cards]);
+
+  useEffect(() => {
+    if (
+      hasHydrated &&
+      !completedCardSetupTutorial &&
+      !loading &&
+      cards &&
+      cards.length > 0
+    ) {
+      setTimeout(() => {
+        setShowTutorial(true);
+      }, 500);
+    }
+  }, [hasHydrated, completedCardSetupTutorial, loading, cards]);
 
   const selectedCardsCount = useMemo(
     () => bingoCards.reduce((total, card) => total + card.count, 0),
@@ -92,6 +123,144 @@ export const CardSetup: React.FC = () => {
     }
   };
 
+  const tutorialSteps = [
+    {
+      id: 'card-selection',
+      title: 'Build your Bingo board your way',
+      description:
+        'Start with our default cards, or choose Custom Cards to create your own challenges.',
+      measureTarget: (
+        callback: (layout: {
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        }) => void
+      ) => {
+        if (boardContainerRef.current) {
+          boardContainerRef.current.measure(
+            (
+              _x: number,
+              _y: number,
+              width: number,
+              height: number,
+              pageX: number,
+              pageY: number
+            ) => {
+              callback({ x: pageX, y: pageY, width, height });
+            }
+          );
+        }
+      },
+      tooltipPosition: 'bottom' as const,
+    },
+    {
+      id: 'add-cards',
+      title: 'Tap to add cards',
+      description:
+        'Tap a card to add it to your board.\n\nWant the same card more than once? Just tap it again.',
+      measureTarget: (
+        callback: (layout: {
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        }) => void
+      ) => {
+        if (firstCardRef.current) {
+          firstCardRef.current.measure(
+            (
+              _x: number,
+              _y: number,
+              width: number,
+              height: number,
+              pageX: number,
+              pageY: number
+            ) => {
+              callback({ x: pageX, y: pageY, width, height });
+            }
+          );
+        }
+      },
+      tooltipPosition: 'right' as const,
+    },
+    {
+      id: 'card-counter',
+      title: "You're building your board",
+      description:
+        "This counter shows how many cards you've added.\n\nYour board is ready when it's full.",
+      measureTarget: (
+        callback: (layout: {
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        }) => void
+      ) => {
+        if (progressSectionRef.current) {
+          progressSectionRef.current.measure(
+            (
+              _x: number,
+              _y: number,
+              width: number,
+              height: number,
+              pageX: number,
+              pageY: number
+            ) => {
+              callback({ x: pageX, y: pageY, width, height });
+            }
+          );
+        }
+      },
+      tooltipPosition: 'bottom' as const,
+    },
+    {
+      id: 'reset',
+      title: 'Need a fresh start?',
+      description: 'Tap Reset to clear your board and rebuild it anytime.',
+      measureTarget: (
+        callback: (layout: {
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        }) => void
+      ) => {
+        if (resetButtonRef.current) {
+          resetButtonRef.current.measure(
+            (
+              _x: number,
+              _y: number,
+              width: number,
+              height: number,
+              pageX: number,
+              pageY: number
+            ) => {
+              callback({ x: pageX, y: pageY, width, height });
+            }
+          );
+        }
+      },
+      tooltipPosition: 'top' as const,
+    },
+  ];
+
+  const handleTutorialNext = () => {
+    if (tutorialStep < tutorialSteps.length - 1) {
+      setTutorialStep(tutorialStep + 1);
+    }
+  };
+
+  const handleTutorialSkip = () => {
+    setShowTutorial(false);
+    setCardSetupTutorialCompleted(true);
+  };
+
+  const handleTutorialComplete = () => {
+    setShowTutorial(false);
+    setCardSetupTutorialCompleted(true);
+  };
+
   return (
     <>
       <DashboardHeader
@@ -130,6 +299,9 @@ export const CardSetup: React.FC = () => {
                 mode="setup"
                 handleClick={handleClick}
                 totalCount={cardSize}
+                boardContainerRef={boardContainerRef}
+                firstCardRef={firstCardRef}
+                progressSectionRef={progressSectionRef}
               />
               <CustomButton
                 text="Add Custom Task"
@@ -149,12 +321,21 @@ export const CardSetup: React.FC = () => {
 
             <Footer>
               <View style={styles.buttonGroup}>
-                <CustomButton
-                  text="Reset Selection"
-                  onPress={handleReset}
-                  variant="outline"
-                  buttonStyle={styles.resetButton}
-                />
+                <View ref={resetButtonRef} style={styles.resetButtonContainer}>
+                  <TouchableOpacity
+                    onPress={handleReset}
+                    style={styles.resetButton}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialIcons
+                      name="refresh"
+                      size={18}
+                      color={COLORS.gray.dark}
+                      style={styles.resetIcon}
+                    />
+                    <Text style={styles.resetButtonText}>Reset</Text>
+                  </TouchableOpacity>
+                </View>
                 <CustomButton
                   text="Next: Invite Players"
                   onPress={() =>
@@ -177,6 +358,15 @@ export const CardSetup: React.FC = () => {
         visible={showAddCustomModal}
         onClose={() => setShowAddCustomModal(false)}
         onSave={handleAddCustomCard}
+      />
+
+      <HostTutorialOverlay
+        visible={showTutorial}
+        steps={tutorialSteps}
+        currentStep={tutorialStep}
+        onNext={handleTutorialNext}
+        onSkip={handleTutorialSkip}
+        onComplete={handleTutorialComplete}
       />
     </>
   );
@@ -203,16 +393,33 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     width: '100%',
     gap: 16,
   },
+  resetButtonContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
   resetButton: {
-    width: '40%',
-    height: 40,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: COLORS.gray.light,
+  },
+  resetIcon: {
+    marginRight: 6,
+  },
+  resetButtonText: {
+    fontSize: 14,
+    fontFamily: FONTS.family.poppinsMedium,
+    color: COLORS.gray.darker,
   },
   nextButton: {
-    width: '55%',
+    flex: 1,
     height: 40,
     borderRadius: 12,
   },

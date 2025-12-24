@@ -3,6 +3,7 @@ export * from './cards.store';
 export * from './categories.store';
 export * from './challenges.store';
 export * from './create.store';
+export * from './hostTutorial.store';
 export * from './lastSeen.store';
 export * from './plans.store';
 export * from './welcome.store';

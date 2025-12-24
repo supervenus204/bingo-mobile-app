@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { COLORS } from '../../theme/colors';
 import { FONTS } from '../../theme/fonts';
@@ -10,9 +10,16 @@ interface BingoRowProps {
   cards: BingoCardType[];
   rowIndex: number;
   handleClick: (cardId: number, status?: string) => void;
+  firstCardRef?: React.RefObject<View | null>;
 }
 
-const BingoRow = ({ mode, cards, rowIndex, handleClick }: BingoRowProps) => {
+const BingoRow = ({
+  mode,
+  cards,
+  rowIndex,
+  handleClick,
+  firstCardRef,
+}: BingoRowProps) => {
   const renderEmptySpace = (key: string) => (
     <View key={key} style={styles.emptySpace} />
   );
@@ -24,20 +31,27 @@ const BingoRow = ({ mode, cards, rowIndex, handleClick }: BingoRowProps) => {
 
   return (
     <View key={`row-${rowIndex}`} style={styles.row}>
-      {cards.map((card, index) => (
-        <BingoCard
-          key={`${card.id}-${index}`}
-          color={card.color}
-          font_color={card.font_color}
-          font_name={card.font_name}
-          name={card.name}
-          count={card.count}
-          mode={mode === 'setup' ? 'setup' : card.status}
-          handleClick={(status?: string) =>
-            handleClick(rowIndex * 4 + index, status)
-          }
-        />
-      ))}
+      {cards.map((card, index) => {
+        const isFirstCard = rowIndex === 0 && index === 0;
+        return (
+          <View
+            key={`${card.id}-${index}`}
+            ref={isFirstCard ? firstCardRef : undefined}
+          >
+            <BingoCard
+              color={card.color}
+              font_color={card.font_color}
+              font_name={card.font_name}
+              name={card.name}
+              count={card.count}
+              mode={mode === 'setup' ? 'setup' : card.status}
+              handleClick={(status?: string) =>
+                handleClick(rowIndex * 4 + index, status)
+              }
+            />
+          </View>
+        );
+      })}
       {emptySpaceElements}
     </View>
   );
@@ -48,6 +62,9 @@ interface BingoBoardProps {
   mode: 'setup' | 'play';
   totalCount: number;
   handleClick: (cardId: number, status?: string) => void;
+  progressSectionRef?: React.RefObject<View | null>;
+  firstCardRef?: React.RefObject<View | null>;
+  boardContainerRef?: React.RefObject<View | null>;
 }
 
 export const BingoBoard: React.FC<BingoBoardProps> = ({
@@ -55,6 +72,9 @@ export const BingoBoard: React.FC<BingoBoardProps> = ({
   mode,
   totalCount,
   handleClick,
+  progressSectionRef,
+  firstCardRef,
+  boardContainerRef,
 }) => {
   const selectedCount = useMemo(
     () =>
@@ -74,8 +94,8 @@ export const BingoBoard: React.FC<BingoBoardProps> = ({
   );
 
   return (
-    <View style={styles.gridContainer}>
-      <View style={styles.progressSection}>
+    <View ref={boardContainerRef} style={styles.gridContainer}>
+      <View ref={progressSectionRef} style={styles.progressSection}>
         <Text style={styles.progressText}>
           {selectedCount} of {totalCount} tasks{' '}
           {mode === 'setup' ? 'selected' : 'done'}
@@ -101,6 +121,7 @@ export const BingoBoard: React.FC<BingoBoardProps> = ({
               cards={rowCards}
               rowIndex={rowIndex}
               handleClick={handleClick}
+              firstCardRef={rowIndex === 0 ? firstCardRef : undefined}
             />
           );
         })}

@@ -4,6 +4,7 @@ export * from './BingoCard';
 export * from './Button';
 export * from './CelebrationModal';
 export * from './Dropdown';
+export * from './HostTutorialOverlay';
 export * from './Input';
 export * from './Label';
 export * from './LoadingCard';
