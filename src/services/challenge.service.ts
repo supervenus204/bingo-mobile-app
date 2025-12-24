@@ -67,7 +67,7 @@ export const getAllBingoCards = async (categoryId: string) => {
     {}
   );
 
-  return response;
+  return response.bingoCards;
 };
 
 export const updateChallenge = async (challengeId: string, updateData: any) => {

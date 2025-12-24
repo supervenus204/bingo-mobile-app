@@ -51,18 +51,14 @@ export const PriceCard: React.FC<PriceCardProps> = ({
 
       <View style={styles.featuresContainer}>
         {features.map((feature, index) => {
-          const featureText = typeof feature === 'string' ? feature : feature.text;
+          const featureText =
+            typeof feature === 'string' ? feature : feature.text;
           const isLocked = typeof feature === 'object' && feature.isLocked;
 
           return (
             <View key={index} style={styles.featureRow}>
               <Text style={styles.bullet}>• </Text>
-              <Text
-                style={[
-                  styles.feature,
-                  isLocked && styles.featureLocked,
-                ]}
-              >
+              <Text style={[styles.feature, isLocked && styles.featureLocked]}>
                 {featureText}
               </Text>
               {isLocked && (

@@ -34,7 +34,7 @@ const WelcomeScreens = [
     title: 'Track Your Weekly Wins!',
     titleColor: COLORS.primary.white,
     description:
-      'Mark off tasks, log your weight-ins, and watch your progress climb up the leaderboard each week!',
+      'Mark off tasks, log and track weight loss, and watch your progress climb the Leaderboard.',
     bgColor: COLORS.primary.green,
     buttonColor: COLORS.primary.blue,
   },
@@ -44,7 +44,7 @@ const WelcomeScreens = [
     title: 'Stay Motivated Together',
     titleColor: COLORS.primary.white,
     description:
-      'Get supportive nudges, win weekly wild cards and join the Group Chat to boost accountability!',
+      'Play your way to health, and smash goals together!\n\nWeightloss • Body Fitness • Nutrition • Mental well being',
     bgColor: COLORS.primary.pink,
     buttonColor: COLORS.primary.blue,
   },

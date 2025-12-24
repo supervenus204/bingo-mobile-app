@@ -60,10 +60,10 @@ export const apiFetch = async (
         method === 'GET'
           ? undefined
           : body
-            ? multipart
-              ? (body as unknown as FormData)
-              : JSON.stringify(body)
-            : undefined,
+          ? multipart
+            ? (body as unknown as FormData)
+            : JSON.stringify(body)
+          : undefined,
     });
   } catch (error) {
     if (

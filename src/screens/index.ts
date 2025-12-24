@@ -10,4 +10,7 @@ export * from './dashboard';
 export * from './create-challenge';
 
 // Play challenge screens
-// export * from './play-challenge';
+export * from './play-challenge';
+
+// Join challenge screens
+export * from './join-challenge';

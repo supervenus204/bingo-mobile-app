@@ -17,6 +17,7 @@ type Props = {
   progress: number; // 0..1
   status: 'active' | 'pending' | 'in_active' | 'finished' | 'unpaid';
   categoryName?: string;
+  startingDayOfWeek?: string;
   containerStyle?: ViewStyle;
   isOrganizer?: boolean;
   disabled?: boolean;
@@ -30,6 +31,7 @@ export const ChallengeCard: React.FC<Props> = ({
   totalWeeks,
   progress,
   categoryName,
+  startingDayOfWeek,
   containerStyle,
   isOrganizer,
   onPress,
@@ -50,9 +52,24 @@ export const ChallengeCard: React.FC<Props> = ({
     return null;
   };
 
+  const formatDayName = (day: string | undefined): string => {
+    if (!day) return 'Mon';
+    const dayMap: Record<string, string> = {
+      monday: 'Mon',
+      tuesday: 'Tue',
+      wednesday: 'Wed',
+      thursday: 'Thu',
+      friday: 'Fri',
+      saturday: 'Sat',
+      sunday: 'Sun',
+    };
+    return dayMap[day.toLowerCase()] || day.charAt(0).toUpperCase() + day.slice(1).substring(0, 2);
+  };
+
   const getStatusText = () => {
     if (status === 'pending') {
-      return 'Start from next Mon';
+      const dayAbbr = formatDayName(startingDayOfWeek);
+      return `Start from next ${dayAbbr}`;
     }
     return null;
   };

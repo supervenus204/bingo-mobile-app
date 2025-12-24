@@ -5,6 +5,7 @@ import {
   BoardLayout,
   CategorySelector,
   DurationSelector,
+  StartingDaySelector,
   TitleInput,
 } from '../../components/challenge';
 import { CustomButton, LoadingCard } from '../../components/common';
@@ -26,6 +27,8 @@ export const DefineChallenge: React.FC = () => {
     setCardSize,
     categoryId,
     setCategoryId,
+    startingDayOfWeek,
+    setStartingDayOfWeek,
   } = useCreateStore();
 
   const navigation = useNavigation();
@@ -99,6 +102,11 @@ export const DefineChallenge: React.FC = () => {
           onChange={handleDurationChange}
         />
 
+        <StartingDaySelector
+          startingDayOfWeek={startingDayOfWeek}
+          onChange={setStartingDayOfWeek}
+        />
+
         <BoardLayout cardSize={cardSize} onPress={handleLayoutSelect} />
 
         <CustomButton
@@ -106,7 +114,11 @@ export const DefineChallenge: React.FC = () => {
           onPress={handleNext}
           buttonStyle={styles.nextButton}
           textStyle={styles.nextButtonText}
-          disabled={title.length === 0 || categoryId === null}
+          disabled={
+            title.length === 0 ||
+            categoryId === null ||
+            startingDayOfWeek === null
+          }
         />
       </ScrollView>
 

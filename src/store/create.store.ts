@@ -5,7 +5,21 @@ export type Participant = {
   email: string;
   displayName?: string;
   image?: string;
-}
+};
+
+const getTodayDayOfWeek = (): string => {
+  const day = new Date().getDay();
+  const days = [
+    'sunday',
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+  ];
+  return days[day];
+};
 
 type CreateState = {
   plan: string | null;
@@ -14,6 +28,7 @@ type CreateState = {
   duration: number;
   cardSize: number;
   categoryId: string | null;
+  startingDayOfWeek: string | null;
 
   bingoCards: BingoCard[];
 
@@ -30,6 +45,7 @@ type CreateActions = {
   setDuration: (duration: number) => void;
   setCardSize: (cardSize: number) => void;
   setCategoryId: (categoryId: string) => void;
+  setStartingDayOfWeek: (startingDayOfWeek: string) => void;
   setBingoCards: (
     bingoCards: BingoCard[] | ((prev: BingoCard[]) => BingoCard[])
   ) => void;
@@ -50,6 +66,7 @@ const initialState: CreateState = {
   duration: 1,
   cardSize: 24,
   categoryId: null,
+  startingDayOfWeek: getTodayDayOfWeek(),
   bingoCards: [],
   participants: [],
   loading: false,
@@ -65,6 +82,8 @@ export const useCreateStore = create<CreateStore>(set => ({
   setDuration: (duration: number) => set({ duration }),
   setCardSize: (cardSize: number) => set({ cardSize }),
   setCategoryId: (categoryId: string) => set({ categoryId }),
+  setStartingDayOfWeek: (startingDayOfWeek: string) =>
+    set({ startingDayOfWeek }),
   setBingoCards: (
     bingoCards: BingoCard[] | ((prev: BingoCard[]) => BingoCard[])
   ) =>
@@ -75,7 +94,9 @@ export const useCreateStore = create<CreateStore>(set => ({
           ? bingoCards([...state.bingoCards])
           : [...bingoCards],
     })),
-  setParticipants: (participants: Participant[] | ((prev: Participant[]) => Participant[])) =>
+  setParticipants: (
+    participants: Participant[] | ((prev: Participant[]) => Participant[])
+  ) =>
     set(state => ({
       ...state,
       participants:

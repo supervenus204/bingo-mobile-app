@@ -142,6 +142,7 @@ export const ChallengesListScreen: React.FC = () => {
                 currentWeek={ch.current_week ?? 1}
                 totalWeeks={ch.duration}
                 progress={(ch.current_week ?? 0) / Math.max(1, ch.duration)}
+                startingDayOfWeek={ch.starting_day_of_week}
                 isOrganizer={true}
                 unreadCount={unreadCounts[ch.id] || 0}
                 onPress={() => {

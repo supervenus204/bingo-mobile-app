@@ -40,6 +40,24 @@ export const confirmPayment = async (
   }
 };
 
+export const getClientSecret = async (
+  paymentIntentId: string
+): Promise<string | undefined> => {
+  try {
+    const response = await apiFetch(
+      `/api/payment/client-secret?payment_intent_id=${encodeURIComponent(
+        paymentIntentId
+      )}`,
+      'GET',
+      {}
+    );
+    return response.client_secret;
+  } catch (error: any) {
+    console.log('error', error);
+    return undefined;
+  }
+};
+
 export const getPaymentPlans = async (): Promise<{
   success: boolean;
   data?: any;
@@ -51,8 +69,7 @@ export const getPaymentPlans = async (): Promise<{
       success: true,
       data: response,
     };
-  }
-  catch (error: any) {
+  } catch (error: any) {
     return {
       success: false,
       error: error.message || 'Failed to get payment plans',

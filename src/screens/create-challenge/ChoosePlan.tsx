@@ -11,17 +11,19 @@ import { PriceCard } from '../../components/create-challenge';
 import { DashboardHeader } from '../../components/dashboard';
 import { SCREEN_NAMES } from '../../constants';
 import { usePlans } from '../../hooks';
-import { useCreateStore } from '../../store';
+import { useCardsStore, useCreateStore } from '../../store';
 import { COLORS, FONTS } from '../../theme';
 
 export const ChoosePlan: React.FC = () => {
   const navigation = useNavigation();
   const { setPlan, reset } = useCreateStore();
+  const { setLoading: setCardsLoading } = useCardsStore();
   const { formatPrices } = usePlans();
 
   useEffect(() => {
     reset();
-  }, []);
+    setCardsLoading(false);
+  }, [reset, setCardsLoading]);
 
   const handleCancel = () => {
     navigation.navigate(SCREEN_NAMES.DASHBOARD as never);

@@ -6,6 +6,7 @@ export interface Challenge {
   is_organizer_participant: boolean;
   duration: number;
   card_size: number;
+  starting_day_of_week?: string;
   status: string;
   image?: string | null;
   category_id: string;

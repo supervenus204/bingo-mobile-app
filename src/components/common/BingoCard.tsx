@@ -69,16 +69,16 @@ export const BingoCard: React.FC<BingoCardProps> = ({
   const cardWrapperProps =
     mode === 'setup'
       ? {
-        onPress: handleClick ? () => handleClick() : undefined,
-        activeOpacity: 0.7,
-      }
+          onPress: handleClick ? () => handleClick() : undefined,
+          activeOpacity: 0.7,
+        }
       : {
-        style: [
-          mode === 'mark' && {
-            transform: [{ scale: pulseAnim }],
-          },
-        ],
-      };
+          style: [
+            mode === 'mark' && {
+              transform: [{ scale: pulseAnim }],
+            },
+          ],
+        };
 
   const [showModal, setShowModal] = useState(false);
 
@@ -218,12 +218,11 @@ export const BingoCard: React.FC<BingoCardProps> = ({
             style={[
               styles.container,
               {
-                backgroundColor:
-                  mode === 'check' ? COLORS.primary.green : color,
+                backgroundColor: mode === 'check' ? COLORS.primary.blue : color,
               },
               mode !== 'check' &&
-              color === COLORS.primary.white &&
-              styles.blackBorder,
+                color === COLORS.primary.white &&
+                styles.blackBorder,
               mode === 'mark' && styles.markedContainer,
               mode === 'check' && styles.checkedContainer,
             ]}
@@ -279,8 +278,7 @@ const styles = StyleSheet.create({
     elevation: 12,
   },
   checkedContainer: {
-    borderWidth: 2,
-    borderColor: COLORS.primary.green,
+    borderWidth: 0,
   },
   text: {
     fontSize: 10,
