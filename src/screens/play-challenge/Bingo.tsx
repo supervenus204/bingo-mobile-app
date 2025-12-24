@@ -23,6 +23,11 @@ import {
   updateBingoTasks,
   updateProgress,
 } from '../../services';
+import {
+  playCompleteCardSound,
+  playLetsGoSound,
+  playNewBoardSound,
+} from '../../services/sound.service';
 import { useChallengesStore } from '../../store';
 import { COLORS } from '../../theme';
 import { BingoCard } from '../../types';
@@ -131,6 +136,9 @@ export const BingoScreen: React.FC = () => {
             };
           });
           setBingoCardsData(_cardData);
+          if (!isSetupMode) {
+            playNewBoardSound();
+          }
         }
       }
     } catch (error) {
@@ -156,6 +164,7 @@ export const BingoScreen: React.FC = () => {
 
   const handleLetsGo = async () => {
     try {
+      playLetsGoSound();
       await createProgress(selectedChallenge?.id as string);
 
       setShowWelcomeModal(false);
@@ -336,6 +345,7 @@ export const BingoScreen: React.FC = () => {
       setBingoCardsData(_cardData);
       setPendingCardUpdate(null);
       setShowConfirmationModal(false);
+      playCompleteCardSound();
       setShowCelebrationModal(true);
     } catch (error) {
       const _cardData: BingoCard[] = bingoCardsData.map((card, index) => {
@@ -404,7 +414,10 @@ export const BingoScreen: React.FC = () => {
               bingoCardsData.length > 0 &&
               bingoCardsData.every(card => card.status === 'check')
             }
-            onAllCardsCheckedClick={() => setShowCelebrationModal(true)}
+            onAllCardsCheckedClick={() => {
+              playCompleteCardSound();
+              setShowCelebrationModal(true);
+            }}
           />
           {isSetupMode && (
             <>

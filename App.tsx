@@ -13,6 +13,7 @@ import { STRIPE_PUBLISHABLE_KEY } from './src/constants/config';
 import { useFCM, useNotificationHandler } from './src/hooks';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ToastProvider } from './src/provider';
+import { preloadSounds } from './src/services/sound.service';
 
 if (__DEV__) {
   require('./ReactotronConfig');
@@ -22,6 +23,10 @@ if (__DEV__) {
 function AppContent(): React.JSX.Element {
   useFCM();
   useNotificationHandler();
+
+  React.useEffect(() => {
+    preloadSounds();
+  }, []);
 
   return <AppNavigator />;
 }

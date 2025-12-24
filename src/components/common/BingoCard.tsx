@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { playCheckSound, playMarkSound } from '../../services/sound.service';
+import { playCardCheckSound, playTaskCompleteSound } from '../../services/sound.service';
 import { COLORS } from '../../theme';
 import { CustomButton } from './Button';
 
@@ -90,9 +90,9 @@ export const BingoCard: React.FC<BingoCardProps> = ({
     handleClick?.(newStatus);
     setShowModal(false);
     if (newStatus === 'mark') {
-      playMarkSound();
+      playTaskCompleteSound();
     } else if (newStatus === 'check') {
-      playCheckSound();
+      playCardCheckSound();
     }
   };
 
@@ -140,10 +140,10 @@ export const BingoCard: React.FC<BingoCardProps> = ({
               onPress={() => {
                 if (mode === 'unmark') {
                   handleClick?.('mark');
-                  playMarkSound();
+                  playTaskCompleteSound();
                 } else if (mode === 'mark') {
                   handleClick?.('check');
-                  playCheckSound();
+                  playCardCheckSound();
                 } else if (mode === 'check' && !allCardsChecked) {
                   setShowModal(true);
                 } else if (mode === 'check' && allCardsChecked) {

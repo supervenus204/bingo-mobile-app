@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 type SoundType = {
-  new (
+  new(
     path: string | number,
     basePath: string | undefined,
     callback: (error?: Error) => void
@@ -29,22 +29,61 @@ try {
   // Sound library not available
 }
 
-let markSound: SoundInstance | null = null;
-let checkSound: SoundInstance | null = null;
+// Task Complete sounds (with rotation)
+const taskCompleteSounds: SoundInstance[] = [];
+let taskCompleteIndex = 0;
+
+// Other sounds
+let newBoardSound: SoundInstance | null = null;
+let letsGoSound: SoundInstance | null = null;
+let completeCardSound: SoundInstance | null = null;
+
 let soundsInitialized = false;
 let isInitializing = false;
 
-const getSoundPath = (filename: string): string | number => {
+// Android sound file name mapping (files must be in res/raw/ with lowercase names)
+const androidSoundMap: Record<string, string> = {
+  'Task Complete/ES_Bubble Effect 04 - Epidemic Sound.mp3': 'task_complete_bubble',
+  'Task Complete/ES_Button Press Click, Tap, Video Game, Main Menu, Select, Positive 02 - Epidemic Sound.mp3': 'task_complete_button',
+  'Task Complete/ES_Mouth, Finger 02 - Epidemic Sound.mp3': 'task_complete_mouth',
+  'Task Complete/ES_Pull Out, Release, Plop - Epidemic Sound.mp3': 'task_complete_plop',
+  'Task Complete/ES_UI Buttons, Bubbly, Option - Epidemic Sound.mp3': 'task_complete_ui',
+  'Start of New Board _ New Week/ES_Holy, Event, Chord - Epidemic Sound.mp3': 'new_board',
+  'Just joined \'Let\'s Go\'/ES_Motion, Graphic, Slide, Interaction, Bright Chord, Warm 04 - Epidemic Sound.mp3': 'lets_go',
+  'Complete Bingo Card Congratulations or Leaderboard/ES_Motion, Game, Jingle, Positive, Event, Chord - Epidemic Sound.mp3': 'complete_card',
+};
+
+const getSoundPath = (relativePath: string): string | number => {
   if (Platform.OS === 'android') {
-    return filename.replace('.wav', '');
+    const androidName = androidSoundMap[relativePath];
+    if (!androidName) {
+      if (__DEV__) {
+        console.warn(`[Sound] Android mapping not found for: ${relativePath}`);
+      }
+      return relativePath.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase().replace(/\.(mp3|wav)$/, '');
+    }
+    return androidName;
   }
-  if (filename === 'mark.wav') {
-    return require('../assets/sounds/mark.wav');
+
+  const pathMap: Record<string, any> = {
+    'Task Complete/ES_Bubble Effect 04 - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_Bubble Effect 04 - Epidemic Sound.mp3'),
+    'Task Complete/ES_Button Press Click, Tap, Video Game, Main Menu, Select, Positive 02 - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_Button Press Click, Tap, Video Game, Main Menu, Select, Positive 02 - Epidemic Sound.mp3'),
+    'Task Complete/ES_Mouth, Finger 02 - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_Mouth, Finger 02 - Epidemic Sound.mp3'),
+    'Task Complete/ES_Pull Out, Release, Plop - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_Pull Out, Release, Plop - Epidemic Sound.mp3'),
+    'Task Complete/ES_UI Buttons, Bubbly, Option - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_UI Buttons, Bubbly, Option - Epidemic Sound.mp3'),
+    'Start of New Board _ New Week/ES_Holy, Event, Chord - Epidemic Sound.mp3': require('../assets/sounds/Start of New Board _ New Week/ES_Holy, Event, Chord - Epidemic Sound.mp3'),
+    'Just joined \'Let\'s Go\'/ES_Motion, Graphic, Slide, Interaction, Bright Chord, Warm 04 - Epidemic Sound.mp3': require('../assets/sounds/Just joined \'Let\'s Go\'/ES_Motion, Graphic, Slide, Interaction, Bright Chord, Warm 04 - Epidemic Sound.mp3'),
+    'Complete Bingo Card Congratulations or Leaderboard/ES_Motion, Game, Jingle, Positive, Event, Chord - Epidemic Sound.mp3': require('../assets/sounds/Complete Bingo Card Congratulations or Leaderboard/ES_Motion, Game, Jingle, Positive, Event, Chord - Epidemic Sound.mp3'),
+  };
+
+  const path = pathMap[relativePath];
+  if (!path) {
+    if (__DEV__) {
+      console.error(`[Sound] Unknown sound file: ${relativePath}`);
+    }
+    throw new Error(`Unknown sound file: ${relativePath}`);
   }
-  if (filename === 'check.wav') {
-    return require('../assets/sounds/check.wav');
-  }
-  throw new Error(`Unknown sound file: ${filename}`);
+  return path;
 };
 
 const initializeSounds = (callback?: () => void) => {
@@ -61,46 +100,115 @@ const initializeSounds = (callback?: () => void) => {
   isInitializing = true;
 
   try {
-    const markSoundPath = getSoundPath('mark.wav');
-    const checkSoundPath = getSoundPath('check.wav');
+    const taskCompletePaths = [
+      'Task Complete/ES_Bubble Effect 04 - Epidemic Sound.mp3',
+      'Task Complete/ES_Button Press Click, Tap, Video Game, Main Menu, Select, Positive 02 - Epidemic Sound.mp3',
+      'Task Complete/ES_Mouth, Finger 02 - Epidemic Sound.mp3',
+      'Task Complete/ES_Pull Out, Release, Plop - Epidemic Sound.mp3',
+      'Task Complete/ES_UI Buttons, Bubbly, Option - Epidemic Sound.mp3',
+    ];
 
-    let markReady = false;
-    let checkReady = false;
+    const newBoardPath = 'Start of New Board _ New Week/ES_Holy, Event, Chord - Epidemic Sound.mp3';
+    const letsGoPath = 'Just joined \'Let\'s Go\'/ES_Motion, Graphic, Slide, Interaction, Bright Chord, Warm 04 - Epidemic Sound.mp3';
+    const completeCardPath = 'Complete Bingo Card Congratulations or Leaderboard/ES_Motion, Game, Jingle, Positive, Event, Chord - Epidemic Sound.mp3';
+
+    let loadedCount = 0;
+    const totalSounds = taskCompletePaths.length + 3;
 
     const checkComplete = () => {
-      if (markReady && checkReady) {
+      loadedCount++;
+      if (loadedCount === totalSounds) {
         soundsInitialized = true;
         isInitializing = false;
         callback?.();
       }
     };
 
-    markSound = new Sound(
-      markSoundPath,
+    // Load task complete sounds
+    taskCompletePaths.forEach(path => {
+      const soundPath = getSoundPath(path);
+      const sound = new Sound(
+        soundPath,
+        Platform.OS === 'ios' ? Sound.MAIN_BUNDLE : undefined,
+        error => {
+          if (error) {
+            if (__DEV__) {
+              console.warn(`[Sound] Failed to load: ${path}`, error);
+            }
+          } else {
+            sound.setVolume(1.0);
+            taskCompleteSounds.push(sound);
+            if (__DEV__) {
+              console.log(`[Sound] Loaded: ${path}`);
+            }
+          }
+          checkComplete();
+        }
+      );
+    });
+
+    // Load new board sound
+    const newBoardSoundPath = getSoundPath(newBoardPath);
+    newBoardSound = new Sound(
+      newBoardSoundPath,
       Platform.OS === 'ios' ? Sound.MAIN_BUNDLE : undefined,
       error => {
         if (error) {
-          markSound = null;
+          if (__DEV__) {
+            console.warn(`[Sound] Failed to load new board sound:`, error);
+          }
+          newBoardSound = null;
+        } else {
+          newBoardSound?.setVolume(1.0);
+          if (__DEV__) {
+            console.log(`[Sound] Loaded new board sound`);
+          }
         }
-        markReady = true;
         checkComplete();
       }
     );
 
-    checkSound = new Sound(
-      checkSoundPath,
+    // Load let's go sound
+    const letsGoSoundPath = getSoundPath(letsGoPath);
+    letsGoSound = new Sound(
+      letsGoSoundPath,
       Platform.OS === 'ios' ? Sound.MAIN_BUNDLE : undefined,
       error => {
         if (error) {
-          checkSound = null;
+          if (__DEV__) {
+            console.warn(`[Sound] Failed to load let's go sound:`, error);
+          }
+          letsGoSound = null;
+        } else {
+          letsGoSound?.setVolume(1.0);
+          if (__DEV__) {
+            console.log(`[Sound] Loaded let's go sound`);
+          }
         }
-        checkReady = true;
         checkComplete();
       }
     );
 
-    markSound?.setVolume(1.0);
-    checkSound?.setVolume(1.0);
+    // Load complete card sound
+    const completeCardSoundPath = getSoundPath(completeCardPath);
+    completeCardSound = new Sound(
+      completeCardSoundPath,
+      Platform.OS === 'ios' ? Sound.MAIN_BUNDLE : undefined,
+      error => {
+        if (error) {
+          if (__DEV__) {
+            console.warn(`[Sound] Failed to load complete card sound:`, error);
+          }
+          completeCardSound = null;
+        } else {
+          completeCardSound?.setVolume(1.0);
+          if (__DEV__) {
+            console.log(`[Sound] Loaded complete card sound`);
+          }
+        }
+        checkComplete();
+      }
+    );
   } catch {
     isInitializing = false;
     callback?.();
@@ -109,14 +217,23 @@ const initializeSounds = (callback?: () => void) => {
 
 const playSound = (soundInstance: SoundInstance | null) => {
   if (!Sound) {
+    if (__DEV__) {
+      console.warn('[Sound] Sound library not available');
+    }
     return;
   }
 
   if (!soundsInitialized) {
+    if (__DEV__) {
+      console.log('[Sound] Sounds not initialized, initializing now...');
+    }
     initializeSounds(() => {
       if (soundInstance) {
         soundInstance.play(success => {
           if (!success) {
+            if (__DEV__) {
+              console.warn('[Sound] Failed to play sound');
+            }
             soundInstance?.reset();
           }
         });
@@ -128,23 +245,83 @@ const playSound = (soundInstance: SoundInstance | null) => {
   if (soundInstance) {
     soundInstance.play(success => {
       if (!success) {
+        if (__DEV__) {
+          console.warn('[Sound] Failed to play sound');
+        }
         soundInstance?.reset();
       }
     });
+  } else if (__DEV__) {
+    console.warn('[Sound] Sound instance is null');
   }
 };
 
-export const playMarkSound = () => {
+export const playTaskCompleteSound = () => {
   try {
-    playSound(markSound);
+    if (taskCompleteSounds.length === 0) {
+      if (__DEV__) {
+        console.log('[Sound] Initializing sounds for task complete...');
+      }
+      initializeSounds(() => {
+        if (taskCompleteSounds.length > 0) {
+          const sound = taskCompleteSounds[taskCompleteIndex % taskCompleteSounds.length];
+          playSound(sound);
+          taskCompleteIndex = (taskCompleteIndex + 1) % taskCompleteSounds.length;
+        } else if (__DEV__) {
+          console.warn('[Sound] No task complete sounds loaded');
+        }
+      });
+      return;
+    }
+    const sound = taskCompleteSounds[taskCompleteIndex % taskCompleteSounds.length];
+    playSound(sound);
+    taskCompleteIndex = (taskCompleteIndex + 1) % taskCompleteSounds.length;
+  } catch (error) {
+    if (__DEV__) {
+      console.warn('[Sound] Error playing task complete sound:', error);
+    }
+  }
+};
+
+export const playCardCheckSound = () => {
+  try {
+    if (taskCompleteSounds.length === 0) {
+      initializeSounds(() => {
+        if (taskCompleteSounds.length > 0) {
+          const sound = taskCompleteSounds[taskCompleteIndex % taskCompleteSounds.length];
+          playSound(sound);
+          taskCompleteIndex = (taskCompleteIndex + 1) % taskCompleteSounds.length;
+        }
+      });
+      return;
+    }
+    const sound = taskCompleteSounds[taskCompleteIndex % taskCompleteSounds.length];
+    playSound(sound);
+    taskCompleteIndex = (taskCompleteIndex + 1) % taskCompleteSounds.length;
   } catch {
     // Error playing sound
   }
 };
 
-export const playCheckSound = () => {
+export const playNewBoardSound = () => {
   try {
-    playSound(checkSound);
+    playSound(newBoardSound);
+  } catch {
+    // Error playing sound
+  }
+};
+
+export const playLetsGoSound = () => {
+  try {
+    playSound(letsGoSound);
+  } catch {
+    // Error playing sound
+  }
+};
+
+export const playCompleteCardSound = () => {
+  try {
+    playSound(completeCardSound);
   } catch {
     // Error playing sound
   }
@@ -163,12 +340,17 @@ export const releaseSounds = () => {
   }
 
   try {
-    markSound?.release();
-    checkSound?.release();
-    markSound = null;
-    checkSound = null;
+    taskCompleteSounds.forEach(sound => sound?.release());
+    taskCompleteSounds.length = 0;
+    newBoardSound?.release();
+    letsGoSound?.release();
+    completeCardSound?.release();
+    newBoardSound = null;
+    letsGoSound = null;
+    completeCardSound = null;
     soundsInitialized = false;
     isInitializing = false;
+    taskCompleteIndex = 0;
   } catch {
     // Error releasing sounds
   }

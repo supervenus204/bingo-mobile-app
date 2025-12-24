@@ -10,6 +10,7 @@ import {
   joinChallenge,
   rejectChallenge,
 } from '../../services/challenge.service';
+import { playLetsGoSound } from '../../services/sound.service';
 import { COLORS, FONTS } from '../../theme';
 import { RootStackParamList } from '../../types';
 
@@ -27,6 +28,7 @@ export const Join: React.FC = () => {
 
   const handleJoin = async () => {
     try {
+      playLetsGoSound();
       await joinChallenge(invitationCode);
       rootNavigation.navigate(SCREEN_NAMES.DASHBOARD as never);
     } catch (error) {
