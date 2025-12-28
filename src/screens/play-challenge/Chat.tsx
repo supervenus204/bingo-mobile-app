@@ -4,6 +4,7 @@ import {
   Alert,
   FlatList,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -37,13 +38,31 @@ export const ChatScreen: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<ChatSender | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const { updateLastSeen } = useLastSeenStore();
   const listRef = useRef<FlatList>(null);
+  const inputRef = useRef<TextInput>(null);
 
   const myId = user?.id;
 
   useEffect(() => {
     updateLastSeen(challengeId || '');
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      });
+      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardHeight(0);
+      });
+
+      return () => {
+        showSubscription.remove();
+        hideSubscription.remove();
+      };
+    }
   }, []);
 
   const keyExtractor = useCallback((item: any) => item.id, []);
@@ -239,11 +258,8 @@ export const ChatScreen: React.FC = () => {
     }
   }, [canSend, challengeId, text, selectedImage, send, showToast]);
 
-  return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.select({ ios: 'padding', android: undefined })}
-    >
+  const content = (
+    <>
       <View style={styles.listContainer}>
         <FlatList
           ref={listRef}
@@ -288,6 +304,7 @@ export const ChatScreen: React.FC = () => {
           <Text style={styles.imagePickerText}>📷</Text>
         </TouchableOpacity>
         <TextInput
+          ref={inputRef}
           style={styles.textInput}
           placeholder="Type a message"
           placeholderTextColor={COLORS.gray.mediumDark}
@@ -312,7 +329,25 @@ export const ChatScreen: React.FC = () => {
           setSelectedUser(null);
         }}
       />
-    </KeyboardAvoidingView>
+    </>
+  );
+
+  if (Platform.OS === 'ios') {
+    return (
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior="padding"
+        keyboardVerticalOffset={0}
+      >
+        {content}
+      </KeyboardAvoidingView>
+    );
+  }
+
+  return (
+    <View style={[styles.container, Platform.OS === 'android' && keyboardHeight > 0 && { paddingBottom: keyboardHeight }]}>
+      {content}
+    </View>
   );
 };
 
