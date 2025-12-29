@@ -4,7 +4,6 @@ import {
   Alert,
   FlatList,
   Image,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -18,6 +17,7 @@ import {
   launchCamera,
   launchImageLibrary,
 } from 'react-native-image-picker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProfileIcon, UserIntroductionModal } from '../../components/common';
 import { useMessages, useToast } from '../../hooks';
 import { useAuthStore, useChallengesStore, useLastSeenStore } from '../../store';
@@ -38,31 +38,18 @@ export const ChatScreen: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedUser, setSelectedUser] = useState<ChatSender | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const { updateLastSeen } = useLastSeenStore();
   const listRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
+  const insets = useSafeAreaInsets();
 
   const myId = user?.id;
 
+  // Header height is approximately 64px (48px button + 16px padding)
+  const HEADER_HEIGHT = 64;
+
   useEffect(() => {
     updateLastSeen(challengeId || '');
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      const showSubscription = Keyboard.addListener('keyboardDidShow', (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-      });
-      const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-        setKeyboardHeight(0);
-      });
-
-      return () => {
-        showSubscription.remove();
-        hideSubscription.remove();
-      };
-    }
   }, []);
 
   const keyExtractor = useCallback((item: any) => item.id, []);
@@ -332,22 +319,18 @@ export const ChatScreen: React.FC = () => {
     </>
   );
 
-  if (Platform.OS === 'ios') {
-    return (
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior="padding"
-        keyboardVerticalOffset={0}
-      >
-        {content}
-      </KeyboardAvoidingView>
-    );
-  }
+  // Calculate keyboard offset accounting for header
+  // Safe area is already handled by navigation container, so we only need header height
+  const keyboardVerticalOffset = HEADER_HEIGHT;
 
   return (
-    <View style={[styles.container, Platform.OS === 'android' && keyboardHeight > 0 && { paddingBottom: keyboardHeight }]}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={keyboardVerticalOffset}
+    >
       {content}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
