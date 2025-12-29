@@ -44,7 +44,12 @@ export const Join: React.FC = () => {
   };
 
   const handleCancel = () => {
-    rootNavigation.navigate(SCREEN_NAMES.DASHBOARD as never);
+    const parent = navigation.getParent();
+    if (parent) {
+      parent.navigate(SCREEN_NAMES.DASHBOARD, {
+        screen: SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST,
+      });
+    }
   };
 
   const handleReject = async () => {

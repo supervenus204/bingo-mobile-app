@@ -46,7 +46,12 @@ export const InviteCode: React.FC = () => {
   };
 
   const handleCancel = () => {
-    navigation.navigate(SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST as never);
+    const parent = navigation.getParent();
+    if (parent) {
+      parent.navigate(SCREEN_NAMES.DASHBOARD, {
+        screen: SCREEN_NAMES._DASHBOARD.CHALLENGES_LIST,
+      });
+    }
   };
 
   return (
