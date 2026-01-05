@@ -7,8 +7,11 @@ import {
   ViewStyle,
 } from 'react-native';
 import { COLORS, FONTS } from '../../theme';
+import { getNextOccurrenceOfDay } from '../../utils/date.utils';
 import { Badge } from '../common/Badge';
+import { CountdownTimer } from '../common/CountdownTimer';
 import { Label } from '../common/Label';
+import { useChallengesStore } from '../../store/challenges.store';
 
 type Props = {
   title: string;
@@ -40,6 +43,7 @@ export const ChallengeCard: React.FC<Props> = ({
   unreadCount = 0,
 }) => {
   const percent = Math.max(0, Math.min(progress, 1));
+  const { fetchChallenges } = useChallengesStore();
 
   const getStatusBadge = () => {
     if (status === 'active') {
@@ -63,13 +67,25 @@ export const ChallengeCard: React.FC<Props> = ({
       saturday: 'Sat',
       sunday: 'Sun',
     };
-    return dayMap[day.toLowerCase()] || day.charAt(0).toUpperCase() + day.slice(1).substring(0, 2);
+    return (
+      dayMap[day.toLowerCase()] ||
+      day.charAt(0).toUpperCase() + day.slice(1).substring(0, 2)
+    );
   };
 
   const getStatusText = () => {
-    if (status === 'pending') {
-      const dayAbbr = formatDayName(startingDayOfWeek);
-      return `Start from next ${dayAbbr}`;
+    if (status === 'pending' && startingDayOfWeek) {
+      const startDate = getNextOccurrenceOfDay(startingDayOfWeek);
+      return (
+        <CountdownTimer
+          targetDate={startDate}
+          variant="compact"
+          label="Starts in:"
+          onComplete={() => {
+            fetchChallenges(true);
+          }}
+        />
+      );
     }
     return null;
   };
@@ -118,10 +134,10 @@ export const ChallengeCard: React.FC<Props> = ({
         <Text
           style={styles.planText}
         >{`Week ${currentWeek} of ${totalWeeks}`}</Text>
-        {getStatusText() && (
-          <Text style={styles.statusText}>{getStatusText()}</Text>
-        )}
       </View>
+      {status === 'pending' && getStatusText() && (
+        <View style={styles.countdownRow}>{getStatusText()}</View>
+      )}
 
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${percent * 100}%` }]} />
@@ -208,5 +224,9 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     backgroundColor: COLORS.primary.green,
+  },
+  countdownRow: {
+    marginTop: 4,
+    marginBottom: 4,
   },
 });

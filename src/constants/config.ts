@@ -11,3 +11,6 @@ export const GOOGLE_WEB_CLIENT_ID =
 
 export const GOOGLE_IOS_CLIENT_ID =
   '178210706294-nm0nm7bof1ov4ubfhgv845ur8olufdg2.apps.googleusercontent.com';
+
+// Default Timezone
+export const DEFAULT_TIMEZONE = 'Australia/Sydney';

@@ -17,7 +17,7 @@ type ChallengesActions = {
   setArchivedChallenges: (archivedChallenges: Challenge[]) => void;
   setLoading: (loading: boolean) => void;
   selectChallenge: (challengeId: string) => void;
-  fetchChallenges: () => void;
+  fetchChallenges: (silent?: boolean) => void;
   reset: () => void;
 };
 
@@ -53,8 +53,10 @@ export const useChallengesStore = create<ChallengesStore>(set => ({
         ) ?? null,
     }));
   },
-  fetchChallenges: async () => {
-    set({ loading: true });
+  fetchChallenges: async (silent = false) => {
+    if (!silent) {
+      set({ loading: true });
+    }
     try {
       const challenges = await fetchAllChallenges();
       const ongoingChallenges = challenges.filter(
@@ -74,7 +76,9 @@ export const useChallengesStore = create<ChallengesStore>(set => ({
           error instanceof Error ? error.message : 'Failed to fetch challenges',
       });
     } finally {
-      set({ loading: false });
+      if (!silent) {
+        set({ loading: false });
+      }
     }
   },
   reset: () => set(initialState),

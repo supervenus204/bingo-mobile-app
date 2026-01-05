@@ -7,6 +7,7 @@ import {
   BingoBoard,
   BingoCompletionConfirmationModal,
   CelebrationModal,
+  CountdownTimer,
   CustomButton,
   LoadingCard,
   WelcomeModal,
@@ -29,8 +30,9 @@ import {
   playNewBoardSound,
 } from '../../services/sound.service';
 import { useChallengesStore } from '../../store';
-import { COLORS } from '../../theme';
+import { COLORS, FONTS } from '../../theme';
 import { BingoCard } from '../../types';
+import { getNextOccurrenceOfDay } from '../../utils/date.utils';
 
 export const BingoScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
@@ -69,6 +71,28 @@ export const BingoScreen: React.FC = () => {
     selectedChallenge?.current_week,
     selectedWeek,
   ]);
+
+  const allCardsCompleted = useMemo(() => {
+    return (
+      !isSetupMode &&
+      bingoCardsData.length > 0 &&
+      bingoCardsData.every(card => card.status === 'check')
+    );
+  }, [isSetupMode, bingoCardsData]);
+
+  const isWaitingForNextWeek = useMemo(() => {
+    if (!allCardsCompleted || !selectedChallenge) return false;
+    const currentWeek = selectedChallenge.current_week || 1;
+    const totalWeeks = selectedChallenge.duration || 12;
+    return currentWeek < totalWeeks && selectedWeek === currentWeek;
+  }, [allCardsCompleted, selectedChallenge, selectedWeek]);
+
+  const getNextWeekStartDate = useMemo(() => {
+    if (!isWaitingForNextWeek || !selectedChallenge?.starting_day_of_week) {
+      return null;
+    }
+    return getNextOccurrenceOfDay(selectedChallenge.starting_day_of_week);
+  }, [isWaitingForNextWeek, selectedChallenge?.starting_day_of_week]);
 
   const getData = useCallback(async () => {
     if (!isFocused) {
@@ -131,8 +155,8 @@ export const BingoScreen: React.FC = () => {
                 _progress === 'mark' || _progress === 'unmark'
                   ? _progress
                   : Date.parse(_progress)
-                    ? 'check'
-                    : 'unmark',
+                  ? 'check'
+                  : 'unmark',
             };
           });
           setBingoCardsData(_cardData);
@@ -160,7 +184,6 @@ export const BingoScreen: React.FC = () => {
     setShowConfirmationModal(false);
     setPendingCardUpdate(null);
   }, [selectedWeek, selectedChallenge?.id]);
-
 
   const handleLetsGo = async () => {
     try {
@@ -274,15 +297,17 @@ export const BingoScreen: React.FC = () => {
       const currentCardStatus = bingoCardsData[cardId]?.status;
 
       if (action === 'check' && currentCardStatus !== 'check') {
-        const updatedCardData: BingoCard[] = bingoCardsData.map((card, index) => {
-          if (index === cardId) {
-            return {
-              ...card,
-              status: 'check' as const,
-            };
+        const updatedCardData: BingoCard[] = bingoCardsData.map(
+          (card, index) => {
+            if (index === cardId) {
+              return {
+                ...card,
+                status: 'check' as const,
+              };
+            }
+            return card;
           }
-          return card;
-        });
+        );
 
         const allCardsWillBeChecked = updatedCardData.every(
           card => card.status === 'check'
@@ -293,7 +318,7 @@ export const BingoScreen: React.FC = () => {
           setPendingCardUpdate({
             cardId,
             status: action,
-            previousStatus: currentCardStatus
+            previousStatus: currentCardStatus,
           });
           setShowConfirmationModal(true);
           return;
@@ -310,11 +335,11 @@ export const BingoScreen: React.FC = () => {
           ...card,
           status:
             current_progress[index] === 'unmark' ||
-              current_progress[index] === 'mark'
+            current_progress[index] === 'mark'
               ? current_progress[index]
               : Date.parse(current_progress[index])
-                ? 'check'
-                : 'unmark',
+              ? 'check'
+              : 'unmark',
         };
       });
       setBingoCardsData(_cardData);
@@ -335,11 +360,11 @@ export const BingoScreen: React.FC = () => {
           ...card,
           status:
             current_progress[index] === 'unmark' ||
-              current_progress[index] === 'mark'
+            current_progress[index] === 'mark'
               ? current_progress[index]
               : Date.parse(current_progress[index])
-                ? 'check'
-                : 'unmark',
+              ? 'check'
+              : 'unmark',
         };
       });
       setBingoCardsData(_cardData);
@@ -380,7 +405,6 @@ export const BingoScreen: React.FC = () => {
     setShowConfirmationModal(false);
   };
 
-
   return (
     <View style={styles.container}>
       <WeekTabBar
@@ -409,16 +433,24 @@ export const BingoScreen: React.FC = () => {
             mode={isSetupMode ? 'setup' : 'play'}
             handleClick={handleClick}
             totalCount={selectedChallenge?.card_size || 24}
-            allCardsChecked={
-              !isSetupMode &&
-              bingoCardsData.length > 0 &&
-              bingoCardsData.every(card => card.status === 'check')
-            }
+            allCardsChecked={allCardsCompleted}
             onAllCardsCheckedClick={() => {
               playCompleteCardSound();
               setShowCelebrationModal(true);
             }}
           />
+          {isWaitingForNextWeek && getNextWeekStartDate && (
+            <View style={styles.nextWeekCountdown}>
+              <Text style={styles.nextWeekTitle}>
+                🎉 Week {selectedWeek} Complete!
+              </Text>
+              <Text style={styles.nextWeekSubtitle}>Next week starts in:</Text>
+              <CountdownTimer
+                targetDate={getNextWeekStartDate}
+                variant="large"
+              />
+            </View>
+          )}
           {isSetupMode && (
             <>
               <CustomButton
@@ -456,7 +488,7 @@ export const BingoScreen: React.FC = () => {
 
         <WelcomeModal
           visible={showWelcomeModal}
-          onClose={() => { }}
+          onClose={() => {}}
           onLetsGo={handleLetsGo}
           title="Welcome aboard!"
           subtitle="Week 1 starts now—let's get moving."
@@ -559,5 +591,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Poppins-SemiBold',
     color: COLORS.primary.white,
+  },
+  nextWeekCountdown: {
+    marginTop: 24,
+    marginBottom: 16,
+    padding: 20,
+    backgroundColor: COLORS.primary.green + '15',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.primary.green + '30',
+    alignItems: 'center',
+  },
+  nextWeekTitle: {
+    fontSize: 20,
+    fontFamily: FONTS.family.poppinsBold,
+    color: COLORS.primary.white,
+    marginBottom: 8,
+  },
+  nextWeekSubtitle: {
+    fontSize: 14,
+    fontFamily: FONTS.family.poppinsRegular,
+    color: COLORS.primary.white,
+    marginBottom: 12,
+    opacity: 0.9,
   },
 });

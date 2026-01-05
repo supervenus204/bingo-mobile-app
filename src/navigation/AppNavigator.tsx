@@ -5,7 +5,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation.type';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StatusBar } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LoadingCard } from '../components/common';
@@ -41,6 +41,26 @@ export const AppNavigator = () => {
     }
     return SCREEN_NAMES.AUTH;
   }, [hasWelcomeHydrated, hasAuthHydrated]);
+
+  useEffect(() => {
+    if (
+      hasAuthHydrated &&
+      hasWelcomeHydrated &&
+      completedWelcomeScreen &&
+      !isAuthenticated &&
+      navigationRef.isReady()
+    ) {
+      const currentRoute = navigationRef.getCurrentRoute();
+      if (currentRoute?.name !== SCREEN_NAMES.AUTH) {
+        navigationRef.navigate(SCREEN_NAMES.AUTH as never);
+      }
+    }
+  }, [
+    isAuthenticated,
+    hasAuthHydrated,
+    hasWelcomeHydrated,
+    completedWelcomeScreen,
+  ]);
 
   return (
     <>

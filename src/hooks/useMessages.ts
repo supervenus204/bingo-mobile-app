@@ -25,7 +25,9 @@ export const useMessages = ({
   const isFetchingMoreRef = useRef(false);
   const loadingRef = useRef(false);
   const unsubscribeRef = useRef<(() => void) | null>(null);
-  const loadPageRef = useRef<((nextPage: number, replace?: boolean) => Promise<void>) | null>(null);
+  const loadPageRef = useRef<
+    ((nextPage: number, replace?: boolean) => Promise<void>) | null
+  >(null);
   const { user } = useAuthStore();
   const { updateLastSeen } = useLastSeenStore();
 
@@ -122,38 +124,10 @@ export const useMessages = ({
   const send = useCallback(
     async (content: string, imageUri?: string) => {
       if (!challengeId || (!content?.trim() && !imageUri)) return;
-      const tempId = `temp-${Date.now()}`;
-      const now = new Date().toISOString();
-      const optimistic: ChatMessage = {
-        id: tempId,
-        content: content || '',
-        image_url: imageUri || null,
-        sent_by: user?.id || 'me',
-        challenge_id: challengeId,
-        createdAt: now,
-        sent_time: now,
-        sender: user
-          ? {
-            id: user.id,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            image: user.image ?? null,
-          }
-          : undefined,
-      };
-      setMessages(prev => [optimistic, ...prev]);
       try {
         setSending(true);
-        const saved = await addMessage(challengeId, content || '', imageUri);
-        setMessages(prev => {
-          const filtered = prev.filter(m => m.id !== tempId);
-          return [saved, ...filtered];
-        });
+        await addMessage(challengeId, content || '', imageUri);
       } catch (e) {
-        setMessages(prev => prev.filter(m => m.id !== tempId));
         setError(e instanceof Error ? e.message : 'Failed to send message');
         throw e;
       } finally {

@@ -28,6 +28,7 @@ const refreshToken = async () => {
   }
 
   if (!response.ok) {
+    useAuthStore.getState().reset();
     throw new Error('Token refresh failed');
   }
 

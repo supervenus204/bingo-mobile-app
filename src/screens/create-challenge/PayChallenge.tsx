@@ -125,7 +125,8 @@ export const PayChallenge: React.FC = () => {
           console.log('Stripe Payment Error:', error);
           if (error.code !== 'Canceled') {
             showToast(
-              `Payment failed: ${error.message || error.code
+              `Payment failed: ${
+                error.message || error.code
               }. Please try again.`,
               'error'
             );
