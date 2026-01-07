@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import {
-  ActivityIndicator,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+  WeightChart,
+  WeightHistory,
+  WeightInputCard,
+} from '../../components/play-challenge';
+import { useToast } from '../../hooks';
 import {
   createMeasure,
   getCurrentWeekMeasures,
   getMeasureHistory,
 } from '../../services';
 import { useChallengesStore } from '../../store';
-import { COLORS, FONTS } from '../../theme';
+import { COLORS } from '../../theme';
 
 interface WeightEntry {
   week: number;
@@ -30,6 +28,7 @@ interface MeasureData {
 
 export const WeighInScreen: React.FC = () => {
   const { selectedChallenge } = useChallengesStore();
+  const { showToast } = useToast();
   const [weight, setWeight] = useState('100');
   const [weightHistory, setWeightHistory] = useState<WeightEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,60 +104,55 @@ export const WeighInScreen: React.FC = () => {
     if (!selectedChallenge?.id) return;
 
     const newWeight = parseFloat(weight);
-    if (newWeight <= 0) return;
+    if (newWeight <= 0) {
+      showToast('Please enter a valid weight', 'error');
+      return;
+    }
 
     try {
       setIsSaving(true);
       await createMeasure(selectedChallenge.id, 'weight', newWeight);
 
-      const updatedHistory = await getMeasureHistory(selectedChallenge.id);
+      const [updatedHistory, currentResponse] = await Promise.all([
+        getMeasureHistory(selectedChallenge.id),
+        getCurrentWeekMeasures(selectedChallenge.id),
+      ]);
+
       const transformedHistory =
         transformMeasuresToWeightHistory(updatedHistory);
       setWeightHistory(transformedHistory);
-      setMeasureExists(true);
+
+      if (currentResponse && currentResponse.length > 0) {
+        setWeight(String(currentResponse[0].value));
+        setMeasureExists(true);
+      }
+
+      showToast('Weight saved successfully!', 'success');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       if (errorMessage.includes('Measure already exists')) {
-        const updatedHistory = await getMeasureHistory(selectedChallenge.id);
+        const [updatedHistory, currentResponse] = await Promise.all([
+          getMeasureHistory(selectedChallenge.id),
+          getCurrentWeekMeasures(selectedChallenge.id),
+        ]);
+
         const transformedHistory =
           transformMeasuresToWeightHistory(updatedHistory);
         setWeightHistory(transformedHistory);
-        setMeasureExists(true);
+
+        if (currentResponse && currentResponse.length > 0) {
+          setWeight(String(currentResponse[0].value));
+          setMeasureExists(true);
+        }
+
+        showToast('Weight already saved for this week', 'info');
+      } else {
+        showToast('Failed to save weight. Please try again.', 'error');
       }
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const renderChart = () => {
-    if (weightHistory.length === 0) {
-      return (
-        <View style={styles.chartContainer}>
-          <Text style={styles.chartLabel}>No weight data yet</Text>
-        </View>
-      );
-    }
-
-    const maxWeight = Math.max(...weightHistory.map(entry => entry.weight));
-    const minWeight = Math.min(...weightHistory.map(entry => entry.weight));
-    const range = maxWeight - minWeight || 1;
-
-    return (
-      <View style={styles.chartContainer}>
-        <View style={styles.chart}>
-          {weightHistory.map((entry, index) => {
-            const height = ((entry.weight - minWeight) / range) * 100;
-            return (
-              <View
-                key={index}
-                style={[styles.chartBar, { height: `${height}%` }]}
-              />
-            );
-          })}
-        </View>
-        <Text style={styles.chartLabel}>Shows a chart as weight changes</Text>
-      </View>
-    );
   };
 
   if (isLoading) {
@@ -178,87 +172,20 @@ export const WeighInScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.weightCard}>
-          <Text style={styles.weekTitle}>
-            Week {selectedChallenge?.current_week || 1} Weight
-          </Text>
-          <Text style={styles.subtitle}>
-            Enter your Week {selectedChallenge?.current_week || 1} Weight
-          </Text>
+        <WeightInputCard
+          weekNumber={selectedChallenge?.current_week || 1}
+          weight={weight}
+          measureExists={measureExists}
+          isSaving={isSaving}
+          onWeightChange={setWeight}
+          onIncrement={handleIncrement}
+          onDecrement={handleDecrement}
+          onSave={handleSave}
+        />
 
-          <View style={styles.weightInputContainer}>
-            <TextInput
-              style={[styles.weightInput, measureExists && styles.weightInputDisabled]}
-              value={weight}
-              onChangeText={setWeight}
-              keyboardType="numeric"
-              placeholder="0"
-              selectTextOnFocus={true}
-              returnKeyType="done"
-              underlineColorAndroid="transparent"
-              autoCorrect={false}
-              autoCapitalize="none"
-              multiline={false}
-              numberOfLines={1}
-              editable={!measureExists}
-            />
-            <View style={styles.controlsContainer}>
-              <TouchableOpacity
-                onPress={handleIncrement}
-                style={styles.controlButton}
-                disabled={measureExists}
-              >
-                <Text style={[styles.controlText, measureExists && styles.controlTextDisabled]}>▲</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleDecrement}
-                style={styles.controlButton}
-                disabled={measureExists}
-              >
-                <Text style={[styles.controlText, measureExists && styles.controlTextDisabled]}>▼</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.unitText}>kg</Text>
-          </View>
+        <WeightChart weightHistory={weightHistory} />
 
-          <TouchableOpacity
-            style={[styles.saveButton, (isSaving || measureExists) && styles.saveButtonDisabled]}
-            onPress={handleSave}
-            disabled={isSaving || measureExists}
-          >
-            {isSaving ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.saveButtonText}>SAVE WEIGHT</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        {/* Chart Section */}
-        {renderChart()}
-
-        {/* Weight History List */}
-        <View style={styles.historyCard}>
-          <View style={styles.historyHeader}>
-            <Text style={styles.historyHeaderText}>Weigh-In</Text>
-            <Text style={styles.historyHeaderText}>Loss</Text>
-          </View>
-
-          {weightHistory.length === 0 ? (
-            <View style={styles.emptyHistoryRow}>
-              <Text style={styles.emptyHistoryText}>No weight entries yet</Text>
-            </View>
-          ) : (
-            weightHistory.map((entry, index) => (
-              <View key={index} style={styles.historyRow}>
-                <Text style={styles.historyWeekText}>
-                  Week {entry.week} - {entry.weight} kg
-                </Text>
-                <Text style={styles.historyLossText}>{entry.loss}%</Text>
-              </View>
-            ))
-          )}
-        </View>
+        <WeightHistory weightHistory={weightHistory} />
       </ScrollView>
     </View>
   );
@@ -278,184 +205,9 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     flexGrow: 1,
   },
-  chartContainer: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
-  },
-  chart: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    height: 120,
-    width: '100%',
-    justifyContent: 'space-around',
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: '#3B82F6',
-    borderRadius: 8,
-    padding: 10,
-  },
-  chartBar: {
-    width: 20,
-    backgroundColor: '#000000',
-    borderRadius: 2,
-    minHeight: 10,
-  },
-  chartLabel: {
-    fontSize: 12,
-    color: '#EC4899',
-    fontStyle: 'italic',
-  },
-  weightCard: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
-  },
-  weekTitle: {
-    fontSize: 18,
-    fontFamily: FONTS.family.poppinsBold,
-    color: '#000000',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  weightInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    marginBottom: 20,
-    minWidth: 280,
-    height: 70,
-    justifyContent: 'space-between',
-  },
-  weightInput: {
-    flex: 1,
-    fontSize: 28,
-    color: '#374151',
-    textAlign: 'left',
-    paddingRight: 10,
-    height: 50,
-    lineHeight: 50,
-    fontWeight: '500',
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-    paddingVertical: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-  },
-  controlsContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginLeft: 10,
-    marginRight: 10,
-  },
-  controlButton: {
-    width: 20,
-    height: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  controlText: {
-    fontSize: 12,
-    color: '#6B7280',
-  },
-  unitText: {
-    fontSize: 16,
-    color: '#374151',
-    fontFamily: FONTS.family.poppinsMedium,
-  },
-  saveButton: {
-    width: '100%',
-    backgroundColor: COLORS.primary.green,
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: FONTS.family.poppinsBold,
-    letterSpacing: 0.5,
-  },
-  historyCard: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
-  },
-  historyHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 15,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  historyHeaderText: {
-    fontSize: 16,
-    fontFamily: FONTS.family.poppinsBold,
-    color: '#000000',
-  },
-  historyRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  historyWeekText: {
-    fontSize: 14,
-    color: '#374151',
-    fontFamily: FONTS.family.poppinsMedium,
-  },
-  historyLossText: {
-    fontSize: 14,
-    color: '#374151',
-    fontFamily: FONTS.family.poppinsMedium,
-  },
-  emptyHistoryRow: {
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  emptyHistoryText: {
-    fontSize: 14,
-    color: COLORS.text.secondary,
-    fontFamily: FONTS.family.poppinsRegular,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  saveButtonDisabled: {
-    opacity: 0.6,
-  },
-  weightInputDisabled: {
-    opacity: 0.6,
-  },
-  controlTextDisabled: {
-    opacity: 0.4,
   },
 });

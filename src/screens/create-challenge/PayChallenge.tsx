@@ -168,10 +168,6 @@ export const PayChallenge: React.FC = () => {
     }
   };
 
-  const handlePayLater = () => {
-    navigation.navigate(SCREEN_NAMES.DASHBOARD as never);
-  };
-
   return (
     <>
       <DashboardHeader title="Challenge Published" showProfileIcon={false} />
@@ -182,19 +178,22 @@ export const PayChallenge: React.FC = () => {
       >
         {/* Plan Details */}
         <View style={styles.planContainer}>
-          <View style={styles.priceContainer}>
-            {isValidatePromoCode ? (
-              <>
-                <Text style={styles.originalPrice}>
-                  ${planDetails?.price.toFixed(2)}
+          <View style={styles.planHeader}>
+            <Text style={styles.planTitle}>{planDetails?.name || 'Plan'}</Text>
+            <View style={styles.priceContainer}>
+              {isValidatePromoCode ? (
+                <>
+                  <Text style={styles.originalPrice}>
+                    ${((planDetails?.price ?? 0) / 100).toFixed(2)}
+                  </Text>
+                  <Text style={styles.discountedPrice}>$0.00</Text>
+                </>
+              ) : (
+                <Text style={styles.planPrice}>
+                  ${((planDetails?.price ?? 0) / 100).toFixed(2)}
                 </Text>
-                <Text style={styles.discountedPrice}>$0.00</Text>
-              </>
-            ) : (
-              <Text style={styles.planPrice}>
-                ${((planDetails?.price ?? 0) / 100).toFixed(2)}
-              </Text>
-            )}
+              )}
+            </View>
           </View>
 
           <View style={styles.featuresContainer}>
@@ -241,23 +240,14 @@ export const PayChallenge: React.FC = () => {
         <View style={styles.buttonContainer}>
           <View style={styles.buttonRow}>
             {challenge?.status === 'unpaid' ? (
-              <>
-                <CustomButton
-                  text={isValidatePromoCode ? 'Apply Promo & Pay' : 'Pay Now'}
-                  onPress={handlePayNow}
-                  variant="primary"
-                  buttonStyle={styles.button}
-                  textStyle={styles.buttonText}
-                  loading={isProcessingPayment || loading}
-                />
-                <CustomButton
-                  text="Pay Later"
-                  onPress={handlePayLater}
-                  variant="outline"
-                  buttonStyle={styles.button}
-                  textStyle={styles.buttonText}
-                />
-              </>
+              <CustomButton
+                text={isValidatePromoCode ? 'Apply Promo & Pay' : 'Pay Now'}
+                onPress={handlePayNow}
+                variant="primary"
+                buttonStyle={styles.button}
+                textStyle={styles.buttonText}
+                loading={isProcessingPayment || loading}
+              />
             ) : (
               <CustomButton
                 text="Start Challenge"
@@ -316,22 +306,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     marginBottom: 24,
-    position: 'relative',
+  },
+  planHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   planTitle: {
     fontSize: 22,
+    fontFamily: FONTS.family.poppinsBold,
     fontWeight: 'bold',
     color: '#166534',
     textAlign: 'left',
-    marginBottom: 10,
+    flex: 1,
   },
   priceContainer: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
     alignItems: 'flex-end',
+    marginLeft: 12,
   },
   planPrice: {
     color: '#1E3A8A',
@@ -341,6 +333,7 @@ const styles = StyleSheet.create({
   originalPrice: {
     color: '#9CA3AF',
     fontSize: 14,
+    fontFamily: FONTS.family.poppinsRegular,
     fontWeight: 'bold',
     textDecorationLine: 'line-through',
     marginBottom: 2,
@@ -348,6 +341,7 @@ const styles = StyleSheet.create({
   discountedPrice: {
     color: '#22C55E',
     fontSize: 16,
+    fontFamily: FONTS.family.poppinsBold,
     fontWeight: 'bold',
   },
   featuresContainer: {

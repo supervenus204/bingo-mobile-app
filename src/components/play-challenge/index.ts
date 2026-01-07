@@ -13,4 +13,7 @@ export * from './PaymentModal';
 export * from './PlanSelector';
 export * from './Sidebar';
 export * from './WeekTabBar';
+export * from './WeightChart';
+export * from './WeightHistory';
 export * from './WeightInput';
+export * from './WeightInputCard';
