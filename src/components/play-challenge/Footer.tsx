@@ -10,9 +10,17 @@ import { Badge } from '../common/Badge';
 
 type FooterProps = {
   currentRoute: string;
+  invitePlayersTabRef?: React.RefObject<
+    React.ElementRef<typeof TouchableOpacity>
+  >;
+  chatTabRef?: React.RefObject<React.ElementRef<typeof TouchableOpacity>>;
 };
 
-export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
+export const Footer: React.FC<FooterProps> = ({
+  currentRoute,
+  invitePlayersTabRef,
+  chatTabRef,
+}) => {
   const navigation = useNavigation();
   const { selectedChallenge } = useChallengesStore();
   const { getUnreadCount } = useUnreadMessages();
@@ -35,10 +43,10 @@ export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
     },
     isOrganizer
       ? {
-        name: SCREEN_NAMES._PLAY_CHALLENGE.PARTICIPANT_MANAGEMENT,
-        icon: 'group',
-        label: 'Users',
-      }
+          name: SCREEN_NAMES._PLAY_CHALLENGE.PARTICIPANT_MANAGEMENT,
+          icon: 'group',
+          label: 'Users',
+        }
       : null,
     {
       name: SCREEN_NAMES._PLAY_CHALLENGE.SETTINGS,
@@ -53,9 +61,17 @@ export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
     <View style={styles.tabBar}>
       {tabs.map((tab, index) => {
         const isChatTab = tab.name === SCREEN_NAMES._PLAY_CHALLENGE.CHAT;
+        const isInviteTab =
+          tab.name === SCREEN_NAMES._PLAY_CHALLENGE.PARTICIPANT_MANAGEMENT;
+        const tabRef = isInviteTab
+          ? invitePlayersTabRef
+          : isChatTab
+          ? chatTabRef
+          : undefined;
         return (
           <TouchableOpacity
             key={`${tab.name}-${index}`}
+            ref={tabRef}
             style={styles.tab}
             onPress={() => navigation.navigate(tab.name as never)}
             activeOpacity={0.7}
@@ -65,7 +81,9 @@ export const Footer: React.FC<FooterProps> = ({ currentRoute }) => {
                 name={tab.icon}
                 size={24}
                 color={
-                  currentRoute === tab.name ? COLORS.primary.green : COLORS.gray.veryDark
+                  currentRoute === tab.name
+                    ? COLORS.primary.green
+                    : COLORS.gray.veryDark
                 }
               />
               {isChatTab && unreadCount > 0 && (

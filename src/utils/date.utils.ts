@@ -81,3 +81,23 @@ export const formatCountdown = (
   }
   return `${seconds}s`;
 };
+
+export const getWeekStartDate = (
+  dayOfWeek: string,
+  weekNumber: number,
+  currentWeek: number = 0
+): Date => {
+  const challengeStartDate = getNextOccurrenceOfDay(dayOfWeek);
+  const weekStartDate = moment.tz(challengeStartDate, DEFAULT_TIMEZONE);
+
+  if (currentWeek === 0 || currentWeek === 1) {
+    if (weekNumber === 1 || weekNumber === 2) {
+      return challengeStartDate;
+    }
+    weekStartDate.add((weekNumber - 2) * 7, 'days');
+    return weekStartDate.toDate();
+  }
+
+  weekStartDate.add((weekNumber - 1) * 7, 'days');
+  return weekStartDate.toDate();
+};

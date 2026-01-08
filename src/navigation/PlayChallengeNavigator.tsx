@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import React from 'react';
-import { View } from 'react-native';
+import React, { useRef } from 'react';
+import { TouchableOpacity, View } from 'react-native';
 import { Footer, Header } from '../components/play-challenge';
 import { SCREEN_NAMES } from '../constants/screens';
 import { BingoScreen, ChatScreen, LeaderboardScreen, ParticipantManagementScreen, SettingsScreen, WeighInScreen } from '../screens/play-challenge';
@@ -14,11 +14,22 @@ export const LayoutWrapper = (Component: React.ComponentType<any>) => {
     const { selectedChallenge } = useChallengesStore();
     const title = selectedChallenge?.title || 'Bingo';
 
+    const invitePlayersTabRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+    const chatTabRef = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
+
     return (
       <View style={{ flex: 1 }}>
         <Header title={title} />
-        <Component {...props} />
-        <Footer currentRoute={props.route.name} />
+        <Component
+          {...props}
+          invitePlayersTabRef={invitePlayersTabRef}
+          chatTabRef={chatTabRef}
+        />
+        <Footer
+          currentRoute={props.route.name}
+          invitePlayersTabRef={invitePlayersTabRef}
+          chatTabRef={chatTabRef}
+        />
       </View>
     );
   };

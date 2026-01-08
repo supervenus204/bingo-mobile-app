@@ -1,4 +1,5 @@
 export * from './AddCustomCardModal';
+export * from './BoardReadyBanner';
 export * from './ChallengeDetailsView';
 export * from './ChallengeField';
 export * from './DurationSelector';
@@ -11,6 +12,7 @@ export * from './ParticipantCard';
 export * from './ParticipantDetailModal';
 export * from './PaymentModal';
 export * from './PlanSelector';
+export * from './SetupModeActions';
 export * from './Sidebar';
 export * from './WeekTabBar';
 export * from './WeightChart';
