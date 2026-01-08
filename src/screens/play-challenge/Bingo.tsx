@@ -10,6 +10,7 @@ import {
 
 import {
   BingoBoard,
+  BingoCardFullModal,
   BingoCompletionConfirmationModal,
   BoardSavedConfirmationModal,
   CelebrationModal,
@@ -114,6 +115,8 @@ export const BingoScreen: React.FC<BingoScreenProps> = ({
     setShowConfirmationModal,
     showCelebrationModal,
     setShowCelebrationModal,
+    showCardFullModal,
+    setShowCardFullModal,
     handleConfirmCompletion,
     handleCancelCompletion,
   } = useBingoProgress({
@@ -308,6 +311,15 @@ export const BingoScreen: React.FC<BingoScreenProps> = ({
         visible={showAddCustomModal}
         onClose={() => setShowAddCustomModal(false)}
         onSave={handleAddCustomCard}
+      />
+
+      <BingoCardFullModal
+        visible={showCardFullModal}
+        onSave={() => {
+          setShowCardFullModal(false);
+          handleSaveTaskSetup();
+        }}
+        onCancel={() => setShowCardFullModal(false)}
       />
 
       <BoardSavedConfirmationModal

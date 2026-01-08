@@ -18,6 +18,7 @@ import {
   launchImageLibrary,
 } from 'react-native-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { ProfileIcon, UserIntroductionModal } from '../../components/common';
 import { useMessages, useToast } from '../../hooks';
 import { useAuthStore, useChallengesStore, useLastSeenStore } from '../../store';
@@ -305,7 +306,7 @@ export const ChatScreen: React.FC = () => {
           disabled={!canSend}
           style={[styles.sendButton, !canSend && styles.sendDisabled]}
         >
-          <Text style={styles.sendText}>Send</Text>
+          <MaterialIcons name="send" size={20} color={COLORS.primary.white} />
         </TouchableOpacity>
       </View>
       <UserIntroductionModal
@@ -463,12 +464,6 @@ const styles = StyleSheet.create({
   sendDisabled: {
     opacity: 0.5,
     shadowOpacity: 0.1,
-  },
-  sendText: {
-    color: COLORS.primary.white,
-    fontFamily: FONTS.family.poppinsSemiBold,
-    fontSize: 14,
-    fontWeight: '600',
   },
   messageImage: {
     width: 200,

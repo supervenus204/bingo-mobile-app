@@ -18,6 +18,7 @@ export const useBingoProgress = ({
   const { selectedChallenge } = useChallengesStore();
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
+  const [showCardFullModal, setShowCardFullModal] = useState(false);
   const [pendingCardUpdate, setPendingCardUpdate] = useState<{
     cardId: number;
     status: string;
@@ -26,17 +27,27 @@ export const useBingoProgress = ({
 
   const handleClick = async (cardId: number, status?: string) => {
     if (isSetupMode) {
-      if (
-        bingoCardsData.reduce((acc, card) => acc + card.count, 0) >=
-        (selectedChallenge?.card_size || 24)
-      )
+      const currentTotal = bingoCardsData.reduce(
+        (acc, card) => acc + card.count,
+        0
+      );
+      const maxCount = selectedChallenge?.card_size || 24;
+
+      if (currentTotal >= maxCount) {
         return;
+      }
 
       const selectedCard = bingoCardsData[cardId];
       selectedCard.count++;
+      const newTotal = currentTotal + 1;
+
       setBingoCardsData(prev =>
         prev.map(card => (card.id === selectedCard.id ? selectedCard : card))
       );
+
+      if (newTotal >= maxCount) {
+        setShowCardFullModal(true);
+      }
     } else {
       const action = status || 'mark';
       const currentCardStatus = bingoCardsData[cardId]?.status;
@@ -156,6 +167,8 @@ export const useBingoProgress = ({
     setShowConfirmationModal,
     showCelebrationModal,
     setShowCelebrationModal,
+    showCardFullModal,
+    setShowCardFullModal,
     handleConfirmCompletion,
     handleCancelCompletion,
   };

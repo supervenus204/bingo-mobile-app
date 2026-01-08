@@ -78,7 +78,7 @@ export const BoardSavedConfirmationModal: React.FC<
           {status === 'ready' ? (
             <>
               <Text style={styles.title}>
-                ✅ Your Week {weekNumber} Bingo Board is ready
+                ✅ Your Week {weekNumber} Bingo Card is ready
               </Text>
               {startDate && (
                 <Text style={styles.subtitle}>

@@ -1,6 +1,7 @@
 export * from './Badge';
 export * from './BingoBoard';
 export * from './BingoCard';
+export * from './BingoCardFullModal';
 export * from './BingoCompletionConfirmationModal';
 export * from './BoardSavedConfirmationModal';
 export * from './Button';
