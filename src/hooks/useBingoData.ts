@@ -24,7 +24,7 @@ export const useBingoData = ({
     null
   );
 
-  const getData = useCallback(async () => {
+  const getData = useCallback(async (): Promise<void> => {
     if (!isFocused) {
       return;
     }
@@ -63,7 +63,10 @@ export const useBingoData = ({
           setBingoCardsData(_cardData);
         }
       } else {
-        const data = await getProgress(selectedChallenge?.id as string);
+        const data = await getProgress(
+          selectedChallenge?.id as string,
+          selectedWeek
+        );
 
         if (!data?.current_progress) {
           setShowWelcomeModal(true);
@@ -108,7 +111,13 @@ export const useBingoData = ({
       return;
     }
     getData();
-  }, [getData, showWelcomeModal, selectedChallenge, isFocused]);
+  }, [
+    getData,
+    showWelcomeModal,
+    selectedChallenge?.id,
+    selectedWeek,
+    isFocused,
+  ]);
 
   const refreshDataSilent = useCallback(async () => {
     if (!isFocused) {
@@ -149,7 +158,10 @@ export const useBingoData = ({
         setCurrentWeekStatus(status || null);
         return status;
       } else {
-        const data = await getProgress(selectedChallenge?.id as string);
+        const data = await getProgress(
+          selectedChallenge?.id as string,
+          selectedWeek
+        );
 
         if (!data?.current_progress) {
           setShowWelcomeModal(true);

@@ -13,6 +13,7 @@ interface BingoRowProps {
   firstCardRef?: React.RefObject<View | null>;
   allCardsChecked?: boolean;
   onAllCardsCheckedClick?: () => void;
+  disabled?: boolean;
 }
 
 const BingoRow = ({
@@ -23,6 +24,7 @@ const BingoRow = ({
   firstCardRef,
   allCardsChecked = false,
   onAllCardsCheckedClick,
+  disabled = false,
 }: BingoRowProps) => {
   const renderEmptySpace = (key: string) => (
     <View key={key} style={styles.emptySpace} />
@@ -54,6 +56,7 @@ const BingoRow = ({
               }
               allCardsChecked={allCardsChecked}
               onAllCardsCheckedClick={onAllCardsCheckedClick}
+              disabled={disabled}
             />
           </View>
         );
@@ -73,6 +76,7 @@ interface BingoBoardProps {
   boardContainerRef?: React.RefObject<View | null>;
   allCardsChecked?: boolean;
   onAllCardsCheckedClick?: () => void;
+  disabled?: boolean;
 }
 
 export const BingoBoard: React.FC<BingoBoardProps> = ({
@@ -85,6 +89,7 @@ export const BingoBoard: React.FC<BingoBoardProps> = ({
   boardContainerRef,
   allCardsChecked = false,
   onAllCardsCheckedClick,
+  disabled = false,
 }) => {
   const selectedCount = useMemo(
     () =>
@@ -134,6 +139,7 @@ export const BingoBoard: React.FC<BingoBoardProps> = ({
               firstCardRef={rowIndex === 0 ? firstCardRef : undefined}
               allCardsChecked={allCardsChecked}
               onAllCardsCheckedClick={onAllCardsCheckedClick}
+              disabled={disabled}
             />
           );
         })}

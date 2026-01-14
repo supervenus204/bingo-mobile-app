@@ -69,7 +69,33 @@ export const useChallengesStore = create<ChallengesStore>(set => ({
       const archivedChallenges = challenges.filter(
         (challenge: Challenge) => challenge.status === 'finish'
       );
-      set({ ongoingChallenges, archivedChallenges });
+
+      set(state => {
+        const updatedState: Partial<ChallengesState> = {
+          ongoingChallenges,
+          archivedChallenges,
+        };
+
+        if (state.selectedChallenge) {
+          const updatedChallenge =
+            ongoingChallenges.find(
+              (challenge: Challenge) =>
+                challenge.id === state.selectedChallenge?.id
+            ) ||
+            archivedChallenges.find(
+              (challenge: Challenge) =>
+                challenge.id === state.selectedChallenge?.id
+            );
+
+          if (updatedChallenge) {
+            updatedState.selectedChallenge = updatedChallenge;
+          } else {
+            updatedState.selectedChallenge = null;
+          }
+        }
+
+        return updatedState;
+      });
     } catch (error) {
       set({
         error:

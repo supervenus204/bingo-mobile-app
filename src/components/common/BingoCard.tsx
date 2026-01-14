@@ -10,7 +10,10 @@ import {
   View,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { playCardCheckSound, playTaskCompleteSound } from '../../services/sound.service';
+import {
+  playCardCheckSound,
+  playTaskCompleteSound,
+} from '../../services/sound.service';
 import { COLORS } from '../../theme';
 import { CustomButton } from './Button';
 
@@ -24,6 +27,7 @@ interface BingoCardProps {
   handleClick?: (status?: string) => void;
   allCardsChecked?: boolean;
   onAllCardsCheckedClick?: () => void;
+  disabled?: boolean;
 }
 
 export const BingoCard: React.FC<BingoCardProps> = ({
@@ -36,6 +40,7 @@ export const BingoCard: React.FC<BingoCardProps> = ({
   handleClick,
   allCardsChecked = false,
   onAllCardsCheckedClick,
+  disabled = false,
 }) => {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
@@ -73,16 +78,21 @@ export const BingoCard: React.FC<BingoCardProps> = ({
   const cardWrapperProps =
     mode === 'setup'
       ? {
-        onPress: handleClick ? () => handleClick() : undefined,
-        activeOpacity: 0.7,
-      }
+          onPress: disabled
+            ? undefined
+            : handleClick
+            ? () => handleClick()
+            : undefined,
+          activeOpacity: disabled ? 1 : 0.7,
+          disabled: disabled,
+        }
       : {
-        style: [
-          mode === 'mark' && {
-            transform: [{ scale: pulseAnim }],
-          },
-        ],
-      };
+          style: [
+            mode === 'mark' && {
+              transform: [{ scale: pulseAnim }],
+            },
+          ],
+        };
 
   const [showModal, setShowModal] = useState(false);
 
@@ -137,14 +147,16 @@ export const BingoCard: React.FC<BingoCardProps> = ({
             <Pressable
               style={styles.touchableArea}
               android_disableSound={true}
+              disabled={disabled}
               onPress={() => {
+                if (disabled) return;
                 if (mode === 'unmark') {
                   handleClick?.('mark');
                   playTaskCompleteSound();
                 } else if (mode === 'mark') {
                   handleClick?.('check');
                   playCardCheckSound();
-                } else if (mode === 'check' && !allCardsChecked) {
+                } else if (mode === 'check' && !allCardsChecked && !disabled) {
                   setShowModal(true);
                 } else if (mode === 'check' && allCardsChecked) {
                   onAllCardsCheckedClick?.();
@@ -225,10 +237,11 @@ export const BingoCard: React.FC<BingoCardProps> = ({
               styles.container,
               {
                 backgroundColor: mode === 'check' ? COLORS.primary.blue : color,
+                opacity: disabled ? 0.5 : 1,
               },
               mode !== 'check' &&
-              color === COLORS.primary.white &&
-              styles.blackBorder,
+                color === COLORS.primary.white &&
+                styles.blackBorder,
               mode === 'mark' && styles.markedContainer,
               mode === 'check' && styles.checkedContainer,
             ]}

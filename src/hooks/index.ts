@@ -4,6 +4,7 @@ export * from './useBingoProgress';
 export * from './useBoardSetup';
 export * from './useCards';
 export * from './useCategories';
+export * from './useChallengeUpdates';
 export * from './useFCM';
 export * from './useLeaderboard';
 export * from './useMessages';

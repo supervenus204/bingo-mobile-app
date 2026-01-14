@@ -2,12 +2,11 @@ import { API_BASE_URL } from '../constants/config';
 import { useAuthStore } from '../store/auth.store';
 import { apiFetch, parseJsonSafe } from '../utils';
 
-export const getProgress = async (challengeId: string) => {
-  const data = await apiFetch(
-    `/api/challenge/${challengeId}/progress`,
-    'GET',
-    {}
-  );
+export const getProgress = async (challengeId: string, week?: number) => {
+  const url = week
+    ? `/api/challenge/${challengeId}/progress?week=${week}`
+    : `/api/challenge/${challengeId}/progress`;
+  const data = await apiFetch(url, 'GET', {});
 
   return data;
 };

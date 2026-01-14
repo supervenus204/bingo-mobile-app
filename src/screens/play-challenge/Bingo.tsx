@@ -123,6 +123,8 @@ export const BingoScreen: React.FC<BingoScreenProps> = ({
     bingoCardsData,
     setBingoCardsData,
     isSetupMode,
+    selectedWeek,
+    currentWeek: selectedChallenge?.current_week || 1,
   });
 
   const allCardsCompleted = useMemo(() => {
@@ -139,6 +141,12 @@ export const BingoScreen: React.FC<BingoScreenProps> = ({
     const totalWeeks = selectedChallenge.duration || 12;
     return currentWeek < totalWeeks && selectedWeek === currentWeek;
   }, [allCardsCompleted, selectedChallenge, selectedWeek]);
+
+  const isFinishedWeek = useMemo(() => {
+    if (!selectedChallenge || isSetupMode) return false;
+    const currentWeek = selectedChallenge.current_week || 1;
+    return selectedWeek < currentWeek;
+  }, [selectedChallenge, selectedWeek, isSetupMode]);
 
   const getNextWeekStartDate = useMemo(() => {
     if (!isWaitingForNextWeek || !selectedChallenge?.starting_day_of_week) {
@@ -263,6 +271,7 @@ export const BingoScreen: React.FC<BingoScreenProps> = ({
             onAllCardsCheckedClick={() => {
               setShowCelebrationModal(true);
             }}
+            disabled={isFinishedWeek}
           />
           {isWaitingForNextWeek && getNextWeekStartDate && (
             <View style={styles.nextWeekCountdown}>

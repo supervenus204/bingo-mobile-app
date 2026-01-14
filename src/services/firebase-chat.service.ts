@@ -130,3 +130,22 @@ export const getUnreadMessageCount = (
   return unsubscribe;
 };
 
+export const subscribeToChallengeUpdate = (
+  challengeId: string,
+  onUpdate: (updateData: { timestamp?: number; updated_at?: string; challenge_id?: string }) => void
+): (() => void) => {
+  const db = getDatabase();
+  const updateRef = ref(db, `${MESSAGES_PATH}/${challengeId}/update`);
+
+  const unsubscribe = onValue(updateRef, (snapshot: DataSnapshot) => {
+    if (snapshot.exists()) {
+      const updateData = snapshot.val();
+      onUpdate(updateData || {});
+    }
+  }, (error) => {
+    // Continue even if there's an error
+  });
+
+  return unsubscribe;
+};
+

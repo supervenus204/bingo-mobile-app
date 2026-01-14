@@ -8,12 +8,16 @@ interface UseBingoProgressProps {
   bingoCardsData: BingoCard[];
   setBingoCardsData: React.Dispatch<React.SetStateAction<BingoCard[]>>;
   isSetupMode: boolean;
+  selectedWeek: number;
+  currentWeek: number;
 }
 
 export const useBingoProgress = ({
   bingoCardsData,
   setBingoCardsData,
   isSetupMode,
+  selectedWeek,
+  currentWeek,
 }: UseBingoProgressProps) => {
   const { selectedChallenge } = useChallengesStore();
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -26,6 +30,10 @@ export const useBingoProgress = ({
   } | null>(null);
 
   const handleClick = async (cardId: number, status?: string) => {
+    if (!isSetupMode && selectedWeek < currentWeek) {
+      return;
+    }
+
     if (isSetupMode) {
       const currentTotal = bingoCardsData.reduce(
         (acc, card) => acc + card.count,
@@ -104,6 +112,7 @@ export const useBingoProgress = ({
 
   const handleConfirmCompletion = async () => {
     if (!pendingCardUpdate) return;
+    if (!isSetupMode && selectedWeek < currentWeek) return;
 
     try {
       const { current_progress } = await updateProgress(

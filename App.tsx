@@ -10,7 +10,7 @@ import { StripeProvider } from '@stripe/stripe-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { STRIPE_PUBLISHABLE_KEY } from './src/constants/config';
-import { useFCM, useNotificationHandler } from './src/hooks';
+import { useChallengeUpdates, useFCM, useNotificationHandler } from './src/hooks';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { ToastProvider } from './src/provider';
 import { preloadSounds } from './src/services/sound.service';
@@ -23,6 +23,7 @@ if (__DEV__) {
 function AppContent(): React.JSX.Element {
   useFCM();
   useNotificationHandler();
+  useChallengeUpdates();
 
   React.useEffect(() => {
     preloadSounds();
