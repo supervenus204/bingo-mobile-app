@@ -41,8 +41,8 @@ let completeCardSound: SoundInstance | null = null;
 let soundsInitialized = false;
 let isInitializing = false;
 
-// Android sound file name mapping (files must be in res/raw/ with lowercase names)
-const androidSoundMap: Record<string, string> = {
+// Sound file name mapping
+const soundFileMap: Record<string, string> = {
   'Task Complete/ES_Bubble Effect 04 - Epidemic Sound.mp3': 'task_complete_bubble',
   'Task Complete/ES_Button Press Click, Tap, Video Game, Main Menu, Select, Positive 02 - Epidemic Sound.mp3': 'task_complete_button',
   'Task Complete/ES_Mouth, Finger 02 - Epidemic Sound.mp3': 'task_complete_mouth',
@@ -54,36 +54,20 @@ const androidSoundMap: Record<string, string> = {
 };
 
 const getSoundPath = (relativePath: string): string | number => {
-  if (Platform.OS === 'android') {
-    const androidName = androidSoundMap[relativePath];
-    if (!androidName) {
-      if (__DEV__) {
-        console.warn(`[Sound] Android mapping not found for: ${relativePath}`);
-      }
-      return relativePath.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase().replace(/\.(mp3|wav)$/, '');
-    }
-    return androidName;
-  }
-
-  const pathMap: Record<string, any> = {
-    'Task Complete/ES_Bubble Effect 04 - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_Bubble Effect 04 - Epidemic Sound.mp3'),
-    'Task Complete/ES_Button Press Click, Tap, Video Game, Main Menu, Select, Positive 02 - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_Button Press Click, Tap, Video Game, Main Menu, Select, Positive 02 - Epidemic Sound.mp3'),
-    'Task Complete/ES_Mouth, Finger 02 - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_Mouth, Finger 02 - Epidemic Sound.mp3'),
-    'Task Complete/ES_Pull Out, Release, Plop - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_Pull Out, Release, Plop - Epidemic Sound.mp3'),
-    'Task Complete/ES_UI Buttons, Bubbly, Option - Epidemic Sound.mp3': require('../assets/sounds/Task Complete/ES_UI Buttons, Bubbly, Option - Epidemic Sound.mp3'),
-    'Start of New Board _ New Week/ES_Holy, Event, Chord - Epidemic Sound.mp3': require('../assets/sounds/Start of New Board _ New Week/ES_Holy, Event, Chord - Epidemic Sound.mp3'),
-    'Just joined \'Let\'s Go\'/ES_Motion, Graphic, Slide, Interaction, Bright Chord, Warm 04 - Epidemic Sound.mp3': require('../assets/sounds/Just joined \'Let\'s Go\'/ES_Motion, Graphic, Slide, Interaction, Bright Chord, Warm 04 - Epidemic Sound.mp3'),
-    'Complete Bingo Card Congratulations or Leaderboard/ES_Motion, Game, Jingle, Positive, Event, Chord - Epidemic Sound.mp3': require('../assets/sounds/Complete Bingo Card Congratulations or Leaderboard/ES_Motion, Game, Jingle, Positive, Event, Chord - Epidemic Sound.mp3'),
-  };
-
-  const path = pathMap[relativePath];
-  if (!path) {
+  const mappedName = soundFileMap[relativePath];
+  if (!mappedName) {
     if (__DEV__) {
-      console.error(`[Sound] Unknown sound file: ${relativePath}`);
+      console.warn(`[Sound] Sound mapping not found for: ${relativePath}`);
     }
-    throw new Error(`Unknown sound file: ${relativePath}`);
+    const fallback = relativePath.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase().replace(/\.(mp3|wav)$/, '');
+    return Platform.OS === 'android' ? fallback : `${fallback}.mp3`;
   }
-  return path;
+
+  if (Platform.OS === 'android') {
+    return mappedName;
+  }
+
+  return `${mappedName}.mp3`;
 };
 
 const initializeSounds = (callback?: () => void) => {
